@@ -10,6 +10,7 @@
 <link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAYAAAA9zQYyAAAE+klEQVR4nO3dS1LcShCF4WyCbfSQPXmJXhMMvRA8oQgh1GqplPXIk/83dcRFj78PdbEdvr2/3W2wz9EXAHe3UV/4dcDXJGB963fcLfBeQRNxbsv33zTu1kETMtZKE03CbhU0IeOZJmF7B03IOMs1bK+gCRlXuYT94nghgIdLPV0NmpjRQnVXtUcOQkZrVUeQmoUmZvR0qrezQRMzRjjc3ZmgiRkjHervaNDEjBk87dDjx3bANI4EzTpjJrs9PguamDGjh13uBU3MmNlmn5yhIeVR0KwzIvjVKQsNKVtBs86I5EevLDSkrINmnRHRd7csNKQsg2adEdmnGQsNMQQNKSVojhtQ8MlCQwpBQwpBQ8qLcX6GEBYaUggaUggaUggaUggaUgi6k7e//0ZfQgoEDSkE3UFZZ1a6PYKGFIJujFXui6A7I/C2CBpSCLoh1rg/gh6A0NshaEgh6EaerTAr3QZBQwpBN8D6jkPQAxG+P4KGFIJ2xuqORdCD8QHwRdCQQtCOWNvxCHoCfBD8ELQTopwDQUMKQU+ChfdB0A6IcR4EDSkEfZHnOrP01xE0pBD0ZFjpawj6AuKbD0FDCkFPiOWvR9CViG5OBA0pBF2hxzrzHaAOQUPK7f3tPvU/vMlSzeXjz330JeyafqFnf4CZRHgX0y/0Ems9RoSQi+kXeinSg1UR7ZmHCtos3gOOLOKzDhe0WcwHHU3UZxzqDL2Fc7WvqCEXIRd6KfoLmInCswwftJnGixhN5RlKBG2m80JGUHp24c/QWzhXH6MUciGz0EuKL8qb6jOSDNpM94V5UH42skGbab+4WurPRPIMvSX7uVo95EJ6oZeyvNAtme49TdBmuV5ske2eUwVtlusFZ7rXIs0ZeovquTpjyEW6hV5SfPGK93RG6qDNtAJQupda6YM20whB4R48pD5Db4l2ribkn1jolUiBRLrWXggaUgh6JdKRI9K19kLQkELQkELQkELQCxHPpBGvuSWChhSChhSChhSC/hL5LBr52r0RNKQQNKQQtGl8y1a4Bw8EDSkEDSkEDSnp/8ZKj7Pn8g/it/562f/QPwvd2Dqw7MG19jr6AlTthVt+jZ9M+Eu90K2COrrCLdY6+4eEhXZUEyhr7Sv1Qnu6uracrX2w0Bd5hshaX5d2oT2iabWqV/+7mT8QLHSFHscD1rpO2oWu8fHn3v2sy9n6HII+aGRYIz5IUaX8re8z38ZnCynytffAQu+YMQjWeh9Bb4gQzezXN0q6I8ezb9kRQ9m7p4j3cwUL/SXCKj8S9bpbIGjTCCLyB9JT6qAVI1C7n7NSnaGXZ80ML77cb4Z7LdIttOIqP5LlPpdSLTT0pVtoaCNoSCFoSCFoSCFoSCFoSCFoSCFoSCFoSCFoSCFoSCFoSCFoSCFoSCFoSHkxs9voiwC8sNCQQtCQQtCQUoLmHA0FNxYaUggaUpZBc+xAZDczFhpi1kGz0ojou1sWGlK2gmalEcmPXlloSHkUNCuNCH51ykJDyl7QrDRmttnns4UmaszoYZdHjhxEjZns9sgZGlKOBs1KYwZPOzyz0ESNkQ71d/bIQdQY4XB3NWdookZPp3p7vfhF+Cfh0ErVcF79KQdrjRaqu/L4sR1Rw9OlnmqPHI8ugiMIarkMo1fQBWHjLNfv8N5BF4SNZ5ocVVsFXRA21pr+P1froIvlTRB3Pt1+cPAfBEQi7O8e2W4AAAAASUVORK5CYII=">
 <style>
 :root{
+  --fs:1;
   --bg:#0f1117;--bg2:#1a1d27;--bg3:#22263a;--border:#2e3250;
   --text:#f0f2ff;--text2:#8b90b8;--text3:#555a7a;
   --teal:#1D9E75;--teal2:#0F6E56;
@@ -64,26 +65,24 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,sans-serif
 #wordType{display:none;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600;letter-spacing:0.4px;margin-bottom:5px;}
 .type-noun{background:#1a2a4a;color:#85B7EB;}
 .type-verb{background:#1a3a2a;color:#5DCAA5;}
-#frontSentVN{font-size:20px;line-height:1.6;color:var(--text);}
+#frontSentVN{font-size:calc(20px * var(--fs));line-height:1.6;color:var(--text);}
 #frontSentVN b{color:var(--amber);}
-#frontEngWord{font-size:24px;font-weight:600;color:var(--text);line-height:1.3;}
-#frontEngSent{font-size:16px;color:var(--text2);margin-top:4px;line-height:1.5;}
+#frontEngWord{font-size:calc(24px * var(--fs));font-weight:600;color:var(--text);line-height:1.3;}
+#frontEngSent{font-size:calc(16px * var(--fs));color:var(--text2);margin-top:4px;line-height:1.5;}
 #frontEngSent b{color:var(--amber);}
 #tapHint{font-size:11px;color:var(--text3);margin-top:8px;}
 
 /* CARD BACK (shown after Show) */
 #cardBack{display:none;}
 .hl{background:rgba(239,159,39,0.25);border-radius:3px;color:var(--amber);}
-#backVN{font-size:21px;line-height:1.6;color:var(--text);margin-bottom:6px;font-weight:500;}
+#backVN{font-size:calc(21px * var(--fs));line-height:1.6;color:var(--text);margin-bottom:6px;font-weight:500;}
 #backVN b{color:var(--amber);}
-#backEN{font-size:15px;line-height:1.5;color:var(--cyan);margin-bottom:4px;}
+#backEN{font-size:calc(15px * var(--fs));line-height:1.5;color:var(--cyan);margin-bottom:4px;}
 #backEN b{color:var(--amber);}
 #backTapHint{font-size:11px;color:var(--text3);margin-top:6px;}
 
 /* BREAKDOWN PANEL */
-#breakdownPanel{background:var(--bg3);border-radius:var(--r10);border:0.5px solid var(--border);padding:10px 12px;margin-bottom:10px;display:none;text-align:left;}
-#breakdownText{font-size:13px;color:#f0f2ff;line-height:1.8;}
-#breakdownText b{color:var(--amber);}
+
 
 /* MNEMONIC */
 #mnemonicBlock{background:var(--bg3);border-radius:var(--r10);border:0.5px solid var(--border);padding:10px 12px;margin-bottom:10px;display:none;}
@@ -173,6 +172,7 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,sans-serif
     <div id="appTitle">VietPics 🇻🇳</div>
     <div class="icon-btn" id="modeBtn" onclick="toggleMode()">Vn→En</div>
     <div class="icon-btn" id="shuffleBtn" onclick="doShuffle()">🔀</div>
+    <div class="icon-btn" id="fontBtn" onclick="cycleFont()" style="font-weight:700;letter-spacing:-1px;">A±</div>
   </div>
   <div id="filterBar"></div>
 
@@ -200,6 +200,7 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,sans-serif
         <div id="cardBack">
           <div id="backVN"></div>
           <div id="backEN"></div>
+          <div id="backBrk" style="display:none;margin-top:10px;padding-top:10px;border-top:0.5px solid rgba(255,255,255,0.12);font-size:calc(13px * var(--fs));line-height:1.9;text-align:left;"></div>
           <div id="backTapHint">Tap to hear again</div>
         </div>
       </div>
@@ -211,7 +212,6 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,sans-serif
     </div>
 
     <!-- BREAKDOWN + MNEMONIC PANELS -->
-    <div id="breakdownPanel"><div id="breakdownText"></div></div>
     <div id="mnemonicBlock">
       <div id="mnemonicLabel">💭 My memory hint</div>
       <div id="mnemonicSaved"></div>
@@ -417,13 +417,13 @@ const DW=[
 
 // STATE
 let words=[], settings={type:true}, mnemonics={};
-let curCat='All words', curTypeFilter='all', mode='vn-en', speechRate=0.85;
+let curCat='All words', curTypeFilter='all', mode='vn-en', speechRate=0.85, fsIdx=1;
 let sessionCount=0, queue=[], qIdx=0, answered=false;
 let cardFlipped=false, showingHint=false, showingMnemonic=false, showingBreakdown=false, brkAutoOn=false;
 let revertSecs=0, revertTimer=null;
 let missedIds=[], sessionMissed=[];
 
-function save(){try{localStorage.setItem(SK,JSON.stringify({words,settings,mnemonics,sessionCount,curCat,curTypeFilter,mode,speechRate,revertSecs}));}catch(e){}}
+function save(){try{localStorage.setItem(SK,JSON.stringify({words,settings,mnemonics,sessionCount,curCat,curTypeFilter,mode,speechRate,revertSecs,fsIdx}));}catch(e){}}
 function load(){
   try{
     var d=JSON.parse(localStorage.getItem(SK)||'null');
@@ -437,6 +437,7 @@ function load(){
       if(d.speechRate)speechRate=d.speechRate;
       if(d.revertSecs!=null)revertSecs=d.revertSecs;
       if(d.curTypeFilter)curTypeFilter=d.curTypeFilter;
+      if(d.fsIdx!=null)fsIdx=d.fsIdx;
     } else {
       words=DW.map(function(w){return Object.assign({},w);});
     }
@@ -464,42 +465,56 @@ function buildQueue(){
 function speak(text,highlightEl){
   if(!window.speechSynthesis)return;
   window.speechSynthesis.cancel();
-  // clear any existing highlights
-  if(highlightEl){
-    var raw=highlightEl.getAttribute('data-raw')||highlightEl.innerHTML;
-    highlightEl.setAttribute('data-raw',raw);
-  }
   var u=new SpeechSynthesisUtterance(text);
   u.lang='vi-VN';u.rate=speechRate;
   if(highlightEl){
-    // build word spans for highlighting
-    var raw=highlightEl.getAttribute('data-raw')||highlightEl.innerHTML;
-    // split on spaces preserving HTML tags
-    var plainText=raw.replace(/<[^>]+>/g,'');
-    var words=plainText.split(/\s+/).filter(Boolean);
-    var highlighted=raw;
-    // wrap each word in a span — we use boundary events
+    // Store original HTML once
+    if(!highlightEl.getAttribute('data-raw')){
+      highlightEl.setAttribute('data-raw',highlightEl.innerHTML);
+    }
+    // Pre-build word spans from plain text, preserving <b> tags
+    var raw=highlightEl.getAttribute('data-raw');
+    // Split plain text into words with their char positions in the spoken text
+    var plain=text;
+    var wordPositions=[]; // {start, end, word}
+    var wRe=/\S+/g, wm;
+    while((wm=wRe.exec(plain))!==null){
+      wordPositions.push({start:wm.index,end:wm.index+wm[0].length,word:wm[0]});
+    }
     u.onboundary=function(ev){
       if(ev.name!=='word')return;
       var charIdx=ev.charIndex;
-      var wordLen=ev.charLength||text.substr(charIdx).split(/\s/)[0].length;
-      var word=text.substr(charIdx,wordLen);
-      // highlight matching word in element
-      var inner=highlightEl.getAttribute('data-raw')||'';
-      // remove previous highlight
-      inner=inner.replace(/<span class="hl"[^>]*>(.*?)<\/span>/g,'$1');
-      // find and wrap first match
-      var re=new RegExp('((?:^|(?<=[\\s>]))'+word.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'(?=[\\s<]|$))');
-      inner=inner.replace(re,'<span class="hl">$1</span>');
+      var wordLen=ev.charLength||plain.substr(charIdx).split(/\s/)[0].length;
+      var word=plain.substr(charIdx,wordLen);
+      if(!word)return;
+      // Rebuild HTML: find word in raw, wrap with hl span
+      // Strip existing hl spans first
+      var inner=raw.replace(/<span class="hl"[^>]*>([\s\S]*?)<\/span>/g,'$1');
+      // Find first occurrence of this word as a token (simple indexOf, no lookbehind)
+      var wi=inner.indexOf(word);
+      if(wi>=0){
+        // Check it's not inside a tag
+        var before=inner.slice(0,wi);
+        var openTags=(before.match(/</g)||[]).length;
+        var closeTags=(before.match(/>/g)||[]).length;
+        if(openTags===closeTags){
+          inner=inner.slice(0,wi)+'<span class="hl">'+word+'</span>'+inner.slice(wi+word.length);
+        }
+      }
       highlightEl.innerHTML=inner;
     };
     u.onend=function(){
-      var raw2=highlightEl.getAttribute('data-raw')||'';
-      highlightEl.innerHTML=raw2.replace(/<span class="hl"[^>]*>(.*?)<\/span>/g,'$1');
+      highlightEl.innerHTML=raw;
+      highlightEl.removeAttribute('data-raw');
+    };
+    u.onerror=function(){
+      highlightEl.innerHTML=raw;
+      highlightEl.removeAttribute('data-raw');
     };
   }
   window.speechSynthesis.speak(u);
 }
+
 function speakEn(text){
   if(!window.speechSynthesis)return;
   window.speechSynthesis.cancel();
@@ -514,11 +529,11 @@ function formatBrk(brk){
   return brk.split(';').map(function(seg){
     seg=seg.trim();
     var dash=seg.indexOf('–');
-    if(dash<0)return '<span style="color:var(--text2)">'+seg+'</span>';
+    if(dash<0)return '<span style="color:#fff">'+seg+'</span>';
     var viet=seg.slice(0,dash).trim();
     var meaning=seg.slice(dash+1).trim();
-    return '<b>'+viet+'</b><span style="color:var(--text2)">–'+meaning+'</span>';
-  }).join('<span style="color:var(--text3)">;&nbsp;</span>');
+    return '<span style="color:var(--amber);font-weight:600;">'+viet+'</span><span style="color:rgba(255,255,255,0.5)">–</span><span style="color:#fff">'+meaning+'</span>';
+  }).join('<span style="color:rgba(255,255,255,0.25);">&nbsp;·&nbsp;</span>');
 }
 
 // FILTER BAR
@@ -551,7 +566,8 @@ function renderFilterBar(){
 // MODE TOGGLE
 function toggleMode(){
   mode=mode==='vn-en'?'en-vn':'vn-en';
-  document.getElementById('modeBtn').textContent=mode==='vn-en'?'Vn→En':'En→Vn';
+  applyFont();
+document.getElementById('modeBtn').textContent=mode==='vn-en'?'Vn→En':'En→Vn';
   save();buildQueue();renderQuiz();
 }
 
@@ -569,8 +585,7 @@ function renderQuiz(){
   var sb=document.getElementById('showBtn');sb.textContent='Show →';sb.classList.remove('shown');sb.onclick=showAnswer;
   document.getElementById('cardFront').style.display='block';
   document.getElementById('cardBack').style.display='none';
-  // reset breakdown panel — will re-show after Show if brkAutoOn
-  document.getElementById('breakdownPanel').style.display='none';
+  document.getElementById('backBrk').style.display='none';
   if(!brkAutoOn)document.getElementById('breakdownBtn').classList.remove('on');
   clearTimeout(revertTimer);
 
@@ -636,8 +651,9 @@ function renderQuiz(){
   document.getElementById('nextBtn').style.display='none';
   // show breakdown immediately if Auto ON
   if(brkAutoOn&&w.brk){
-    document.getElementById('breakdownText').innerHTML=formatBrk(w.brk);
-    document.getElementById('breakdownPanel').style.display='block';
+    var bb=document.getElementById('backBrk');
+    bb.innerHTML=formatBrk(w.brk);
+    bb.style.display='block';
     document.getElementById('breakdownBtn').classList.add('on');
   }
 
@@ -698,8 +714,9 @@ function showAnswer(){
   sb.onclick=function(){speak(stripTags(w.sentVN)||w.viet,document.getElementById('backVN'));};
 
   if((showingBreakdown||brkAutoOn)&&w.brk){
-    document.getElementById('breakdownText').innerHTML=formatBrk(w.brk);
-    document.getElementById('breakdownPanel').style.display='block';
+    var bb=document.getElementById('backBrk');
+    bb.innerHTML=formatBrk(w.brk);
+    bb.style.display='block';
   }
   startRevertTimer(w);
 }
@@ -719,11 +736,12 @@ function toggleBreakdown(){
   showingBreakdown=!showingBreakdown;
   document.getElementById('breakdownBtn').classList.toggle('on',showingBreakdown);
   var w=queue[qIdx];
+  var bb=document.getElementById('backBrk');
   if(showingBreakdown&&w&&w.brk){
-    document.getElementById('breakdownText').innerHTML=formatBrk(w.brk);
-    document.getElementById('breakdownPanel').style.display='block';
+    bb.innerHTML=formatBrk(w.brk);
+    bb.style.display='block';
   } else {
-    document.getElementById('breakdownPanel').style.display='none';
+    bb.style.display='none';
   }
 }
 
@@ -754,7 +772,7 @@ function startRevertTimer(w){
     document.getElementById('showBtn').textContent='Show →';
     document.getElementById('showBtn').classList.remove('shown');
     document.getElementById('showBtn').onclick=showAnswer;
-    document.getElementById('breakdownPanel').style.display='none';
+    document.getElementById('backBrk').style.display='none';
   },revertSecs*1000);
 }
 
@@ -970,8 +988,22 @@ function toast(msg){
   clearTimeout(t._t);t._t=setTimeout(function(){t.style.opacity='0';},2200);
 }
 
+// FONT SIZE
+var FS_STEPS=[0.82,1,1.2,1.42];
+var FS_LABELS=['A−','A','A+','A++'];
+function cycleFont(){
+  fsIdx=(fsIdx+1)%FS_STEPS.length;
+  applyFont();
+  save();
+}
+function applyFont(){
+  document.documentElement.style.setProperty('--fs',FS_STEPS[fsIdx]);
+  document.getElementById('fontBtn').textContent=FS_LABELS[fsIdx];
+}
+
 // INIT
 load();
+applyFont();
 document.getElementById('modeBtn').textContent=mode==='vn-en'?'Vn→En':'En→Vn';
 document.getElementById('brkAutoBtn').innerHTML='Auto<br>OFF';
 renderFilterBar();buildQueue();renderQuiz();

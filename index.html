@@ -7,6 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="VietPics">
 <title>VietPics</title>
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAYAAAA9zQYyAAAE+klEQVR4nO3dS1LcShCF4WyCbfSQPXmJXhMMvRA8oQgh1GqplPXIk/83dcRFj78PdbEdvr2/3W2wz9EXAHe3UV/4dcDXJGB963fcLfBeQRNxbsv33zTu1kETMtZKE03CbhU0IeOZJmF7B03IOMs1bK+gCRlXuYT94nghgIdLPV0NmpjRQnVXtUcOQkZrVUeQmoUmZvR0qrezQRMzRjjc3ZmgiRkjHervaNDEjBk87dDjx3bANI4EzTpjJrs9PguamDGjh13uBU3MmNlmn5yhIeVR0KwzIvjVKQsNKVtBs86I5EevLDSkrINmnRHRd7csNKQsg2adEdmnGQsNMQQNKSVojhtQ8MlCQwpBQwpBQ8qLcX6GEBYaUggaUggaUggaUggaUgi6k7e//0ZfQgoEDSkE3UFZZ1a6PYKGFIJujFXui6A7I/C2CBpSCLoh1rg/gh6A0NshaEgh6EaerTAr3QZBQwpBN8D6jkPQAxG+P4KGFIJ2xuqORdCD8QHwRdCQQtCOWNvxCHoCfBD8ELQTopwDQUMKQU+ChfdB0A6IcR4EDSkEfZHnOrP01xE0pBD0ZFjpawj6AuKbD0FDCkFPiOWvR9CViG5OBA0pBF2hxzrzHaAOQUPK7f3tPvU/vMlSzeXjz330JeyafqFnf4CZRHgX0y/0Ems9RoSQi+kXeinSg1UR7ZmHCtos3gOOLOKzDhe0WcwHHU3UZxzqDL2Fc7WvqCEXIRd6KfoLmInCswwftJnGixhN5RlKBG2m80JGUHp24c/QWzhXH6MUciGz0EuKL8qb6jOSDNpM94V5UH42skGbab+4WurPRPIMvSX7uVo95EJ6oZeyvNAtme49TdBmuV5ske2eUwVtlusFZ7rXIs0ZeovquTpjyEW6hV5SfPGK93RG6qDNtAJQupda6YM20whB4R48pD5Db4l2ribkn1jolUiBRLrWXggaUgh6JdKRI9K19kLQkELQkELQkELQCxHPpBGvuSWChhSChhSChhSC/hL5LBr52r0RNKQQNKQQtGl8y1a4Bw8EDSkEDSkEDSnp/8ZKj7Pn8g/it/562f/QPwvd2Dqw7MG19jr6AlTthVt+jZ9M+Eu90K2COrrCLdY6+4eEhXZUEyhr7Sv1Qnu6uracrX2w0Bd5hshaX5d2oT2iabWqV/+7mT8QLHSFHscD1rpO2oWu8fHn3v2sy9n6HII+aGRYIz5IUaX8re8z38ZnCynytffAQu+YMQjWeh9Bb4gQzezXN0q6I8ezb9kRQ9m7p4j3cwUL/SXCKj8S9bpbIGjTCCLyB9JT6qAVI1C7n7NSnaGXZ80ML77cb4Z7LdIttOIqP5LlPpdSLTT0pVtoaCNoSCFoSCFoSCFoSCFoSCFoSCFoSCFoSCFoSCFoSCFoSCFoSCFoSCFoSHkxs9voiwC8sNCQQtCQQtCQUoLmHA0FNxYaUggaUpZBc+xAZDczFhpi1kGz0ojou1sWGlK2gmalEcmPXlloSHkUNCuNCH51ykJDyl7QrDRmttnns4UmaszoYZdHjhxEjZns9sgZGlKOBs1KYwZPOzyz0ESNkQ71d/bIQdQY4XB3NWdookZPp3p7vfhF+Cfh0ErVcF79KQdrjRaqu/L4sR1Rw9OlnmqPHI8ugiMIarkMo1fQBWHjLNfv8N5BF4SNZ5ocVVsFXRA21pr+P1froIvlTRB3Pt1+cPAfBEQi7O8e2W4AAAAASUVORK5CYII=">
 <style>
 :root{
   --bg:#0f1117;--bg2:#1a1d27;--bg3:#22263a;--border:#2e3250;
@@ -63,24 +64,25 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,sans-serif
 #wordType{display:none;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600;letter-spacing:0.4px;margin-bottom:5px;}
 .type-noun{background:#1a2a4a;color:#85B7EB;}
 .type-verb{background:#1a3a2a;color:#5DCAA5;}
-#frontSentVN{font-size:15px;line-height:1.6;color:var(--text);}
+#frontSentVN{font-size:20px;line-height:1.6;color:var(--text);}
 #frontSentVN b{color:var(--amber);}
-#frontEngWord{font-size:22px;font-weight:600;color:var(--text);line-height:1.3;}
-#frontEngSent{font-size:14px;color:var(--text2);margin-top:4px;line-height:1.5;}
+#frontEngWord{font-size:24px;font-weight:600;color:var(--text);line-height:1.3;}
+#frontEngSent{font-size:16px;color:var(--text2);margin-top:4px;line-height:1.5;}
 #frontEngSent b{color:var(--amber);}
 #tapHint{font-size:11px;color:var(--text3);margin-top:8px;}
 
 /* CARD BACK (shown after Show) */
 #cardBack{display:none;}
-#backVN{font-size:19px;line-height:1.6;color:var(--text);margin-bottom:6px;font-weight:500;}
+.hl{background:rgba(239,159,39,0.25);border-radius:3px;color:var(--amber);}
+#backVN{font-size:21px;line-height:1.6;color:var(--text);margin-bottom:6px;font-weight:500;}
 #backVN b{color:var(--amber);}
-#backEN{font-size:13px;line-height:1.5;color:var(--cyan);margin-bottom:4px;}
+#backEN{font-size:15px;line-height:1.5;color:var(--cyan);margin-bottom:4px;}
 #backEN b{color:var(--amber);}
 #backTapHint{font-size:11px;color:var(--text3);margin-top:6px;}
 
 /* BREAKDOWN PANEL */
 #breakdownPanel{background:var(--bg3);border-radius:var(--r10);border:0.5px solid var(--border);padding:10px 12px;margin-bottom:10px;display:none;text-align:left;}
-#breakdownText{font-size:13px;color:var(--text2);line-height:1.8;}
+#breakdownText{font-size:13px;color:#f0f2ff;line-height:1.8;}
 #breakdownText b{color:var(--amber);}
 
 /* MNEMONIC */
@@ -415,13 +417,13 @@ const DW=[
 
 // STATE
 let words=[], settings={type:true}, mnemonics={};
-let curCat='All words', mode='vn-en', speechRate=0.85;
+let curCat='All words', curTypeFilter='all', mode='vn-en', speechRate=0.85;
 let sessionCount=0, queue=[], qIdx=0, answered=false;
 let cardFlipped=false, showingHint=false, showingMnemonic=false, showingBreakdown=false, brkAutoOn=false;
 let revertSecs=0, revertTimer=null;
 let missedIds=[], sessionMissed=[];
 
-function save(){try{localStorage.setItem(SK,JSON.stringify({words,settings,mnemonics,sessionCount,curCat,mode,speechRate,revertSecs}));}catch(e){}}
+function save(){try{localStorage.setItem(SK,JSON.stringify({words,settings,mnemonics,sessionCount,curCat,curTypeFilter,mode,speechRate,revertSecs}));}catch(e){}}
 function load(){
   try{
     var d=JSON.parse(localStorage.getItem(SK)||'null');
@@ -434,6 +436,7 @@ function load(){
       if(d.mode)mode=d.mode;
       if(d.speechRate)speechRate=d.speechRate;
       if(d.revertSecs!=null)revertSecs=d.revertSecs;
+      if(d.curTypeFilter)curTypeFilter=d.curTypeFilter;
     } else {
       words=DW.map(function(w){return Object.assign({},w);});
     }
@@ -446,7 +449,11 @@ function getCats(){
   words.forEach(function(w){if(w.cat&&!seen[w.cat]){seen[w.cat]=1;out.push(w.cat);}});
   return out;
 }
-function catWords(){return curCat==='All words'?words:words.filter(function(w){return w.cat===curCat;});}
+function catWords(){
+  var base=curCat==='All words'?words:words.filter(function(w){return w.cat===curCat;});
+  if(curTypeFilter!=='all')base=base.filter(function(w){return w.type===curTypeFilter;});
+  return base;
+}
 function isDue(w){return sessionCount>=(w.nr+(BOX_INT[w.box]||0));}
 function buildQueue(){
   var due=catWords().filter(isDue);
@@ -454,11 +461,44 @@ function buildQueue(){
   if(!due.length)due=catWords().slice().sort(function(){return Math.random()-0.5;});
   queue=due;qIdx=0;
 }
-function speak(text){
+function speak(text,highlightEl){
   if(!window.speechSynthesis)return;
   window.speechSynthesis.cancel();
+  // clear any existing highlights
+  if(highlightEl){
+    var raw=highlightEl.getAttribute('data-raw')||highlightEl.innerHTML;
+    highlightEl.setAttribute('data-raw',raw);
+  }
   var u=new SpeechSynthesisUtterance(text);
-  u.lang='vi-VN';u.rate=speechRate;window.speechSynthesis.speak(u);
+  u.lang='vi-VN';u.rate=speechRate;
+  if(highlightEl){
+    // build word spans for highlighting
+    var raw=highlightEl.getAttribute('data-raw')||highlightEl.innerHTML;
+    // split on spaces preserving HTML tags
+    var plainText=raw.replace(/<[^>]+>/g,'');
+    var words=plainText.split(/\s+/).filter(Boolean);
+    var highlighted=raw;
+    // wrap each word in a span — we use boundary events
+    u.onboundary=function(ev){
+      if(ev.name!=='word')return;
+      var charIdx=ev.charIndex;
+      var wordLen=ev.charLength||text.substr(charIdx).split(/\s/)[0].length;
+      var word=text.substr(charIdx,wordLen);
+      // highlight matching word in element
+      var inner=highlightEl.getAttribute('data-raw')||'';
+      // remove previous highlight
+      inner=inner.replace(/<span class="hl"[^>]*>(.*?)<\/span>/g,'$1');
+      // find and wrap first match
+      var re=new RegExp('((?:^|(?<=[\\s>]))'+word.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'(?=[\\s<]|$))');
+      inner=inner.replace(re,'<span class="hl">$1</span>');
+      highlightEl.innerHTML=inner;
+    };
+    u.onend=function(){
+      var raw2=highlightEl.getAttribute('data-raw')||'';
+      highlightEl.innerHTML=raw2.replace(/<span class="hl"[^>]*>(.*?)<\/span>/g,'$1');
+    };
+  }
+  window.speechSynthesis.speak(u);
 }
 function speakEn(text){
   if(!window.speechSynthesis)return;
@@ -484,11 +524,25 @@ function formatBrk(brk){
 // FILTER BAR
 function renderFilterBar(){
   var bar=document.getElementById('filterBar');bar.innerHTML='';
+  // Type filter chips first
+  var types=[{k:'all',label:'All'},{k:'noun',label:'Nouns'},{k:'verb',label:'Verbs'}];
+  types.forEach(function(t){
+    var el=document.createElement('div');
+    var cnt=t.k==='all'?words.length:words.filter(function(w){return w.type===t.k;}).length;
+    el.className='chip'+(curTypeFilter===t.k?' active':'');
+    el.style.borderColor=t.k==='noun'?'#378ADD':t.k==='verb'?'#1D9E75':'';
+    el.textContent=t.label+' ('+cnt+')';
+    el.onclick=function(){curTypeFilter=t.k;renderFilterBar();buildQueue();renderQuiz();save();};
+    bar.appendChild(el);
+  });
+  // separator
+  var sep=document.createElement('div');sep.style.cssText='width:1px;background:var(--border);margin:0 2px;flex-shrink:0;';bar.appendChild(sep);
+  // Category chips
   getCats().forEach(function(c){
     var el=document.createElement('div');
     el.className='chip'+(c===curCat?' active':'');
     var cnt=c==='All words'?words.length:words.filter(function(w){return w.cat===c;}).length;
-    el.textContent=(c==='All words'?'All':c)+' ('+cnt+')';
+    el.textContent=(c==='All words'?'All cats':c)+' ('+cnt+')';
     el.onclick=function(){curCat=c;renderFilterBar();buildQueue();renderQuiz();save();};
     bar.appendChild(el);
   });
@@ -506,15 +560,18 @@ function doShuffle(){buildQueue();renderQuiz();toast('Shuffled!');}
 // RENDER QUIZ
 function renderQuiz(){
   // reset panels
-  cardFlipped=false;showingHint=false;showingMnemonic=false;showingBreakdown=false;
-  document.getElementById('breakdownPanel').style.display='none';
+  cardFlipped=false;showingHint=false;showingMnemonic=false;
+  // keep showingBreakdown if brkAutoOn
+  if(!brkAutoOn)showingBreakdown=false;
   document.getElementById('mnemonicBlock').style.display='none';
-  document.getElementById('breakdownBtn').classList.remove('on');
   document.getElementById('mnemonicRbBtn').classList.remove('active-rb');
   document.getElementById('hintBtn').classList.remove('active-rb');
   var sb=document.getElementById('showBtn');sb.textContent='Show →';sb.classList.remove('shown');sb.onclick=showAnswer;
   document.getElementById('cardFront').style.display='block';
   document.getElementById('cardBack').style.display='none';
+  // reset breakdown panel — will re-show after Show if brkAutoOn
+  document.getElementById('breakdownPanel').style.display='none';
+  if(!brkAutoOn)document.getElementById('breakdownBtn').classList.remove('on');
   clearTimeout(revertTimer);
 
   if(!queue.length||qIdx>=queue.length)buildQueue();
@@ -529,7 +586,7 @@ function renderQuiz(){
     document.getElementById('nextBtn').style.display='none';
     document.getElementById('boxInfo').innerHTML='';
     document.getElementById('actionRow').style.display='none';
-    if(sessionMissed.length)document.getElementById('missedBtn').style.display='block';
+    if(sessionMissed.length){var mb=document.getElementById('missedBtn');mb.innerHTML='⭐ Review missed cards <span style="color:var(--cyan);font-weight:600;">'+sessionMissed.length+'</span>';mb.style.display='block';}
     return;
   }
   document.getElementById('actionRow').style.display='flex';
@@ -577,6 +634,12 @@ function renderQuiz(){
   document.getElementById('feedback').textContent='';
   document.getElementById('feedback').className='feedback';
   document.getElementById('nextBtn').style.display='none';
+  // show breakdown immediately if Auto ON
+  if(brkAutoOn&&w.brk){
+    document.getElementById('breakdownText').innerHTML=formatBrk(w.brk);
+    document.getElementById('breakdownPanel').style.display='block';
+    document.getElementById('breakdownBtn').classList.add('on');
+  }
 
   var pool=words.filter(function(x){return x.id!==w.id&&x.type===w.type;});
   if(pool.length<3)pool=words.filter(function(x){return x.id!==w.id;});
@@ -601,10 +664,9 @@ function renderQuiz(){
 function cardTap(){
   var w=queue[qIdx];if(!w)return;
   if(cardFlipped){
-    // on back side: always play Vietnamese sentence
-    speak(stripTags(w.sentVN)||w.viet);
+    speak(stripTags(w.sentVN)||w.viet,document.getElementById('backVN'));
   } else {
-    if(mode==='vn-en'){speak(stripTags(w.sentVN)||w.viet);}
+    if(mode==='vn-en'){speak(stripTags(w.sentVN)||w.viet,document.getElementById('frontSentVN'));}
     else{speakEn(stripTags(w.sentEN)||w.eng);}
   }
 }
@@ -628,12 +690,12 @@ function showAnswer(){
     document.getElementById('backEN').innerHTML=w.sentEN||'';
   }
 
-  speak(stripTags(w.sentVN)||w.viet);
+  speak(stripTags(w.sentVN)||w.viet,document.getElementById('backVN'));
 
   var sb=document.getElementById('showBtn');
   sb.textContent='▶ Hear again';
   sb.classList.add('shown');
-  sb.onclick=function(){speak(stripTags(w.sentVN)||w.viet);};
+  sb.onclick=function(){speak(stripTags(w.sentVN)||w.viet,document.getElementById('backVN'));};
 
   if((showingBreakdown||brkAutoOn)&&w.brk){
     document.getElementById('breakdownText').innerHTML=formatBrk(w.brk);
@@ -755,7 +817,7 @@ function pick(btn,choice,w,correct){
 function goNext(){
   clearTimeout(revertTimer);
   sessionCount++;qIdx++;save();
-  if(sessionMissed.length)document.getElementById('missedBtn').style.display='block';
+  if(sessionMissed.length){var mb=document.getElementById('missedBtn');mb.innerHTML='⭐ Review missed cards <span style="color:var(--cyan);font-weight:600;">'+sessionMissed.length+'</span>';mb.style.display='block';}
   renderQuiz();
 }
 

@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="VietPics">
+<title>VietPics</title>
+<style>
+:root{
+  --bg:#0f1117;--bg2:#1a1d27;--bg3:#22263a;--border:#2e3250;
+  --text:#f0f2ff;--text2:#8b90b8;--text3:#555a7a;
+  --teal:#1D9E75;--teal2:#0F6E56;
+  --red:#E24B4A;--amber:#EF9F27;--cyan:#5DCAA5;
+  --r16:16px;--r10:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,sans-serif;min-height:100vh;}
+#app{max-width:480px;margin:0 auto;padding:0 0 80px;}
+
+/* HEADER */
+#header{display:flex;align-items:center;padding:10px 14px 8px;border-bottom:0.5px solid var(--border);gap:8px;}
+#appTitle{font-size:20px;font-weight:700;color:var(--teal);flex:1;}
+.icon-btn{height:32px;border-radius:var(--r10);border:0.5px solid var(--border);background:var(--bg2);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:var(--text2);padding:0 10px;gap:4px;white-space:nowrap;flex-shrink:0;}
+.icon-btn:active{background:var(--bg3);}
+#modeBtn{border-color:var(--amber);color:var(--amber);}
+
+/* FILTER BAR */
+#filterBar{padding:7px 14px;display:flex;gap:6px;overflow-x:auto;border-bottom:0.5px solid var(--border);}
+#filterBar::-webkit-scrollbar{display:none;}
+.chip{padding:4px 11px;border-radius:20px;border:0.5px solid var(--border);background:var(--bg2);color:var(--text2);font-size:12px;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.chip.active{background:var(--teal);border-color:var(--teal);color:white;font-weight:500;}
+
+/* QUIZ SCREEN */
+#quizScreen{padding:12px 14px;}
+#progressWrap{margin-bottom:7px;}
+#progressBar{height:3px;background:var(--bg3);border-radius:2px;}
+#progressFill{height:3px;background:var(--teal);border-radius:2px;transition:width 0.4s;}
+#progressLabel{display:flex;justify-content:space-between;margin-top:4px;font-size:11px;color:var(--text3);}
+#boxInfo{display:flex;gap:5px;justify-content:center;margin-bottom:8px;}
+.bdot{width:9px;height:9px;border-radius:50%;border:1.5px solid var(--border);}
+.bdot.active{border-color:var(--amber);}
+.bd1{background:#E24B4A;}.bd2{background:#EF9F27;}.bd3{background:#639922;}.bd4{background:#1D9E75;}.bd5{background:#378ADD;}
+
+/* CARD AREA — card + right button column side by side */
+#cardArea{display:flex;gap:8px;margin-bottom:10px;align-items:flex-start;}
+
+/* RIGHT BUTTONS */
+#rightBtns{display:flex;flex-direction:column;gap:7px;flex-shrink:0;padding-top:4px;}
+.rb{width:52px;height:52px;border-radius:var(--r10);border:0.5px solid var(--border);background:var(--bg2);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:var(--text2);gap:2px;}
+.rb span{font-size:9px;color:var(--text3);}
+.rb:active{background:var(--bg3);}
+.rb.active-rb{border-color:var(--amber);background:#1a1500;}
+
+/* MAIN CARD */
+#picCard{flex:1;background:var(--bg2);border-radius:var(--r16);border:0.5px solid var(--border);padding:16px 14px 14px;text-align:center;cursor:pointer;min-height:200px;position:relative;}
+#picCard:active{opacity:0.92;}
+
+/* CARD FRONT (Vn or En) */
+#cardFront{display:block;}
+#wordEmoji{font-size:70px;line-height:1;margin-bottom:6px;}
+#wordType{display:none;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600;letter-spacing:0.4px;margin-bottom:5px;}
+.type-noun{background:#1a2a4a;color:#85B7EB;}
+.type-verb{background:#1a3a2a;color:#5DCAA5;}
+#frontSentVN{font-size:15px;line-height:1.6;color:var(--text);}
+#frontSentVN b{color:var(--amber);}
+#frontEngWord{font-size:22px;font-weight:600;color:var(--text);line-height:1.3;}
+#frontEngSent{font-size:14px;color:var(--text2);margin-top:4px;line-height:1.5;}
+#frontEngSent b{color:var(--amber);}
+#tapHint{font-size:11px;color:var(--text3);margin-top:8px;}
+
+/* CARD BACK (shown after Show) */
+#cardBack{display:none;}
+#backVN{font-size:19px;line-height:1.6;color:var(--text);margin-bottom:6px;font-weight:500;}
+#backVN b{color:var(--amber);}
+#backEN{font-size:13px;line-height:1.5;color:var(--cyan);margin-bottom:4px;}
+#backEN b{color:var(--amber);}
+#backTapHint{font-size:11px;color:var(--text3);margin-top:6px;}
+
+/* BREAKDOWN PANEL */
+#breakdownPanel{background:var(--bg3);border-radius:var(--r10);border:0.5px solid var(--border);padding:10px 12px;margin-bottom:10px;display:none;text-align:left;}
+#breakdownText{font-size:13px;color:var(--text2);line-height:1.8;}
+#breakdownText b{color:var(--amber);}
+
+/* MNEMONIC */
+#mnemonicBlock{background:var(--bg3);border-radius:var(--r10);border:0.5px solid var(--border);padding:10px 12px;margin-bottom:10px;display:none;}
+#mnemonicLabel{font-size:11px;color:var(--text3);margin-bottom:4px;}
+#mnemonicSaved{font-size:13px;color:#FAC775;line-height:1.4;cursor:pointer;display:none;}
+#mnemonicInput{width:100%;background:transparent;border:none;color:var(--text);font-size:13px;resize:none;min-height:44px;font-family:inherit;outline:none;}
+#mnemonicInput::placeholder{color:var(--text3);}
+
+/* ACTION ROW */
+#actionRow{display:flex;gap:8px;margin-bottom:10px;}
+.action-btn{flex:1;padding:9px 6px;border-radius:var(--r10);border:0.5px solid var(--border);background:var(--bg2);color:var(--text2);font-size:13px;cursor:pointer;text-align:center;}
+.action-btn:active{background:var(--bg3);}
+.action-btn.on{border-color:var(--teal);color:var(--teal);background:#0a1e14;}
+#showBtn{background:var(--teal);color:white;border-color:var(--teal);font-weight:600;font-size:14px;}
+#showBtn:active{background:var(--teal2);}
+#showBtn.shown{background:var(--bg3);color:var(--text2);border-color:var(--border);font-weight:400;font-size:13px;}
+#brkAutoBtn{border-color:var(--border);color:var(--text3);}
+#brkAutoBtn.auto-on{border-color:var(--teal);color:var(--teal);background:#0a1e14;}
+
+/* CHOICES */
+#choices{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
+.choice{padding:14px 8px;border-radius:var(--r10);border:0.5px solid var(--border);background:var(--bg2);color:var(--text);font-size:17px;cursor:pointer;text-align:center;font-weight:500;line-height:1.2;}
+.choice:active{transform:scale(0.97);}
+.choice.correct{background:#0d2e1e;border-color:var(--teal);color:#5DCAA5;}
+.choice.wrong{background:#2e0f0f;border-color:var(--red);color:#F09595;}
+.choice.reveal{background:#0d2e1e;border-color:var(--teal);color:#5DCAA5;}
+#feedback{text-align:center;font-size:14px;min-height:18px;margin-bottom:8px;font-weight:500;}
+#feedback.good{color:var(--teal);}
+#feedback.bad{color:var(--red);}
+#nextBtn{width:100%;padding:13px;border-radius:var(--r10);border:none;background:var(--teal);color:white;font-size:16px;font-weight:600;cursor:pointer;display:none;}
+#nextBtn:active{background:var(--teal2);}
+
+/* SETTINGS */
+#settingsScreen{padding:14px;display:none;}
+.s-title{font-size:11px;color:var(--text3);font-weight:600;letter-spacing:0.8px;margin-bottom:6px;margin-top:14px;}
+.s-row{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:var(--bg2);border-radius:var(--r10);border:0.5px solid var(--border);margin-bottom:6px;}
+.s-label{font-size:14px;color:var(--text);}
+.s-sub{font-size:12px;color:var(--text3);margin-top:2px;}
+.toggle{width:44px;height:24px;border-radius:12px;background:var(--bg3);border:0.5px solid var(--border);cursor:pointer;position:relative;flex-shrink:0;transition:background 0.2s;}
+.toggle.on{background:var(--teal);}
+.toggle::after{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:white;top:2px;left:2px;transition:left 0.2s;}
+.toggle.on::after{left:22px;}
+.danger-btn{width:100%;padding:12px;border-radius:var(--r10);border:0.5px solid var(--red);background:transparent;color:var(--red);font-size:14px;cursor:pointer;margin-top:4px;}
+
+/* WORD LIST */
+#wordListScreen{padding:14px;display:none;}
+#wordSearch{width:100%;padding:9px 12px;background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--r10);color:var(--text);font-size:14px;margin-bottom:10px;font-family:inherit;}
+#wordSearch::placeholder{color:var(--text3);}
+.word-item{background:var(--bg2);border-radius:var(--r10);border:0.5px solid var(--border);padding:10px 12px;display:flex;align-items:center;gap:10px;margin-bottom:7px;}
+.wi-em{font-size:24px;flex-shrink:0;cursor:pointer;}
+.wi-info{flex:1;min-width:0;}
+.wi-viet{font-size:15px;font-weight:500;color:var(--amber);}
+.wi-eng{font-size:12px;color:var(--cyan);}
+.wi-cat{font-size:10px;color:var(--text3);margin-top:1px;}
+.wi-box{font-size:11px;padding:2px 7px;border-radius:10px;flex-shrink:0;}
+.wb1{background:#2e0f0f;color:#F09595;}.wb2{background:#2e1a0a;color:#FAC775;}
+.wb3{background:#1a2e0a;color:#97C459;}.wb4{background:#0a2e1a;color:#5DCAA5;}.wb5{background:#0a1a2e;color:#85B7EB;}
+.del-btn{padding:4px 9px;border-radius:6px;border:0.5px solid var(--border);background:transparent;color:var(--text3);font-size:12px;cursor:pointer;flex-shrink:0;}
+
+/* ADD */
+#addScreen{padding:14px;display:none;}
+.add-tabs{display:flex;gap:8px;margin-bottom:14px;}
+.add-tab{flex:1;padding:9px;border-radius:var(--r10);border:0.5px solid var(--border);background:var(--bg2);color:var(--text2);font-size:13px;cursor:pointer;text-align:center;}
+.add-tab.active{background:var(--teal);border-color:var(--teal);color:white;font-weight:500;}
+.af{margin-bottom:10px;}.al{font-size:11px;color:var(--text3);margin-bottom:3px;}
+.ai{width:100%;padding:9px 12px;background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--r10);color:var(--text);font-size:14px;font-family:inherit;}
+.ai::placeholder{color:var(--text3);}
+.add-btn{width:100%;padding:13px;border-radius:var(--r10);border:none;background:var(--teal);color:white;font-size:15px;font-weight:600;cursor:pointer;margin-top:4px;}
+#bulkHelp{font-size:12px;color:var(--text3);margin-bottom:8px;line-height:1.6;background:var(--bg2);padding:10px 12px;border-radius:var(--r10);}
+#bulkInput{width:100%;height:150px;padding:10px 12px;background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--r10);color:var(--text);font-size:13px;font-family:monospace;resize:none;margin-bottom:6px;}
+#bulkInput::placeholder{color:var(--text3);}
+#bulkPreview{font-size:13px;color:var(--teal);margin-bottom:8px;min-height:16px;}
+
+/* BOTTOM NAV */
+#bottomNav{position:fixed;bottom:0;left:0;right:0;background:var(--bg);border-top:0.5px solid var(--border);display:flex;max-width:480px;margin:0 auto;z-index:10;}
+.nav-item{flex:1;padding:9px 0 7px;text-align:center;cursor:pointer;color:var(--text3);}
+.nav-item.active{color:var(--teal);}
+.nav-icon{font-size:19px;display:block;}
+.nav-label{font-size:10px;margin-top:1px;}
+#missedBtn{width:100%;padding:11px;border-radius:var(--r10);border:0.5px solid var(--amber);background:transparent;color:var(--amber);font-size:14px;cursor:pointer;margin-bottom:8px;display:none;}
+#toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%);background:#333;color:white;padding:7px 16px;border-radius:20px;font-size:13px;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;z-index:99;}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="header">
+    <div id="appTitle">VietPics 🇻🇳</div>
+    <div class="icon-btn" id="modeBtn" onclick="toggleMode()">Vn→En</div>
+    <div class="icon-btn" id="shuffleBtn" onclick="doShuffle()">🔀</div>
+  </div>
+  <div id="filterBar"></div>
+
+  <!-- QUIZ -->
+  <div id="quizScreen">
+    <div id="progressWrap">
+      <div id="progressBar"><div id="progressFill" style="width:0%"></div></div>
+      <div id="progressLabel"><span id="progLeft">Box 1</span><span id="progRight">0 / 0</span></div>
+    </div>
+    <div id="boxInfo"></div>
+
+    <div id="cardArea">
+      <!-- MAIN CARD -->
+      <div id="picCard" onclick="cardTap()">
+        <!-- FRONT -->
+        <div id="cardFront">
+          <div id="wordEmoji"></div>
+          <div id="wordType"></div>
+          <div id="frontSentVN"></div>
+          <div id="frontEngWord"></div>
+          <div id="frontEngSent"></div>
+          <div id="tapHint">Tap to hear</div>
+        </div>
+        <!-- BACK (shown after Show) -->
+        <div id="cardBack">
+          <div id="backVN"></div>
+          <div id="backEN"></div>
+          <div id="backTapHint">Tap to hear again</div>
+        </div>
+      </div>
+      <!-- RIGHT BUTTONS -->
+      <div id="rightBtns">
+        <div class="rb" id="hintBtn" onclick="toggleHint(event)" title="Show hint">👁<span>Hint</span></div>
+        <div class="rb" id="mnemonicRbBtn" onclick="toggleMnemonicPanel(event)" title="Memory hint">💭<span>Hint</span></div>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN + MNEMONIC PANELS -->
+    <div id="breakdownPanel"><div id="breakdownText"></div></div>
+    <div id="mnemonicBlock">
+      <div id="mnemonicLabel">💭 My memory hint</div>
+      <div id="mnemonicSaved"></div>
+      <textarea id="mnemonicInput" placeholder="Write a memory trick for this word..."></textarea>
+    </div>
+
+    <!-- ACTION ROW -->
+    <div id="actionRow">
+      <div style="display:flex;gap:6px;flex:1;">
+        <button class="action-btn" id="breakdownBtn" onclick="toggleBreakdown()" style="flex:2;">📖 Breakdown</button>
+        <button class="action-btn" id="brkAutoBtn" onclick="toggleBrkAuto()" style="flex:1;font-size:11px;">Auto<br>OFF</button>
+      </div>
+      <button class="action-btn" id="showBtn" style="flex:1;">Show →</button>
+    </div>
+
+    <button id="missedBtn" onclick="reviewMissed()">⭐ Review missed cards</button>
+    <div id="choices"></div>
+    <div id="feedback"></div>
+    <button id="nextBtn" onclick="goNext()">Next →</button>
+  </div>
+
+  <!-- SETTINGS -->
+  <div id="settingsScreen">
+    <div class="s-title">DISPLAY</div>
+    <div class="s-row"><div><div class="s-label">Show word type badge</div><div class="s-sub">Noun / Verb label</div></div><div class="toggle" id="togType" onclick="flipSetting('type')"></div></div>
+    <div class="s-title">AUDIO</div>
+    <div class="s-row" style="flex-direction:column;align-items:flex-start;gap:8px;">
+      <div class="s-label">Speech speed</div>
+      <div style="display:flex;align-items:center;gap:10px;width:100%;">
+        <span style="font-size:12px;color:var(--text3);">0.3</span>
+        <input type="range" id="speedSlider" min="0.3" max="1.0" step="0.1" value="0.85" oninput="updateSpeed(this.value)" style="flex:1;accent-color:var(--teal);">
+        <span style="font-size:12px;color:var(--text3);">1.0</span>
+        <span style="font-size:13px;color:var(--teal);font-weight:500;min-width:32px;text-align:right;" id="speedVal">0.85</span>
+      </div>
+    </div>
+    <div class="s-row" style="flex-direction:column;align-items:flex-start;gap:8px;">
+      <div class="s-label">Auto-revert to front</div>
+      <div class="s-sub">Seconds before card flips back after Show</div>
+      <div style="display:flex;align-items:center;gap:10px;width:100%;">
+        <span style="font-size:12px;color:var(--text3);">Off</span>
+        <input type="range" id="revertSlider" min="0" max="3" step="1" value="0" oninput="updateRevert(this.value)" style="flex:1;accent-color:var(--teal);">
+        <span style="font-size:12px;color:var(--text3);">3s</span>
+        <span style="font-size:13px;color:var(--teal);font-weight:500;min-width:36px;text-align:right;" id="revertVal">Off</span>
+      </div>
+    </div>
+    <div class="s-title">CATEGORIES</div>
+    <div id="deckManage"></div>
+    <div class="s-title">DATA</div>
+    <button class="danger-btn" onclick="resetProgress()">Reset all progress to Box 1</button>
+  </div>
+
+  <!-- WORD LIST -->
+  <div id="wordListScreen">
+    <input id="wordSearch" type="search" placeholder="Search words..." oninput="renderWordList()">
+    <div id="wordListItems"></div>
+  </div>
+
+  <!-- ADD -->
+  <div id="addScreen">
+    <div class="add-tabs">
+      <div class="add-tab active" id="tabSingle" onclick="switchTab('single')">Single word</div>
+      <div class="add-tab" id="tabBulk" onclick="switchTab('bulk')">Bulk add</div>
+    </div>
+    <div id="singleForm">
+      <div class="af"><div class="al">Vietnamese word *</div><input class="ai" id="aViet" placeholder="e.g. Xe máy"></div>
+      <div class="af"><div class="al">English meaning *</div><input class="ai" id="aEng" placeholder="e.g. Motorbike"></div>
+      <div class="af"><div class="al">Note / context</div><input class="ai" id="aNote" placeholder="e.g. Very common in Vietnam"></div>
+      <div class="af"><div class="al">Emoji</div><input class="ai" id="aEmoji" placeholder="e.g. 🛵"></div>
+      <div class="af"><div class="al">Vietnamese sentence (wrap focus word in &lt;b&gt;)</div><input class="ai" id="aSentVN" placeholder="Tôi đi &lt;b&gt;xe máy&lt;/b&gt; mỗi ngày."></div>
+      <div class="af"><div class="al">English sentence</div><input class="ai" id="aSentEN" placeholder="I ride a &lt;b&gt;motorbike&lt;/b&gt; every day."></div>
+      <div class="af"><div class="al">Breakdown (Viet–meaning; Viet–meaning)</div><input class="ai" id="aBreakdown" placeholder="Tôi–I; đi–go; xe máy–motorbike"></div>
+      <div class="af"><div class="al">Type</div><select class="ai" id="aType"><option value="noun">Noun</option><option value="verb">Verb</option></select></div>
+      <div class="af"><div class="al">Category</div><select class="ai" id="aCat"></select></div>
+      <button class="add-btn" onclick="saveSingle()">Save word</button>
+    </div>
+    <div id="bulkForm" style="display:none;">
+      <div id="bulkHelp">One word per line:<br><b>Vietnamese | English | Emoji | Type | Category | SentVN | SentEN | Breakdown</b><br>Only Vietnamese and English required.</div>
+      <textarea id="bulkInput" placeholder="Xe máy | Motorbike | 🛵 | noun | Travel"></textarea>
+      <div id="bulkPreview"></div>
+      <div class="af"><div class="al">Default category</div><select class="ai" id="bulkCat"></select></div>
+      <button class="add-btn" onclick="saveBulk()">Import words</button>
+    </div>
+  </div>
+
+  <div id="bottomNav">
+    <div class="nav-item active" id="nav-quiz" onclick="showScreen('quiz')"><span class="nav-icon">🎯</span><div class="nav-label">Quiz</div></div>
+    <div class="nav-item" id="nav-words" onclick="showScreen('words')"><span class="nav-icon">📋</span><div class="nav-label">Words</div></div>
+    <div class="nav-item" id="nav-add" onclick="showScreen('add')"><span class="nav-icon">➕</span><div class="nav-label">Add</div></div>
+    <div class="nav-item" id="nav-settings" onclick="showScreen('settings')"><span class="nav-icon">⚙️</span><div class="nav-label">Settings</div></div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+const SK='vietpics_v4';
+const BOX_INT={1:0,2:2,3:4,4:8,5:16};
+const ALL_CATS=['All words','Greetings, Introductions & Phrases','Numbers, Dates, Time & Quantities','Family, People & Descriptions','Food, Drink & Dining','Travel, Directions & Transport','Home & Daily Life','Education & Work','Nature & Environment','Adjectives, Adverbs & Connectors','Idioms & Expressions'];
+
+const DW=[
+  {id:'w001',viet:'Sách',eng:'Book',note:'Academic or leisure material.',emoji:'📚',type:'noun',cat:'Education & Work',sentVN:'Tôi đang đọc một cuốn <b>sách</b> hay.',sentEN:'I am reading a good <b>book</b>.',brk:'Tôi–I;đang–currently;đọc–reading;một cuốn–one (volume);sách–book;hay–good/interesting',box:1,nr:0},
+  {id:'w002',viet:'Ghế',eng:'Chair',note:'Common furniture.',emoji:'🪑',type:'noun',cat:'Home & Daily Life',sentVN:'Hãy ngồi vào <b>ghế</b> này.',sentEN:'Please sit in this <b>chair</b>.',brk:'Hãy–please;ngồi–sit;vào–into;ghế–chair;này–this',box:1,nr:0},
+  {id:'w003',viet:'Con',eng:'Child / Animal',note:'Relative term and animal classifier.',emoji:'👶',type:'noun',cat:'Family, People & Descriptions',sentVN:'Tôi có bốn <b>con</b> trai.',sentEN:'I have four <b>sons</b>.',brk:'Tôi–I;có–have;bốn–four;con–child/classifier;trai–male/boy',box:1,nr:0},
+  {id:'w004',viet:'Thành phố',eng:'City',note:'Urban area.',emoji:'🏙️',type:'noun',cat:'Travel, Directions & Transport',sentVN:'Đà Nẵng là một <b>thành phố</b> đẹp.',sentEN:'Da Nang is a beautiful <b>city</b>.',brk:'Đà Nẵng–Da Nang;là–is;một–a/one;thành phố–city;đẹp–beautiful',box:1,nr:0},
+  {id:'w005',viet:'Cà phê',eng:'Coffee',note:'Daily drink.',emoji:'☕',type:'noun',cat:'Food, Drink & Dining',sentVN:'Bạn có muốn uống <b>cà phê</b> không?',sentEN:'Do you want to drink <b>coffee</b>?',brk:'Bạn–you;có muốn–want to;uống–drink;cà phê–coffee;không–question marker',box:1,nr:0},
+  {id:'w006',viet:'Công ty',eng:'Company',note:'Business entity.',emoji:'🏢',type:'noun',cat:'Education & Work',sentVN:'Tôi có một <b>công ty</b> xây dựng.',sentEN:'I had a construction <b>company</b>.',brk:'Tôi–I;có–have/had;một–a/one;công ty–company;xây dựng–construction/building',box:1,nr:0},
+  {id:'w007',viet:'Máy tính',eng:'Computer',note:'General computing device.',emoji:'💻',type:'noun',cat:'Education & Work',sentVN:'Tôi thích tạo ứng dụng trên <b>máy tính</b>.',sentEN:'I like to create apps on my <b>computer</b>.',brk:'Tôi–I;thích–like;tạo–create;ứng dụng–app;trên–on;máy tính–computer',box:1,nr:0},
+  {id:'w008',viet:'Cơm',eng:'Cooked rice / Meal',note:'Cultural staple.',emoji:'🍚',type:'noun',cat:'Food, Drink & Dining',sentVN:'Bạn ăn <b>cơm</b> chưa?',sentEN:'Have you eaten <b>rice</b> yet?',brk:'Bạn–you;ăn–eat;cơm–rice/meal;chưa–yet (question)',box:1,nr:0},
+  {id:'w009',viet:'Ngày',eng:'Day',note:'Temporal unit.',emoji:'📅',type:'noun',cat:'Numbers, Dates, Time & Quantities',sentVN:'Hôm nay là một <b>ngày</b> đẹp trời.',sentEN:'Today is a beautiful <b>day</b>.',brk:'Hôm nay–today;là–is;một–a/one;ngày–day;đẹp trời–beautiful weather/day',box:1,nr:0},
+  {id:'w010',viet:'Cửa',eng:'Door',note:'Entrance/exit.',emoji:'🚪',type:'noun',cat:'Home & Daily Life',sentVN:'Hãy đóng <b>cửa</b> lại.',sentEN:'Please close the <b>door</b>.',brk:'Hãy–please;đóng–close;cửa–door;lại–back/again (completive)',box:1,nr:0},
+  {id:'w011',viet:'Bố',eng:'Father',note:'Preferred over Southern "ba".',emoji:'👨',type:'noun',cat:'Family, People & Descriptions',sentVN:'<b>Bố</b> tôi đã nghỉ hưu rồi.',sentEN:'My <b>father</b> is already retired.',brk:'Bố–father;tôi–my/I;đã–already (past marker);nghỉ hưu–retire;rồi–already',box:1,nr:0},
+  {id:'w012',viet:'Cá',eng:'Fish',note:'Dietary noun.',emoji:'🐟',type:'noun',cat:'Food, Drink & Dining',sentVN:'Tôi thích ăn <b>cá</b> nướng.',sentEN:'I like to eat grilled <b>fish</b>.',brk:'Tôi–I;thích–like;ăn–eat;cá–fish;nướng–grilled',box:1,nr:0},
+  {id:'w013',viet:'Hoa',eng:'Flower',note:'Nature noun.',emoji:'🌸',type:'noun',cat:'Nature & Environment',sentVN:'Cô ấy tặng tôi một bông <b>hoa</b>.',sentEN:'She gave me a <b>flower</b>.',brk:'Cô ấy–she;tặng–give (as gift);tôi–me;một bông–one (flower classifier);hoa–flower',box:1,nr:0},
+  {id:'w014',viet:'Bạn',eng:'Friend',note:'Peer or "you" in informal address.',emoji:'🤝',type:'noun',cat:'Greetings, Introductions & Phrases',sentVN:'<b>Bạn</b> có khỏe không?',sentEN:'Are you well, <b>friend</b>?',brk:'Bạn–you/friend;có–(yes/no frame);khỏe–well/healthy;không–question marker',box:1,nr:0},
+  {id:'w015',viet:'Hoa quả',eng:'Fruit',note:'Northern term; "trái cây" in South.',emoji:'🍎',type:'noun',cat:'Food, Drink & Dining',sentVN:'Tôi mua <b>hoa quả</b> ở chợ.',sentEN:'I buy <b>fruit</b> at the market.',brk:'Tôi–I;mua–buy;hoa quả–fruit (Northern);ở–at;chợ–market',box:1,nr:0},
+  {id:'w016',viet:'Giờ',eng:'Hour / Time',note:'Temporal unit.',emoji:'⏰',type:'noun',cat:'Numbers, Dates, Time & Quantities',sentVN:'Bây giờ là mấy <b>giờ</b>?',sentEN:'What <b>time</b> is it now?',brk:"Bây giờ–now;là–is;mấy–how many;giờ–hour/o'clock",box:1,nr:0},
+  {id:'w017',viet:'Nhà',eng:'House / Home',note:'Physical or conceptual residence.',emoji:'🏠',type:'noun',cat:'Home & Daily Life',sentVN:'Tôi sống ở <b>nhà</b> gần biển.',sentEN:'I live in a <b>house</b> near the beach.',brk:'Tôi–I;sống–live;ở–at/in;nhà–house/home;gần–near;biển–beach/sea',box:1,nr:0},
+  {id:'w018',viet:'Chìa khóa',eng:'Key',note:'Locking device.',emoji:'🔑',type:'noun',cat:'Home & Daily Life',sentVN:'Tôi quên <b>chìa khóa</b> ở nhà rồi.',sentEN:'I forgot my <b>key</b> at home.',brk:'Tôi–I;quên–forget;chìa khóa–key;ở–at;nhà–home;rồi–already (completive)',box:1,nr:0},
+  {id:'w019',viet:'Thịt',eng:'Meat',note:'Dietary noun.',emoji:'🥩',type:'noun',cat:'Food, Drink & Dining',sentVN:'Tôi không ăn nhiều <b>thịt</b>.',sentEN:'I do not eat much <b>meat</b>.',brk:'Tôi–I;không–not;ăn–eat;nhiều–much/a lot;thịt–meat',box:1,nr:0},
+  {id:'w020',viet:'Sữa',eng:'Milk',note:'Beverage.',emoji:'🥛',type:'noun',cat:'Food, Drink & Dining',sentVN:'Mỗi sáng tôi uống một ly <b>sữa</b>.',sentEN:'Every morning I drink a glass of <b>milk</b>.',brk:'Mỗi sáng–every morning;tôi–I;uống–drink;một ly–one glass;sữa–milk',box:1,nr:0},
+  {id:'w021',viet:'Tiền',eng:'Money',note:'Financial medium.',emoji:'💰',type:'noun',cat:'Numbers, Dates, Time & Quantities',sentVN:'Tôi không có đủ <b>tiền</b>.',sentEN:'I do not have enough <b>money</b>.',brk:'Tôi–I;không có–do not have;đủ–enough;tiền–money',box:1,nr:0},
+  {id:'w022',viet:'Tháng',eng:'Month',note:'Temporal unit.',emoji:'🗓️',type:'noun',cat:'Numbers, Dates, Time & Quantities',sentVN:'<b>Tháng</b> này tôi rất bận.',sentEN:'This <b>month</b> I am very busy.',brk:'Tháng–month;này–this;tôi–I;rất–very;bận–busy',box:1,nr:0},
+  {id:'w023',viet:'Mẹ',eng:'Mother',note:'Direct term; "má" in South.',emoji:'👩',type:'noun',cat:'Family, People & Descriptions',sentVN:'<b>Mẹ</b> tôi nấu ăn rất ngon.',sentEN:'My <b>mother</b> cooks very well.',brk:'Mẹ–mother;tôi–my/I;nấu ăn–cook food;rất–very;ngon–delicious/well',box:1,nr:0},
+  {id:'w024',viet:'Anh',eng:'Older brother',note:'Also pronoun for young males.',emoji:'👦',type:'noun',cat:'Family, People & Descriptions',sentVN:'<b>Anh</b> ấy là bạn tôi.',sentEN:'He (<b>older brother</b>) is my friend.',brk:'Anh–older brother/he;ấy–that (pronoun marker);là–is;bạn–friend;tôi–my/I',box:1,nr:0},
+  {id:'w025',viet:'Chị',eng:'Older sister',note:'Also pronoun for young females.',emoji:'👧',type:'noun',cat:'Family, People & Descriptions',sentVN:'<b>Chị</b> ấy làm việc ở đâu?',sentEN:'Where does she (<b>older sister</b>) work?',brk:'Chị–older sister/she;ấy–that (pronoun marker);làm việc–work;ở đâu–where',box:1,nr:0},
+  {id:'w026',viet:'Giấy',eng:'Paper',note:'Writing surface.',emoji:'📄',type:'noun',cat:'Education & Work',sentVN:'Cho tôi một tờ <b>giấy</b>.',sentEN:'Give me a piece of <b>paper</b>.',brk:'Cho–give;tôi–me/I;một tờ–one sheet (paper classifier);giấy–paper',box:1,nr:0},
+  {id:'w027',viet:'Bút',eng:'Pen',note:'Writing instrument.',emoji:'✏️',type:'noun',cat:'Education & Work',sentVN:'Tôi cần mượn cái <b>bút</b>.',sentEN:'I need to borrow a <b>pen</b>.',brk:'Tôi–I;cần–need;mượn–borrow;cái–classifier (objects);bút–pen',box:1,nr:0},
+  {id:'w028',viet:'Người',eng:'Person / People',note:'Universal term for humans.',emoji:'🧑',type:'noun',cat:'Family, People & Descriptions',sentVN:'Có nhiều <b>người</b> ở chợ hôm nay.',sentEN:'There are many <b>people</b> at the market today.',brk:'Có–there is/are;nhiều–many;người–person/people;ở–at;chợ–market;hôm nay–today',box:1,nr:0},
+  {id:'w029',viet:'Điện thoại',eng:'Phone',note:'Telecommunications device.',emoji:'📱',type:'noun',cat:'Home & Daily Life',sentVN:'Số <b>điện thoại</b> của bạn là gì?',sentEN:'What is your <b>phone</b> number?',brk:'Số–number;điện thoại–phone;của–of/belonging to;bạn–you;là–is;gì–what',box:1,nr:0},
+  {id:'w030',viet:'Trường',eng:'School',note:'Educational institution.',emoji:'🏫',type:'noun',cat:'Education & Work',sentVN:'Con tôi học ở <b>trường</b> gần nhà.',sentEN:'My child studies at a <b>school</b> near home.',brk:'Con–child;tôi–my/I;học–study;ở–at;trường–school;gần–near;nhà–home',box:1,nr:0},
+  {id:'w031',viet:'Áo',eng:'Shirt / Top',note:'Basic clothing.',emoji:'👕',type:'noun',cat:'Home & Daily Life',sentVN:'Tôi mặc <b>áo</b> màu xanh hôm nay.',sentEN:'I am wearing a blue <b>shirt</b> today.',brk:'Tôi–I;mặc–wear;áo–shirt/top;màu–color;xanh–blue/green;hôm nay–today',box:1,nr:0},
+  {id:'w032',viet:'Giày',eng:'Shoes',note:'Footwear.',emoji:'👟',type:'noun',cat:'Home & Daily Life',sentVN:'Đôi <b>giày</b> này rất thoải mái.',sentEN:'These <b>shoes</b> are very comfortable.',brk:'Đôi–pair (classifier);giày–shoes;này–these/this;rất–very;thoải mái–comfortable',box:1,nr:0},
+  {id:'w033',viet:'Trời',eng:'Sky / Weather',note:'Environmental noun.',emoji:'🌤️',type:'noun',cat:'Nature & Environment',sentVN:'<b>Trời</b> hôm nay rất đẹp.',sentEN:'The <b>weather</b> today is very nice.',brk:'Trời–sky/weather/heaven;hôm nay–today;rất–very;đẹp–beautiful/nice',box:1,nr:0},
+  {id:'w034',viet:'Thìa',eng:'Spoon',note:'Northern; "muỗng" in South.',emoji:'🥄',type:'noun',cat:'Food, Drink & Dining',sentVN:'Cho tôi mượn cái <b>thìa</b>.',sentEN:'Let me borrow a <b>spoon</b>.',brk:'Cho–let/give;tôi–me/I;mượn–borrow;cái–classifier (objects);thìa–spoon',box:1,nr:0},
+  {id:'w035',viet:'Đường',eng:'Street / Sugar',note:'Dual meaning.',emoji:'🛣️',type:'noun',cat:'Travel, Directions & Transport',sentVN:'Nhà tôi ở cuối <b>đường</b> này.',sentEN:'My house is at the end of this <b>street</b>.',brk:'Nhà–house;tôi–my/I;ở–at/located;cuối–end;đường–street/road;này–this',box:1,nr:0},
+  {id:'w036',viet:'Bàn',eng:'Table',note:'Common furniture.',emoji:'🪵',type:'noun',cat:'Home & Daily Life',sentVN:'Sách ở trên <b>bàn</b>.',sentEN:'The book is on the <b>table</b>.',brk:'Sách–book;ở–is at/located;trên–on top of;bàn–table',box:1,nr:0},
+  {id:'w037',viet:'Trà',eng:'Tea',note:'Daily drink.',emoji:'🍵',type:'noun',cat:'Food, Drink & Dining',sentVN:'Bạn muốn uống <b>trà</b> không?',sentEN:'Do you want to drink <b>tea</b>?',brk:'Bạn–you;muốn–want;uống–drink;trà–tea;không–question marker',box:1,nr:0},
+  {id:'w038',viet:'Cái',eng:'Thing / Object',note:'General inanimate classifier.',emoji:'📦',type:'noun',cat:'Adjectives, Adverbs & Connectors',sentVN:'<b>Cái</b> này là gì vậy?',sentEN:'What is this <b>thing</b>?',brk:'Cái–thing/classifier (objects);này–this;là–is;gì–what;vậy–softening particle',box:1,nr:0},
+  {id:'w039',viet:'Đồ',eng:'Things / Items',note:'Generic object noun.',emoji:'🧳',type:'noun',cat:'Home & Daily Life',sentVN:'Tôi để <b>đồ</b> ở đâu rồi nhỉ?',sentEN:'Where did I put my <b>things</b>?',brk:'Tôi–I;để–put/place;đồ–things/items;ở đâu–where;rồi–already;nhỉ–rhetorical particle',box:1,nr:0},
+  {id:'w040',viet:'Thời gian',eng:'Time',note:'General concept of time.',emoji:'⌛',type:'noun',cat:'Numbers, Dates, Time & Quantities',sentVN:'Tôi không có nhiều <b>thời gian</b>.',sentEN:'I do not have much <b>time</b>.',brk:'Tôi–I;không có–do not have;nhiều–much/a lot;thời gian–time (general concept)',box:1,nr:0},
+  {id:'w041',viet:'Hôm nay',eng:'Today',note:'Immediate temporal reference.',emoji:'📆',type:'noun',cat:'Numbers, Dates, Time & Quantities',sentVN:'<b>Hôm nay</b> bạn có bận không?',sentEN:'Are you busy <b>today</b>?',brk:'Hôm nay–today;bạn–you;có–(yes/no frame);bận–busy;không–question marker',box:1,nr:0},
+  {id:'w042',viet:'Cây',eng:'Tree / Plant',note:'Nature noun.',emoji:'🌳',type:'noun',cat:'Nature & Environment',sentVN:'Có nhiều <b>cây</b> xanh trong công viên.',sentEN:'There are many green <b>trees</b> in the park.',brk:'Có–there are;nhiều–many;cây–tree/plant;xanh–green;trong–in/inside;công viên–park',box:1,nr:0},
+  {id:'w043',viet:'Quần',eng:'Trousers / Pants',note:'Basic clothing.',emoji:'👖',type:'noun',cat:'Home & Daily Life',sentVN:'Tôi mặc <b>quần</b> jeans hôm nay.',sentEN:'I am wearing <b>trousers</b> today.',brk:'Tôi–I;mặc–wear;quần–trousers/pants;jeans–jeans;hôm nay–today',box:1,nr:0},
+  {id:'w044',viet:'Rau',eng:'Vegetables',note:'Dietary noun.',emoji:'🥦',type:'noun',cat:'Food, Drink & Dining',sentVN:'Tôi mua <b>rau</b> ở chợ đêm.',sentEN:'I buy <b>vegetables</b> at the night market.',brk:'Tôi–I;mua–buy;rau–vegetables;ở–at;chợ đêm–night market',box:1,nr:0},
+  {id:'w045',viet:'Xe',eng:'Vehicle',note:'General term for bikes/cars.',emoji:'🛵',type:'noun',cat:'Travel, Directions & Transport',sentVN:'<b>Xe</b> của tôi bị hỏng rồi.',sentEN:'My <b>vehicle</b> is broken.',brk:'Xe–vehicle/bike;của–of/belonging to;tôi–my/I;bị–passive (bad thing);hỏng–broken;rồi–already',box:1,nr:0},
+  {id:'w046',viet:'Đồng hồ',eng:'Watch / Clock',note:'Timekeeping device.',emoji:'⌚',type:'noun',cat:'Numbers, Dates, Time & Quantities',sentVN:'<b>Đồng hồ</b> của tôi chạy chậm.',sentEN:'My <b>watch</b> runs slow.',brk:'Đồng hồ–watch/clock;của–of/belonging to;tôi–my/I;chạy–run/work;chậm–slow',box:1,nr:0},
+  {id:'w047',viet:'Nước',eng:'Water / Country',note:'Dual meaning based on context.',emoji:'💧',type:'noun',cat:'Food, Drink & Dining',sentVN:'Cho tôi một ly <b>nước</b>.',sentEN:'Give me a glass of <b>water</b>.',brk:'Cho–give;tôi–me/I;một ly–one glass;nước–water/country',box:1,nr:0},
+  {id:'w048',viet:'Việc',eng:'Work / Task',note:'Conceptual labor.',emoji:'📋',type:'noun',cat:'Education & Work',sentVN:'Tôi có nhiều <b>việc</b> cần làm.',sentEN:'I have a lot of <b>work</b> to do.',brk:'Tôi–I;có–have;nhiều–a lot/many;việc–work/task;cần–need to;làm–do',box:1,nr:0},
+  {id:'w049',viet:'Năm',eng:'Year',note:'Temporal unit.',emoji:'📊',type:'noun',cat:'Numbers, Dates, Time & Quantities',sentVN:'Tôi đã sống ở đây hơn hai <b>năm</b>.',sentEN:'I have lived here for over two <b>years</b>.',brk:'Tôi–I;đã–already (past);sống–live;ở đây–here;hơn–more than;hai–two;năm–year',box:1,nr:0},
+  {id:'w050',viet:'Em',eng:'Younger sibling',note:'Standard pronoun for younger persons.',emoji:'🧒',type:'noun',cat:'Family, People & Descriptions',sentVN:'<b>Em</b> ấy mấy tuổi rồi?',sentEN:'How old is your <b>younger sibling</b>?',brk:'Em–younger sibling/you (younger);ấy–that (pronoun marker);mấy tuổi–how old;rồi–now/already',box:1,nr:0},
+  {id:'w051',viet:'Giải thích',eng:'Explanation',note:'Clarifying something.',emoji:'💬',type:'noun',cat:'Education & Work',sentVN:'Bạn có thể <b>giải thích</b> không?',sentEN:'Can you give me an <b>explanation</b>?',brk:'Bạn–you;có thể–can/be able to;giải thích–explain/explanation;không–question marker',box:1,nr:0},
+  {id:'w052',viet:'Bản dịch',eng:'Translation',note:'Converting between languages.',emoji:'🔤',type:'noun',cat:'Education & Work',sentVN:'Tôi cần <b>bản dịch</b> sang tiếng Anh.',sentEN:'I need a <b>translation</b> into English.',brk:'Tôi–I;cần–need;bản dịch–translation;sang–into/to;tiếng Anh–English language',box:1,nr:0},
+  {id:'w053',viet:'Hỏi',eng:'To ask',note:'Seeking information.',emoji:'🙋',type:'verb',cat:'Greetings, Introductions & Phrases',sentVN:'Tôi muốn <b>hỏi</b> bạn một câu.',sentEN:'I want to <b>ask</b> you something.',brk:'Tôi–I;muốn–want;hỏi–ask;bạn–you;một câu–one question/sentence',box:1,nr:0},
+  {id:'w054',viet:'Tắm',eng:'To bathe',note:'Daily hygiene.',emoji:'🛁',type:'verb',cat:'Home & Daily Life',sentVN:'Tôi <b>tắm</b> mỗi sáng.',sentEN:'I <b>bathe</b> every morning.',brk:'Tôi–I;tắm–bathe/shower;mỗi–every;sáng–morning',box:1,nr:0},
+  {id:'w055',viet:'Là',eng:'To be',note:'Used for identity/definitions.',emoji:'🟰',type:'verb',cat:'Greetings, Introductions & Phrases',sentVN:'Tôi <b>là</b> người Mỹ.',sentEN:'I <b>am</b> American.',brk:'Tôi–I;là–am/is/are (identity);người–person;Mỹ–America/American',box:1,nr:0},
+  {id:'w056',viet:'Ở',eng:'To be at / To stay',note:'Used for location.',emoji:'📍',type:'verb',cat:'Travel, Directions & Transport',sentVN:'Tôi <b>ở</b> Mỹ An, Đà Nẵng.',sentEN:'I <b>stay</b> in My An, Da Nang.',brk:'Tôi–I;ở–stay at/live at/be located;Mỹ An–My An (neighborhood);Đà Nẵng–Da Nang',box:1,nr:0},
+  {id:'w057',viet:'Mang',eng:'To bring / To carry',note:'Relocating an item.',emoji:'🎒',type:'verb',cat:'Home & Daily Life',sentVN:'Bạn có thể <b>mang</b> cái này giúp tôi không?',sentEN:'Can you <b>carry</b> this for me?',brk:'Bạn–you;có thể–can;mang–bring/carry;cái này–this thing;giúp–help;tôi–me;không–question marker',box:1,nr:0},
+  {id:'w058',viet:'Mua',eng:'To buy',note:'Commercial transaction.',emoji:'🛒',type:'verb',cat:'Food, Drink & Dining',sentVN:'Tôi muốn <b>mua</b> một cái áo mới.',sentEN:'I want to <b>buy</b> a new shirt.',brk:'Tôi–I;muốn–want;mua–buy;một–one/a;cái áo–shirt (with classifier);mới–new',box:1,nr:0},
+  {id:'w059',viet:'Gọi',eng:'To call',note:'Verbal summons or phone call.',emoji:'📞',type:'verb',cat:'Greetings, Introductions & Phrases',sentVN:'Tôi sẽ <b>gọi</b> điện cho bạn sau.',sentEN:'I will <b>call</b> you later.',brk:'Tôi–I;sẽ–will (future);gọi–call;điện–phone/electricity;cho–to/for;bạn–you;sau–later/after',box:1,nr:0},
+  {id:'w060',viet:'Đóng',eng:'To close',note:'Restricting access.',emoji:'🔒',type:'verb',cat:'Home & Daily Life',sentVN:'Hãy <b>đóng</b> cửa lại.',sentEN:'Please <b>close</b> the door.',brk:'Hãy–please (imperative);đóng–close;cửa–door;lại–back/again (completive)',box:1,nr:0},
+  {id:'w061',viet:'Đến',eng:'To come / To arrive',note:'Formal/Standard.',emoji:'🚶',type:'verb',cat:'Travel, Directions & Transport',sentVN:'Bạn <b>đến</b> lúc mấy giờ?',sentEN:'What time did you <b>arrive</b>?',brk:'Bạn–you;đến–arrive/come;lúc–at (time);mấy giờ–what time',box:1,nr:0},
+  {id:'w062',viet:'Nấu',eng:'To cook',note:'Food preparation.',emoji:'👨‍🍳',type:'verb',cat:'Food, Drink & Dining',sentVN:'Tôi đang <b>nấu</b> cơm.',sentEN:'I am <b>cooking</b> rice.',brk:'Tôi–I;đang–currently (ongoing);nấu–cook;cơm–rice/meal',box:1,nr:0},
+  {id:'w063',viet:'Khóc',eng:'To cry',note:'Emotional expression.',emoji:'😢',type:'verb',cat:'Adjectives, Adverbs & Connectors',sentVN:'Em bé đang <b>khóc</b>.',sentEN:'The baby is <b>crying</b>.',brk:'Em bé–baby;đang–currently (ongoing);khóc–cry/weep',box:1,nr:0},
+  {id:'w064',viet:'Làm',eng:'To do / To work',note:'General action verb.',emoji:'🔨',type:'verb',cat:'Education & Work',sentVN:'Bạn <b>làm</b> nghề gì?',sentEN:'What do you <b>do</b> for work?',brk:'Bạn–you;làm–do/work;nghề–profession/trade;gì–what',box:1,nr:0},
+  {id:'w065',viet:'Uống',eng:'To drink',note:'Basic daily necessity.',emoji:'🥤',type:'verb',cat:'Food, Drink & Dining',sentVN:'Tôi <b>uống</b> cà phê mỗi sáng.',sentEN:'I <b>drink</b> coffee every morning.',brk:'Tôi–I;uống–drink;cà phê–coffee;mỗi–every;sáng–morning',box:1,nr:0},
+  {id:'w066',viet:'Ăn',eng:'To eat',note:'Basic daily necessity.',emoji:'🍽️',type:'verb',cat:'Food, Drink & Dining',sentVN:'Bạn <b>ăn</b> sáng chưa?',sentEN:'Have you <b>eaten</b> breakfast yet?',brk:'Bạn–you;ăn–eat;sáng–morning/breakfast;chưa–yet (question)',box:1,nr:0},
+  {id:'w067',viet:'Vào',eng:'To enter',note:'Movement inward.',emoji:'🚪',type:'verb',cat:'Travel, Directions & Transport',sentVN:'Mời bạn <b>vào</b> nhà.',sentEN:'Please <b>come in</b> to the house.',brk:'Mời–please/invite (polite);bạn–you;vào–enter/come in;nhà–house/home',box:1,nr:0},
+  {id:'w068',viet:'Tìm',eng:'To find / To look for',note:'Searching.',emoji:'🔍',type:'verb',cat:'Home & Daily Life',sentVN:'Tôi đang <b>tìm</b> khách sạn.',sentEN:'I am <b>looking for</b> a hotel.',brk:'Tôi–I;đang–currently;tìm–look for/find;khách sạn–hotel',box:1,nr:0},
+  {id:'w069',viet:'Cho',eng:'To give',note:'Generosity/Transfer.',emoji:'🎁',type:'verb',cat:'Greetings, Introductions & Phrases',sentVN:'Tôi muốn <b>cho</b> bạn cái này.',sentEN:'I want to <b>give</b> you this.',brk:'Tôi–I;muốn–want;cho–give/for;bạn–you;cái này–this thing',box:1,nr:0},
+  {id:'w070',viet:'Đi',eng:'To go',note:'Standard movement.',emoji:'🚶',type:'verb',cat:'Travel, Directions & Transport',sentVN:'Bạn muốn <b>đi</b> đâu?',sentEN:'Where do you want to <b>go</b>?',brk:'Bạn–you;muốn–want;đi–go;đâu–where',box:1,nr:0},
+  {id:'w071',viet:'Ghét',eng:'To hate',note:'Strong dislike.',emoji:'😤',type:'verb',cat:'Adjectives, Adverbs & Connectors',sentVN:'Tôi <b>ghét</b> kẹt xe.',sentEN:'I <b>hate</b> traffic jams.',brk:'Tôi–I;ghét–hate;kẹt xe–traffic jam (stuck vehicle)',box:1,nr:0},
+  {id:'w072',viet:'Có',eng:'To have / There is',note:'Possession or existence.',emoji:'✅',type:'verb',cat:'Greetings, Introductions & Phrases',sentVN:'Tôi <b>có</b> bốn con trai.',sentEN:'I <b>have</b> four sons.',brk:'Tôi–I;có–have/there is;bốn–four;con–classifier;trai–male/son',box:1,nr:0},
+  {id:'w073',viet:'Giúp',eng:'To help',note:'Providing assistance.',emoji:'🤲',type:'verb',cat:'Greetings, Introductions & Phrases',sentVN:'Bạn có thể <b>giúp</b> tôi không?',sentEN:'Can you <b>help</b> me?',brk:'Bạn–you;có thể–can/be able to;giúp–help;tôi–me;không–question marker',box:1,nr:0},
+  {id:'w074',viet:'Biết',eng:'To know',note:'Used for facts or skills.',emoji:'🧠',type:'verb',cat:'Education & Work',sentVN:'Bạn <b>biết</b> nói tiếng Việt không?',sentEN:'Do you <b>know</b> how to speak Vietnamese?',brk:'Bạn–you;biết–know (fact/skill);nói–speak;tiếng Việt–Vietnamese language;không–question marker',box:1,nr:0},
+  {id:'w075',viet:'Cười',eng:'To laugh / To smile',note:'Emotional expression.',emoji:'😄',type:'verb',cat:'Adjectives, Adverbs & Connectors',sentVN:'Cô ấy luôn <b>cười</b> vui vẻ.',sentEN:'She always <b>smiles</b> happily.',brk:'Cô ấy–she;luôn–always;cười–laugh/smile;vui vẻ–happily/cheerfully',box:1,nr:0},
+  {id:'w076',viet:'Thích',eng:'To like',note:'Expressing preference.',emoji:'👍',type:'verb',cat:'Greetings, Introductions & Phrases',sentVN:'Tôi <b>thích</b> đi du lịch.',sentEN:'I <b>like</b> to travel.',brk:'Tôi–I;thích–like/enjoy;đi du lịch–travel/go traveling',box:1,nr:0},
+  {id:'w077',viet:'Nghe',eng:'To listen / To hear',note:'Auditory perception.',emoji:'👂',type:'verb',cat:'Home & Daily Life',sentVN:'Tôi <b>nghe</b> nhạc mỗi tối.',sentEN:'I <b>listen to</b> music every evening.',brk:'Tôi–I;nghe–listen/hear;nhạc–music;mỗi–every;tối–evening/night',box:1,nr:0},
+  {id:'w078',viet:'Nhìn',eng:'To look at',note:'Directed visual attention.',emoji:'👁️',type:'verb',cat:'Home & Daily Life',sentVN:'Hãy <b>nhìn</b> vào đây.',sentEN:'Please <b>look at</b> this.',brk:'Hãy–please (imperative);nhìn–look at;vào–into/at;đây–here/this',box:1,nr:0},
+  {id:'w079',viet:'Yêu',eng:'To love',note:'Strong affection.',emoji:'❤️',type:'verb',cat:'Family, People & Descriptions',sentVN:'Tôi <b>yêu</b> Việt Nam.',sentEN:'I <b>love</b> Vietnam.',brk:'Tôi–I;yêu–love;Việt Nam–Vietnam',box:1,nr:0},
+  {id:'w080',viet:'Cần',eng:'To need',note:'Expresses necessity.',emoji:'⚠️',type:'verb',cat:'Home & Daily Life',sentVN:'Tôi <b>cần</b> phải làm việc.',sentEN:'I <b>need</b> to work.',brk:'Tôi–I;cần–need;phải–must/have to;làm việc–work',box:1,nr:0},
+  {id:'w081',viet:'Mở',eng:'To open',note:'Initiating access.',emoji:'🔓',type:'verb',cat:'Home & Daily Life',sentVN:'Hãy <b>mở</b> cửa sổ ra.',sentEN:'Please <b>open</b> the window.',brk:'Hãy–please (imperative);mở–open;cửa sổ–window (door+eye);ra–out (completive)',box:1,nr:0},
+  {id:'w082',viet:'Chơi',eng:'To play',note:'Recreation.',emoji:'🎮',type:'verb',cat:'Adjectives, Adverbs & Connectors',sentVN:'Các cháu tôi đang <b>chơi</b> ngoài sân.',sentEN:'My grandchildren are <b>playing</b> outside.',brk:'Các cháu–grandchildren (plural);tôi–my;đang–currently;chơi–play;ngoài–outside;sân–yard/court',box:1,nr:0},
+  {id:'w083',viet:'Đọc',eng:'To read',note:'Comprehending text.',emoji:'📖',type:'verb',cat:'Education & Work',sentVN:'Tôi thích <b>đọc</b> sách buổi tối.',sentEN:'I like to <b>read</b> books in the evening.',brk:'Tôi–I;thích–like;đọc–read;sách–book;buổi tối–in the evening',box:1,nr:0},
+  {id:'w084',viet:'Về',eng:'To return',note:'Movement back to source.',emoji:'↩️',type:'verb',cat:'Travel, Directions & Transport',sentVN:'Tôi muốn <b>về</b> nhà.',sentEN:'I want to <b>return</b> home.',brk:'Tôi–I;muốn–want;về–return/go back;nhà–home/house',box:1,nr:0},
+  {id:'w085',viet:'Chạy',eng:'To run',note:'Fast movement.',emoji:'🏃',type:'verb',cat:'Home & Daily Life',sentVN:'Tôi <b>chạy</b> mỗi buổi sáng.',sentEN:'I <b>run</b> every morning.',brk:'Tôi–I;chạy–run;mỗi–every;buổi sáng–morning',box:1,nr:0},
+  {id:'w086',viet:'Thấy',eng:'To see / To feel',note:'Perception; distinct from looking.',emoji:'👀',type:'verb',cat:'Home & Daily Life',sentVN:'Bạn có <b>thấy</b> điện thoại của tôi không?',sentEN:'Did you <b>see</b> my phone?',brk:'Bạn–you;có–(question frame);thấy–see/feel/notice;điện thoại–phone;của–of;tôi–my;không–question marker',box:1,nr:0},
+  {id:'w087',viet:'Bán',eng:'To sell',note:'Commercial transaction.',emoji:'🏷️',type:'verb',cat:'Food, Drink & Dining',sentVN:'Cửa hàng này <b>bán</b> gì vậy?',sentEN:'What does this shop <b>sell</b>?',brk:'Cửa hàng–shop/store;này–this;bán–sell;gì–what;vậy–softening particle',box:1,nr:0},
+  {id:'w088',viet:'Ngồi',eng:'To sit',note:'Physical posture.',emoji:'🪑',type:'verb',cat:'Home & Daily Life',sentVN:'Mời bạn <b>ngồi</b> xuống.',sentEN:'Please <b>sit</b> down.',brk:'Mời–please/invite (polite);bạn–you;ngồi–sit;xuống–down',box:1,nr:0},
+  {id:'w089',viet:'Ngủ',eng:'To sleep',note:'Routine night action.',emoji:'😴',type:'verb',cat:'Home & Daily Life',sentVN:"Tôi <b>ngủ</b> lúc mười giờ tối.",sentEN:'I <b>sleep</b> at ten at night.',brk:"Tôi–I;ngủ–sleep;lúc–at (time);mười giờ–ten o'clock;tối–evening/night",box:1,nr:0},
+  {id:'w090',viet:'Nói',eng:'To speak / To say',note:'General communication.',emoji:'💬',type:'verb',cat:'Greetings, Introductions & Phrases',sentVN:'Bạn <b>nói</b> tiếng Việt rất giỏi.',sentEN:'You <b>speak</b> Vietnamese very well.',brk:'Bạn–you;nói–speak/say;tiếng Việt–Vietnamese language;rất–very;giỏi–skilled/well',box:1,nr:0},
+  {id:'w091',viet:'Đứng',eng:'To stand',note:'Physical posture.',emoji:'🧍',type:'verb',cat:'Home & Daily Life',sentVN:'Hãy <b>đứng</b> đây chờ tôi.',sentEN:'Please <b>stand</b> here and wait for me.',brk:'Hãy–please (imperative);đứng–stand;đây–here;chờ–wait for;tôi–me',box:1,nr:0},
+  {id:'w092',viet:'Học',eng:'To study',note:'Educational activity.',emoji:'📝',type:'verb',cat:'Education & Work',sentVN:'Tôi đang <b>học</b> tiếng Việt.',sentEN:'I am <b>studying</b> Vietnamese.',brk:'Tôi–I;đang–currently;học–study/learn;tiếng Việt–Vietnamese language',box:1,nr:0},
+  {id:'w093',viet:'Lấy',eng:'To take / To get',note:'Physical action.',emoji:'🤏',type:'verb',cat:'Home & Daily Life',sentVN:'Bạn có thể <b>lấy</b> cái đó cho tôi không?',sentEN:'Can you <b>get</b> that for me?',brk:'Bạn–you;có thể–can;lấy–take/get;cái đó–that thing;cho–for;tôi–me;không–question marker',box:1,nr:0},
+  {id:'w094',viet:'Nghĩ',eng:'To think',note:'Opinion/Mentation.',emoji:'🤔',type:'verb',cat:'Education & Work',sentVN:'Tôi <b>nghĩ</b> đó là ý hay.',sentEN:'I <b>think</b> that is a good idea.',brk:'Tôi–I;nghĩ–think;đó–that;là–is;ý–idea/thought;hay–good/interesting',box:1,nr:0},
+  {id:'w095',viet:'Hiểu',eng:'To understand',note:'Cognitive comprehension.',emoji:'💡',type:'verb',cat:'Education & Work',sentVN:'Bạn có <b>hiểu</b> không?',sentEN:'Do you <b>understand</b>?',brk:'Bạn–you;có–(question frame);hiểu–understand;không–question marker',box:1,nr:0},
+  {id:'w096',viet:'Dùng',eng:'To use',note:'More formal than "xài".',emoji:'🔧',type:'verb',cat:'Home & Daily Life',sentVN:'Tôi <b>dùng</b> điện thoại mỗi ngày.',sentEN:'I <b>use</b> my phone every day.',brk:'Tôi–I;dùng–use (formal);điện thoại–phone;mỗi ngày–every day',box:1,nr:0},
+  {id:'w097',viet:'Đợi',eng:'To wait',note:'Temporal delay; also "chờ".',emoji:'⏳',type:'verb',cat:'Greetings, Introductions & Phrases',sentVN:'Xin hãy <b>đợi</b> một chút.',sentEN:'Please <b>wait</b> a moment.',brk:'Xin hãy–please (polite imperative);đợi–wait;một chút–a little/a moment',box:1,nr:0},
+  {id:'w098',viet:'Dậy',eng:'To wake up',note:'Routine morning action.',emoji:'🌅',type:'verb',cat:'Home & Daily Life',sentVN:"Tôi <b>dậy</b> lúc sáu giờ sáng.",sentEN:'I <b>wake up</b> at six in the morning.',brk:"Tôi–I;dậy–wake up/get up;lúc–at (time);sáu giờ–six o'clock;sáng–morning",box:1,nr:0},
+  {id:'w099',viet:'Muốn',eng:'To want',note:'Expresses desire.',emoji:'🌟',type:'verb',cat:'Greetings, Introductions & Phrases',sentVN:'Tôi <b>muốn</b> học tiếng Việt.',sentEN:'I <b>want</b> to learn Vietnamese.',brk:'Tôi–I;muốn–want;học–learn/study;tiếng Việt–Vietnamese language',box:1,nr:0},
+  {id:'w100',viet:'Rửa',eng:'To wash',note:'Cleaning objects/hands.',emoji:'🧼',type:'verb',cat:'Home & Daily Life',sentVN:'Hãy <b>rửa</b> tay trước khi ăn.',sentEN:'Please <b>wash</b> your hands before eating.',brk:'Hãy–please (imperative);rửa–wash;tay–hand(s);trước khi–before;ăn–eat',box:1,nr:0},
+  {id:'w101',viet:'Xem',eng:'To watch / To look',note:'Preferred over "coi" for media.',emoji:'📺',type:'verb',cat:'Home & Daily Life',sentVN:'Tôi đang <b>xem</b> phim.',sentEN:'I am <b>watching</b> a film.',brk:'Tôi–I;đang–currently;xem–watch/view;phim–film/movie',box:1,nr:0},
+  {id:'w102',viet:'Viết',eng:'To write',note:'Written communication.',emoji:'✍️',type:'verb',cat:'Education & Work',sentVN:'Tôi <b>viết</b> nhật ký mỗi ngày.',sentEN:'I <b>write</b> in my diary every day.',brk:'Tôi–I;viết–write;nhật ký–diary/journal;mỗi ngày–every day',box:1,nr:0},
+];
+
+// STATE
+let words=[], settings={type:true}, mnemonics={};
+let curCat='All words', mode='vn-en', speechRate=0.85;
+let sessionCount=0, queue=[], qIdx=0, answered=false;
+let cardFlipped=false, showingHint=false, showingMnemonic=false, showingBreakdown=false, brkAutoOn=false;
+let revertSecs=0, revertTimer=null;
+let missedIds=[], sessionMissed=[];
+
+function save(){try{localStorage.setItem(SK,JSON.stringify({words,settings,mnemonics,sessionCount,curCat,mode,speechRate,revertSecs}));}catch(e){}}
+function load(){
+  try{
+    var d=JSON.parse(localStorage.getItem(SK)||'null');
+    if(d&&d.words&&d.words.length>0){
+      words=d.words;
+      if(d.settings)settings=Object.assign({type:true},d.settings);
+      if(d.mnemonics)mnemonics=d.mnemonics;
+      sessionCount=d.sessionCount||0;
+      if(d.curCat)curCat=d.curCat;
+      if(d.mode)mode=d.mode;
+      if(d.speechRate)speechRate=d.speechRate;
+      if(d.revertSecs!=null)revertSecs=d.revertSecs;
+    } else {
+      words=DW.map(function(w){return Object.assign({},w);});
+    }
+  }catch(e){words=DW.map(function(w){return Object.assign({},w);});}
+}
+
+// HELPERS
+function getCats(){
+  var seen={},out=['All words'];
+  words.forEach(function(w){if(w.cat&&!seen[w.cat]){seen[w.cat]=1;out.push(w.cat);}});
+  return out;
+}
+function catWords(){return curCat==='All words'?words:words.filter(function(w){return w.cat===curCat;});}
+function isDue(w){return sessionCount>=(w.nr+(BOX_INT[w.box]||0));}
+function buildQueue(){
+  var due=catWords().filter(isDue);
+  due.sort(function(){return Math.random()-0.5;});
+  if(!due.length)due=catWords().slice().sort(function(){return Math.random()-0.5;});
+  queue=due;qIdx=0;
+}
+function speak(text){
+  if(!window.speechSynthesis)return;
+  window.speechSynthesis.cancel();
+  var u=new SpeechSynthesisUtterance(text);
+  u.lang='vi-VN';u.rate=speechRate;window.speechSynthesis.speak(u);
+}
+function speakEn(text){
+  if(!window.speechSynthesis)return;
+  window.speechSynthesis.cancel();
+  var u=new SpeechSynthesisUtterance(text);
+  u.lang='en-US';u.rate=speechRate;window.speechSynthesis.speak(u);
+}
+function stripTags(s){return (s||'').replace(/<[^>]+>/g,'');}
+
+// FORMAT BREAKDOWN — Vietnamese words in amber, meanings in text2
+function formatBrk(brk){
+  if(!brk)return '';
+  return brk.split(';').map(function(seg){
+    seg=seg.trim();
+    var dash=seg.indexOf('–');
+    if(dash<0)return '<span style="color:var(--text2)">'+seg+'</span>';
+    var viet=seg.slice(0,dash).trim();
+    var meaning=seg.slice(dash+1).trim();
+    return '<b>'+viet+'</b><span style="color:var(--text2)">–'+meaning+'</span>';
+  }).join('<span style="color:var(--text3)">;&nbsp;</span>');
+}
+
+// FILTER BAR
+function renderFilterBar(){
+  var bar=document.getElementById('filterBar');bar.innerHTML='';
+  getCats().forEach(function(c){
+    var el=document.createElement('div');
+    el.className='chip'+(c===curCat?' active':'');
+    var cnt=c==='All words'?words.length:words.filter(function(w){return w.cat===c;}).length;
+    el.textContent=(c==='All words'?'All':c)+' ('+cnt+')';
+    el.onclick=function(){curCat=c;renderFilterBar();buildQueue();renderQuiz();save();};
+    bar.appendChild(el);
+  });
+}
+
+// MODE TOGGLE
+function toggleMode(){
+  mode=mode==='vn-en'?'en-vn':'vn-en';
+  document.getElementById('modeBtn').textContent=mode==='vn-en'?'Vn→En':'En→Vn';
+  save();buildQueue();renderQuiz();
+}
+
+function doShuffle(){buildQueue();renderQuiz();toast('Shuffled!');}
+
+// RENDER QUIZ
+function renderQuiz(){
+  // reset panels
+  cardFlipped=false;showingHint=false;showingMnemonic=false;showingBreakdown=false;
+  document.getElementById('breakdownPanel').style.display='none';
+  document.getElementById('mnemonicBlock').style.display='none';
+  document.getElementById('breakdownBtn').classList.remove('on');
+  document.getElementById('mnemonicRbBtn').classList.remove('active-rb');
+  document.getElementById('hintBtn').classList.remove('active-rb');
+  var sb=document.getElementById('showBtn');sb.textContent='Show →';sb.classList.remove('shown');sb.onclick=showAnswer;
+  document.getElementById('cardFront').style.display='block';
+  document.getElementById('cardBack').style.display='none';
+  clearTimeout(revertTimer);
+
+  if(!queue.length||qIdx>=queue.length)buildQueue();
+  if(!queue.length){
+    document.getElementById('wordEmoji').textContent='📚';
+    document.getElementById('frontSentVN').innerHTML='<span style="color:var(--teal)">No words — add some in ➕</span>';
+    document.getElementById('frontEngWord').textContent='';
+    document.getElementById('frontEngSent').innerHTML='';
+    document.getElementById('wordType').style.display='none';
+    document.getElementById('choices').innerHTML='';
+    document.getElementById('feedback').textContent='';
+    document.getElementById('nextBtn').style.display='none';
+    document.getElementById('boxInfo').innerHTML='';
+    document.getElementById('actionRow').style.display='none';
+    if(sessionMissed.length)document.getElementById('missedBtn').style.display='block';
+    return;
+  }
+  document.getElementById('actionRow').style.display='flex';
+
+  var w=queue[qIdx];answered=false;
+
+  // progress
+  var total=catWords().length;
+  var learned=catWords().filter(function(x){return !isDue(x);}).length;
+  document.getElementById('progressFill').style.width=(total?Math.round(learned/total*100):0)+'%';
+  document.getElementById('progLeft').textContent='Box '+w.box;
+  document.getElementById('progRight').textContent=learned+' / '+total+' learned';
+
+  // box dots
+  var bi=document.getElementById('boxInfo');bi.innerHTML='';
+  for(var i=1;i<=5;i++){var d=document.createElement('div');d.className='bdot bd'+i+(i===w.box?' active':'');bi.appendChild(d);}
+
+  // type badge
+  var te=document.getElementById('wordType');
+  if(settings.type){te.textContent=w.type==='verb'?'VERB':'NOUN';te.className='wordType '+(w.type==='verb'?'type-verb':'type-noun');te.style.display='inline-block';}
+  else te.style.display='none';
+
+  if(mode==='vn-en'){
+    // FRONT: emoji hidden until hint
+    document.getElementById('wordEmoji').style.display='none';
+    document.getElementById('wordEmoji').textContent=w.emoji||'📝';
+    document.getElementById('hintBtn').style.display='flex';
+    document.getElementById('frontSentVN').innerHTML=w.sentVN||('<b>'+w.viet+'</b>');
+    document.getElementById('frontEngWord').textContent='';
+    document.getElementById('frontEngSent').innerHTML='';
+    document.getElementById('tapHint').textContent='Tap to hear Vietnamese';
+  } else {
+    // FRONT: show English word + sentence — NO emoji until hint
+    document.getElementById('wordEmoji').style.display='none';
+    document.getElementById('wordEmoji').textContent=w.emoji||'📝';
+    document.getElementById('frontSentVN').innerHTML='';
+    document.getElementById('frontEngWord').textContent=w.eng;
+    document.getElementById('frontEngSent').innerHTML=w.sentEN||'';
+    document.getElementById('tapHint').textContent='Tap to hear English';
+    document.getElementById('hintBtn').style.display='flex';
+  }
+
+  // choices: in vn-en mode show English options, en-vn show Vietnamese options
+  answered=false;
+  document.getElementById('feedback').textContent='';
+  document.getElementById('feedback').className='feedback';
+  document.getElementById('nextBtn').style.display='none';
+
+  var pool=words.filter(function(x){return x.id!==w.id&&x.type===w.type;});
+  if(pool.length<3)pool=words.filter(function(x){return x.id!==w.id;});
+  pool.sort(function(){return Math.random()-0.5;});
+
+  var correctChoice=mode==='vn-en'?w.eng:w.viet;
+  var opts=[correctChoice,
+    mode==='vn-en'?pool[0].eng:pool[0].viet,
+    mode==='vn-en'?pool[1].eng:pool[1].viet,
+    mode==='vn-en'?pool[2].eng:pool[2].viet
+  ].sort(function(){return Math.random()-0.5;});
+
+  var ch=document.getElementById('choices');ch.innerHTML='';
+  opts.forEach(function(o){
+    var b=document.createElement('button');b.className='choice';b.textContent=o;
+    b.onclick=function(){pick(b,o,w,correctChoice);};
+    ch.appendChild(b);
+  });
+}
+
+// CARD TAP — just plays audio, no flip
+function cardTap(){
+  var w=queue[qIdx];if(!w)return;
+  if(cardFlipped){
+    // on back side: always play Vietnamese sentence
+    speak(stripTags(w.sentVN)||w.viet);
+  } else {
+    if(mode==='vn-en'){speak(stripTags(w.sentVN)||w.viet);}
+    else{speakEn(stripTags(w.sentEN)||w.eng);}
+  }
+}
+
+// SHOW BUTTON — flips to back, shows translation + breakdown if on
+function showAnswer(){
+  var w=queue[qIdx];if(!w)return;
+  if(cardFlipped){
+    speak(stripTags(w.sentVN)||w.viet);
+    return;
+  }
+  cardFlipped=true;
+  document.getElementById('cardFront').style.display='none';
+  document.getElementById('cardBack').style.display='block';
+
+  if(mode==='vn-en'){
+    document.getElementById('backVN').innerHTML=w.sentVN||('<b>'+w.viet+'</b>');
+    document.getElementById('backEN').innerHTML=w.sentEN||'';
+  } else {
+    document.getElementById('backVN').innerHTML=(w.emoji?w.emoji+' ':'')+(w.sentVN||('<b>'+w.viet+'</b>'));
+    document.getElementById('backEN').innerHTML=w.sentEN||'';
+  }
+
+  speak(stripTags(w.sentVN)||w.viet);
+
+  var sb=document.getElementById('showBtn');
+  sb.textContent='▶ Hear again';
+  sb.classList.add('shown');
+  sb.onclick=function(){speak(stripTags(w.sentVN)||w.viet);};
+
+  if((showingBreakdown||brkAutoOn)&&w.brk){
+    document.getElementById('breakdownText').innerHTML=formatBrk(w.brk);
+    document.getElementById('breakdownPanel').style.display='block';
+  }
+  startRevertTimer(w);
+}
+
+// HINT (En→Vn mode only) — reveals emoji
+function toggleHint(e){
+  e.stopPropagation();
+  showingHint=!showingHint;
+  var el=document.getElementById('wordEmoji');
+  el.style.display=showingHint?'block':'none';
+  document.getElementById('hintBtn').classList.toggle('active-rb',showingHint);
+}
+
+
+// BREAKDOWN toggle — works before and after flip
+function toggleBreakdown(){
+  showingBreakdown=!showingBreakdown;
+  document.getElementById('breakdownBtn').classList.toggle('on',showingBreakdown);
+  var w=queue[qIdx];
+  if(showingBreakdown&&w&&w.brk){
+    document.getElementById('breakdownText').innerHTML=formatBrk(w.brk);
+    document.getElementById('breakdownPanel').style.display='block';
+  } else {
+    document.getElementById('breakdownPanel').style.display='none';
+  }
+}
+
+// BREAKDOWN AUTO toggle
+function toggleBrkAuto(){
+  brkAutoOn=!brkAutoOn;
+  var btn=document.getElementById('brkAutoBtn');
+  btn.classList.toggle('auto-on',brkAutoOn);
+  btn.innerHTML='Auto<br>'+(brkAutoOn?'ON':'OFF');
+}
+
+// REVERT TIMER
+function updateRevert(v){
+  revertSecs=parseInt(v);
+  var el=document.getElementById('revertVal');
+  el.textContent=revertSecs===0?'Off':revertSecs+'s';
+  save();
+}
+
+function startRevertTimer(w){
+  clearTimeout(revertTimer);
+  if(!revertSecs)return;
+  revertTimer=setTimeout(function(){
+    if(!cardFlipped)return;
+    cardFlipped=false;
+    document.getElementById('cardFront').style.display='block';
+    document.getElementById('cardBack').style.display='none';
+    document.getElementById('showBtn').textContent='Show →';
+    document.getElementById('showBtn').classList.remove('shown');
+    document.getElementById('showBtn').onclick=showAnswer;
+    document.getElementById('breakdownPanel').style.display='none';
+  },revertSecs*1000);
+}
+
+// MISSED CARDS
+function reviewMissed(){
+  if(!sessionMissed.length)return;
+  queue=words.filter(function(w){return sessionMissed.includes(w.id);}).sort(function(){return Math.random()-0.5;});
+  qIdx=0;sessionMissed=[];
+  document.getElementById('missedBtn').style.display='none';
+  renderQuiz();toast('Reviewing '+queue.length+' missed cards');
+}
+
+// MNEMONIC toggle
+function toggleMnemonicPanel(e){
+  if(e)e.stopPropagation();
+  showingMnemonic=!showingMnemonic;
+  var mb=document.getElementById('mnemonicBlock');
+  var btn=document.getElementById('mnemonicRbBtn');
+  btn.classList.toggle('active-rb',showingMnemonic);
+  if(!showingMnemonic){mb.style.display='none';return;}
+  mb.style.display='block';
+  var w=queue[qIdx];if(!w)return;
+  var saved=mnemonics[w.id]||'';
+  var ms=document.getElementById('mnemonicSaved');
+  var mi=document.getElementById('mnemonicInput');
+  mi.value=saved;
+  if(saved){ms.textContent=saved;ms.style.display='block';mi.style.display='none';}
+  else{ms.style.display='none';mi.style.display='block';}
+  ms.onclick=function(){ms.style.display='none';mi.style.display='block';mi.focus();};
+  mi.onblur=function(){
+    var v=mi.value.trim();
+    if(v&&w){mnemonics[w.id]=v;ms.textContent=v;ms.style.display='block';mi.style.display='none';save();}
+  };
+}
+
+// PICK ANSWER
+function pick(btn,choice,w,correct){
+  if(answered)return;answered=true;
+  var fb=document.getElementById('feedback');
+  document.querySelectorAll('.choice').forEach(function(b){
+    if(b.textContent===correct)b.classList.add(choice===correct?'correct':'reveal');
+  });
+  if(choice===correct){
+    btn.classList.add('correct');
+    fb.textContent='✓  '+w.viet+' = '+w.eng;
+    fb.className='feedback good';
+    w.box=Math.min(5,w.box+1);w.nr=sessionCount+1;
+  } else {
+    btn.classList.add('wrong');
+    fb.textContent='✗  '+w.viet+' = '+w.eng;
+    fb.className='feedback bad';
+    w.box=1;w.nr=0;
+    if(!sessionMissed.includes(w.id))sessionMissed.push(w.id);
+  }
+  speak(w.viet);
+  save();
+  document.getElementById('nextBtn').style.display='block';
+}
+
+function goNext(){
+  clearTimeout(revertTimer);
+  sessionCount++;qIdx++;save();
+  if(sessionMissed.length)document.getElementById('missedBtn').style.display='block';
+  renderQuiz();
+}
+
+// SETTINGS
+function updateSpeed(v){
+  speechRate=parseFloat(v);
+  document.getElementById('speedVal').textContent=parseFloat(v).toFixed(2);
+  save();
+}
+
+function flipSetting(k){
+  settings[k]=!settings[k];
+  var cap=k.charAt(0).toUpperCase()+k.slice(1);
+  var el=document.getElementById('tog'+cap);
+  if(el)el.classList.toggle('on',settings[k]);
+  save();
+  if(document.getElementById('quizScreen').style.display!=='none')renderQuiz();
+}
+
+function renderSettings(){
+  var sl=document.getElementById('speedSlider');
+  if(sl){sl.value=speechRate;document.getElementById('speedVal').textContent=parseFloat(speechRate).toFixed(2);}
+  var rl=document.getElementById('revertSlider');
+  if(rl){rl.value=revertSecs;document.getElementById('revertVal').textContent=revertSecs===0?'Off':revertSecs+'s';}
+  ['type'].forEach(function(k){
+    var cap=k.charAt(0).toUpperCase()+k.slice(1);
+    var el=document.getElementById('tog'+cap);
+    if(el)el.classList.toggle('on',settings[k]);
+  });
+  var dm=document.getElementById('deckManage');dm.innerHTML='';
+  getCats().filter(function(c){return c!=='All words';}).forEach(function(c){
+    var cnt=words.filter(function(w){return w.cat===c;}).length;
+    var row=document.createElement('div');row.className='s-row';
+    row.innerHTML='<div><div class="s-label">'+c+'</div><div class="s-sub">'+cnt+' words</div></div><button class="del-btn" onclick="deleteCat(\''+c.replace(/'/g,"\\'")+'\')">Delete</button>';
+    dm.appendChild(row);
+  });
+}
+
+function deleteCat(c){
+  if(!confirm('Delete "'+c+'" and all its words?'))return;
+  words=words.filter(function(w){return w.cat!==c;});
+  if(curCat===c)curCat='All words';
+  save();renderFilterBar();renderSettings();buildQueue();renderQuiz();toast('Deleted');
+}
+
+function resetProgress(){
+  if(!confirm('Reset ALL words to Box 1?'))return;
+  words.forEach(function(w){w.box=1;w.nr=0;});sessionCount=0;
+  save();buildQueue();renderQuiz();toast('Progress reset');
+}
+
+// WORD LIST
+function renderWordList(){
+  var q=(document.getElementById('wordSearch').value||'').toLowerCase();
+  var list=catWords().filter(function(w){return !q||w.viet.toLowerCase().includes(q)||w.eng.toLowerCase().includes(q);});
+  var el=document.getElementById('wordListItems');el.innerHTML='';
+  if(!list.length){el.innerHTML='<div style="text-align:center;color:var(--text3);padding:20px;">No words found</div>';return;}
+  list.forEach(function(w){
+    var row=document.createElement('div');row.className='word-item';
+    row.innerHTML='<div class="wi-em">'+w.emoji+'</div><div class="wi-info"><div class="wi-viet">'+w.viet+'</div><div class="wi-eng">'+w.eng+'</div><div class="wi-cat">'+w.cat+'</div></div><span class="wi-box wb'+w.box+'">B'+w.box+'</span><button class="del-btn" onclick="deleteWord(\''+w.id+'\')">✕</button>';
+    row.querySelector('.wi-em').onclick=function(){speak(w.viet);};
+    el.appendChild(row);
+  });
+}
+
+function deleteWord(id){
+  if(!confirm('Remove this word?'))return;
+  words=words.filter(function(w){return w.id!==id;});
+  save();renderWordList();buildQueue();toast('Word removed');
+}
+
+// ADD
+function switchTab(t){
+  document.getElementById('singleForm').style.display=t==='single'?'block':'none';
+  document.getElementById('bulkForm').style.display=t==='bulk'?'block':'none';
+  document.getElementById('tabSingle').classList.toggle('active',t==='single');
+  document.getElementById('tabBulk').classList.toggle('active',t==='bulk');
+}
+
+function populateCatSelects(){
+  var cats=[];
+  ALL_CATS.filter(function(c){return c!=='All words';}).forEach(function(c){cats.push(c);});
+  getCats().filter(function(c){return c!=='All words'&&!cats.includes(c);}).forEach(function(c){cats.push(c);});
+  ['aCat','bulkCat'].forEach(function(id){
+    var sel=document.getElementById(id);if(!sel)return;
+    sel.innerHTML='';
+    cats.forEach(function(c){var o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o);});
+    var o=document.createElement('option');o.value='__new__';o.textContent='+ New category...';sel.appendChild(o);
+  });
+}
+
+function resolveNewCat(v){
+  if(v==='__new__'){var n=prompt('New category name:');return n&&n.trim()||'My Words';}return v;
+}
+
+function saveSingle(){
+  var viet=document.getElementById('aViet').value.trim();
+  var eng=document.getElementById('aEng').value.trim();
+  if(!viet||!eng){toast('Vietnamese and English required');return;}
+  var cat=resolveNewCat(document.getElementById('aCat').value);
+  words.push({id:'w'+Date.now(),viet,eng,note:document.getElementById('aNote').value.trim(),
+    emoji:document.getElementById('aEmoji').value.trim()||'📝',
+    sentVN:document.getElementById('aSentVN').value.trim(),
+    sentEN:document.getElementById('aSentEN').value.trim(),
+    brk:document.getElementById('aBreakdown').value.trim(),
+    type:document.getElementById('aType').value,cat,box:1,nr:0});
+  save();
+  ['aViet','aEng','aNote','aEmoji','aSentVN','aSentEN','aBreakdown'].forEach(function(id){document.getElementById(id).value='';});
+  renderFilterBar();buildQueue();toast('Word added!');showScreen('quiz');
+}
+
+document.getElementById('bulkInput').oninput=function(){
+  var n=this.value.trim().split('\n').filter(function(l){return l.trim();}).length;
+  document.getElementById('bulkPreview').textContent=n+' word'+(n===1?'':'s')+' ready';
+};
+
+function saveBulk(){
+  var raw=document.getElementById('bulkInput').value.trim();
+  if(!raw){toast('Paste words first');return;}
+  var defCat=resolveNewCat(document.getElementById('bulkCat').value);
+  var added=0,skipped=0;
+  raw.split('\n').filter(function(l){return l.trim();}).forEach(function(line){
+    var p=line.split('|').map(function(x){return x.trim();});
+    if(!p[0]||!p[1]){skipped++;return;}
+    words.push({id:'w'+Date.now()+Math.random(),viet:p[0],eng:p[1],note:'',
+      emoji:p[2]||'📝',type:(p[3]||'noun').toLowerCase()==='verb'?'verb':'noun',
+      cat:p[4]||defCat,sentVN:p[5]||'',sentEN:p[6]||'',brk:p[7]||'',box:1,nr:0});
+    added++;
+  });
+  save();
+  document.getElementById('bulkInput').value='';document.getElementById('bulkPreview').textContent='';
+  renderFilterBar();buildQueue();
+  toast(added+' added'+(skipped?' ('+skipped+' skipped)':''));showScreen('quiz');
+}
+
+// SCREENS
+function showScreen(name){
+  var map={quiz:'quizScreen',words:'wordListScreen',add:'addScreen',settings:'settingsScreen'};
+  Object.keys(map).forEach(function(k){
+    document.getElementById(map[k]).style.display=k===name?'block':'none';
+    document.getElementById('nav-'+k).classList.toggle('active',k===name);
+  });
+  if(name==='settings')renderSettings();
+  if(name==='words')renderWordList();
+  if(name==='add')populateCatSelects();
+}
+
+function toast(msg){
+  var t=document.getElementById('toast');t.textContent=msg;t.style.opacity='1';
+  clearTimeout(t._t);t._t=setTimeout(function(){t.style.opacity='0';},2200);
+}
+
+// INIT
+load();
+document.getElementById('modeBtn').textContent=mode==='vn-en'?'Vn→En':'En→Vn';
+document.getElementById('brkAutoBtn').innerHTML='Auto<br>OFF';
+renderFilterBar();buildQueue();renderQuiz();
+</script>
+</body>
+</html>

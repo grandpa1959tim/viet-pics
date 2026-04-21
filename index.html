@@ -15,6 +15,7 @@
   --text:#f0f2ff;--text2:#8b90b8;--text3:#555a7a;
   --teal:#1D9E75;--teal2:#0F6E56;
   --red:#E24B4A;--amber:#EF9F27;--cyan:#5DCAA5;
+  --purple:#7C3AED;
   --r16:16px;--r10:10px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
@@ -164,6 +165,44 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,sans-serif
 .nav-label{font-size:10px;margin-top:1px;}
 #missedBtn{width:100%;padding:11px;border-radius:var(--r10);border:0.5px solid var(--amber);background:transparent;color:var(--amber);font-size:14px;cursor:pointer;margin-bottom:8px;display:none;}
 #toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%);background:#333;color:white;padding:7px 16px;border-radius:20px;font-size:13px;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;z-index:99;}
+
+/* Q&A SCREEN */
+#qaScreen{padding:12px 14px;display:none;}
+#qaProgressWrap{margin-bottom:7px;}
+#qaBar{height:3px;background:var(--bg3);border-radius:2px;}
+#qaFill{height:3px;background:var(--purple);border-radius:2px;transition:width 0.4s;}
+#qaLabel{display:flex;justify-content:space-between;margin-top:4px;font-size:11px;color:var(--text3);}
+#qaCard{background:var(--bg2);border-radius:var(--r16);border:0.5px solid var(--border);padding:18px 14px 14px;text-align:left;cursor:pointer;margin-bottom:10px;min-height:140px;}
+#qaCard:active{opacity:0.92;}
+.qa-frame-label{font-size:11px;color:var(--purple);font-weight:600;letter-spacing:0.5px;margin-bottom:8px;text-transform:uppercase;}
+#qaQuestion{font-size:calc(20px * var(--fs));line-height:1.65;color:var(--text);margin-bottom:4px;}
+#qaQuestion .qw{color:#A78BFA;font-weight:700;}
+#qaQuestion .fw{color:var(--amber);font-weight:600;}
+#qaQEn{font-size:calc(14px * var(--fs));color:var(--text2);line-height:1.5;margin-bottom:6px;}
+#qaTapHint{font-size:11px;color:var(--text3);}
+/* Answer section */
+#qaAnswer{display:none;margin-top:12px;padding-top:12px;border-top:0.5px solid rgba(255,255,255,0.1);}
+#qaAnswerVN{font-size:calc(20px * var(--fs));line-height:1.65;color:var(--text);margin-bottom:4px;font-weight:500;}
+#qaAnswerVN .qw{color:#A78BFA;font-weight:700;}
+#qaAnswerVN .fw{color:var(--amber);font-weight:600;}
+#qaAnswerEN{font-size:calc(15px * var(--fs));color:var(--cyan);line-height:1.5;margin-bottom:8px;}
+#qaAnswerBrk{font-size:calc(13px * var(--fs));line-height:1.9;margin-top:8px;padding-top:8px;border-top:0.5px solid rgba(255,255,255,0.1);}
+/* Q&A action row */
+#qaActionRow{display:flex;gap:8px;margin-bottom:10px;}
+#qaShowBtn{flex:2;padding:11px;border-radius:var(--r10);border:none;background:var(--teal);color:white;font-size:15px;font-weight:600;cursor:pointer;}
+#qaShowBtn.shown{background:var(--bg3);color:var(--text2);border:0.5px solid var(--border);font-size:13px;font-weight:400;}
+#qaMarkBtn{flex:1;padding:11px;border-radius:var(--r10);border:0.5px solid var(--amber);background:transparent;color:var(--amber);font-size:13px;cursor:pointer;}
+#qaMarkBtn:active{background:rgba(239,159,39,0.1);}
+#qaNextBtn{width:100%;padding:13px;border-radius:var(--r10);border:none;background:var(--teal);color:white;font-size:16px;font-weight:600;cursor:pointer;display:none;}
+#qaNextBtn:active{background:var(--teal2);}
+#qaReviewBtn{width:100%;padding:11px;border-radius:var(--r10);border:0.5px solid var(--amber);background:transparent;color:var(--amber);font-size:14px;cursor:pointer;margin-bottom:8px;display:none;}
+#qaGenBtn{width:100%;padding:13px;border-radius:var(--r10);border:none;background:var(--purple);color:white;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:10px;}
+#qaGenBtn:active{opacity:0.85;}
+#qaStatus{text-align:center;font-size:13px;color:var(--text3);margin-bottom:10px;min-height:18px;}
+#qaFilterRow{display:flex;gap:6px;overflow-x:auto;margin-bottom:10px;padding-bottom:2px;}
+#qaFilterRow::-webkit-scrollbar{display:none;}
+.qa-chip{padding:4px 11px;border-radius:20px;border:0.5px solid var(--border);background:var(--bg2);color:var(--text2);font-size:12px;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.qa-chip.active{background:#2d1f5e;border-color:#A78BFA;color:#A78BFA;font-weight:500;}
 </style>
 </head>
 <body>
@@ -259,6 +298,15 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,sans-serif
     </div>
     <div class="s-title">CATEGORIES</div>
     <div id="deckManage"></div>
+    <div class="s-title">Q&A AI</div>
+    <div class="s-row" style="flex-direction:column;align-items:flex-start;gap:6px;">
+      <div class="s-label">Anthropic API Key</div>
+      <div class="s-sub">Required for AI Q&A generation. Stored locally only.</div>
+      <div style="display:flex;gap:6px;width:100%;">
+        <input type="password" id="apiKeyInput" placeholder="sk-ant-..." style="flex:1;padding:8px 10px;background:var(--bg3);border:0.5px solid var(--border);border-radius:var(--r10);color:var(--text);font-size:13px;font-family:monospace;">
+        <button onclick="saveApiKey()" style="padding:8px 14px;border-radius:var(--r10);border:none;background:var(--teal);color:white;font-size:13px;cursor:pointer;">Save</button>
+      </div>
+    </div>
     <div class="s-title">DATA</div>
     <button class="danger-btn" onclick="resetProgress()">Reset all progress to Box 1</button>
   </div>
@@ -296,10 +344,39 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,sans-serif
     </div>
   </div>
 
+
+  <!-- Q&A -->
+  <div id="qaScreen">
+    <button id="qaGenBtn" onclick="generateQA()">✨ Generate Q&amp;A cards with AI</button>
+    <div id="qaStatus"></div>
+    <div id="qaFilterRow"></div>
+    <div id="qaReviewBtn" onclick="reviewQAMissed()">⭐ Review marked cards <span id="qaReviewCount" style="color:var(--cyan);font-weight:600;"></span></div>
+    <div id="qaProgressWrap">
+      <div id="qaBar"><div id="qaFill" style="width:0%"></div></div>
+      <div id="qaLabel"><span id="qaProgLeft">Q&A</span><span id="qaProgRight">0 / 0</span></div>
+    </div>
+    <div id="qaCard" onclick="qaTap()">
+      <div class="qa-frame-label" id="qaFrameLabel"></div>
+      <div id="qaQuestion"></div>
+      <div id="qaQEn"></div>
+      <div id="qaTapHint">Tap to hear question</div>
+      <div id="qaAnswer">
+        <div id="qaAnswerVN"></div>
+        <div id="qaAnswerEN"></div>
+        <div id="qaAnswerBrk"></div>
+      </div>
+    </div>
+    <div id="qaActionRow">
+      <button id="qaShowBtn" onclick="qaShow()">Show answer →</button>
+      <button id="qaMarkBtn" onclick="qaMark()">⭐ Mark</button>
+    </div>
+    <button id="qaNextBtn" onclick="qaNext()">Next →</button>
+  </div>
   <div id="bottomNav">
     <div class="nav-item active" id="nav-quiz" onclick="showScreen('quiz')"><span class="nav-icon">🎯</span><div class="nav-label">Quiz</div></div>
     <div class="nav-item" id="nav-words" onclick="showScreen('words')"><span class="nav-icon">📋</span><div class="nav-label">Words</div></div>
     <div class="nav-item" id="nav-add" onclick="showScreen('add')"><span class="nav-icon">➕</span><div class="nav-label">Add</div></div>
+    <div class="nav-item" id="nav-qa" onclick="showScreen('qa')"><span class="nav-icon">💬</span><div class="nav-label">Q&amp;A</div></div>
     <div class="nav-item" id="nav-settings" onclick="showScreen('settings')"><span class="nav-icon">⚙️</span><div class="nav-label">Settings</div></div>
   </div>
 </div>
@@ -547,7 +624,9 @@ function renderFilterBar(){
     el.className='chip'+(curTypeFilter===t.k?' active':'');
     el.style.borderColor=t.k==='noun'?'#378ADD':t.k==='verb'?'#1D9E75':'';
     el.textContent=t.label+' ('+cnt+')';
-    el.onclick=function(){curTypeFilter=t.k;renderFilterBar();buildQueue();renderQuiz();save();};
+    el.onclick=function(){curTypeFilter=t.k;loadQA();
+renderFilterBar();buildQueue();renderQuiz();
+if(document.getElementById('qaScreen').style.display!=='none'){renderQAFilterRow();qaStartQueue();}save();};
     bar.appendChild(el);
   });
   // separator
@@ -558,7 +637,9 @@ function renderFilterBar(){
     el.className='chip'+(c===curCat?' active':'');
     var cnt=c==='All words'?words.length:words.filter(function(w){return w.cat===c;}).length;
     el.textContent=(c==='All words'?'All cats':c)+' ('+cnt+')';
-    el.onclick=function(){curCat=c;renderFilterBar();buildQueue();renderQuiz();save();};
+    el.onclick=function(){curCat=c;loadQA();
+renderFilterBar();buildQueue();renderQuiz();
+if(document.getElementById('qaScreen').style.display!=='none'){renderQAFilterRow();qaStartQueue();}save();};
     bar.appendChild(el);
   });
 }
@@ -973,12 +1054,14 @@ function saveBulk(){
 
 // SCREENS
 function showScreen(name){
-  var map={quiz:'quizScreen',words:'wordListScreen',add:'addScreen',settings:'settingsScreen'};
+  var map={quiz:'quizScreen',words:'wordListScreen',add:'addScreen',settings:'settingsScreen',qa:'qaScreen'};
   Object.keys(map).forEach(function(k){
     document.getElementById(map[k]).style.display=k===name?'block':'none';
-    document.getElementById('nav-'+k).classList.toggle('active',k===name);
+    var ni=document.getElementById('nav-'+k);
+    if(ni)ni.classList.toggle('active',k===name);
   });
-  if(name==='settings')renderSettings();
+  if(name==='settings'){renderSettings();loadApiKeyUI();}
+  if(name==='qa'&&!qaCards.length){renderQAFilterRow();qaStartQueue();}
   if(name==='words')renderWordList();
   if(name==='add')populateCatSelects();
 }
@@ -986,6 +1069,17 @@ function showScreen(name){
 function toast(msg){
   var t=document.getElementById('toast');t.textContent=msg;t.style.opacity='1';
   clearTimeout(t._t);t._t=setTimeout(function(){t.style.opacity='0';},2200);
+}
+
+// API KEY
+function saveApiKey(){
+  var k=document.getElementById('apiKeyInput').value.trim();
+  if(k){localStorage.setItem('vp_apikey',k);toast('API key saved');}
+}
+function loadApiKeyUI(){
+  var k=localStorage.getItem('vp_apikey')||'';
+  var el=document.getElementById('apiKeyInput');
+  if(el&&k)el.value=k;
 }
 
 // FONT SIZE
@@ -1001,12 +1095,309 @@ function applyFont(){
   document.getElementById('fontBtn').textContent=FS_LABELS[fsIdx];
 }
 
+// ══════════════════════════════════════════════════════════════
+// Q&A MODULE
+// ══════════════════════════════════════════════════════════════
+
+var qaCards=[], qaQueue=[], qaIdx=0, qaFlipped=false, qaMissedIds=[], qaFilter='all';
+
+// ── formatQAText: highlight question words (purple) and focus words (amber) ──
+function formatQAText(html){
+  // already pre-tagged with <qw> and <fw> markers from AI
+  return html
+    .replace(/<qw>/g,'<span class="qw">')
+    .replace(/<\/qw>/g,'</span>')
+    .replace(/<fw>/g,'<span class="fw">')
+    .replace(/<\/fw>/g,'</span>');
+}
+
+// ── formatQABrk: same as vocab breakdown ──────────────────────
+function formatQABrk(brk){
+  if(!brk)return '';
+  return brk.split(';').map(function(seg){
+    seg=seg.trim();
+    var dash=seg.indexOf('–');
+    if(dash<0)return '<span style="color:#fff">'+seg+'</span>';
+    var viet=seg.slice(0,dash).trim();
+    var meaning=seg.slice(dash+1).trim();
+    return '<span style="color:var(--amber);font-weight:600;">'+viet+'</span><span style="color:rgba(255,255,255,0.5)">–</span><span style="color:#fff">'+meaning+'</span>';
+  }).join('<span style="color:rgba(255,255,255,0.25);">&nbsp;·&nbsp;</span>');
+}
+
+// ── speakQA: speak with word highlighting ─────────────────────
+function speakQA(text, el){
+  if(!window.speechSynthesis)return;
+  window.speechSynthesis.cancel();
+  var u=new SpeechSynthesisUtterance(text);
+  u.lang='vi-VN'; u.rate=speechRate;
+  if(el){
+    if(!el.getAttribute('data-raw'))el.setAttribute('data-raw',el.innerHTML);
+    u.onboundary=function(ev){
+      if(ev.name!=='word')return;
+      var charIdx=ev.charIndex;
+      var wordLen=ev.charLength||text.substr(charIdx).split(/\s/)[0].length;
+      var word=text.substr(charIdx,wordLen);
+      if(!word)return;
+      var raw=el.getAttribute('data-raw');
+      var inner=raw.replace(/<span class="hl"[^>]*>([\s\S]*?)<\/span>/g,'$1');
+      var wi=inner.indexOf(word);
+      if(wi>=0){
+        var before=inner.slice(0,wi);
+        var opens=(before.match(/</g)||[]).length;
+        var closes=(before.match(/>/g)||[]).length;
+        if(opens===closes){
+          inner=inner.slice(0,wi)+'<span class="hl">'+word+'</span>'+inner.slice(wi+word.length);
+        }
+      }
+      el.innerHTML=inner;
+    };
+    u.onend=function(){
+      el.innerHTML=el.getAttribute('data-raw');
+      el.removeAttribute('data-raw');
+    };
+  }
+  window.speechSynthesis.speak(u);
+}
+
+// ── renderQAFilterRow ─────────────────────────────────────────
+function renderQAFilterRow(){
+  var frames={};
+  qaCards.forEach(function(c){if(c.frame)frames[c.frame]=(frames[c.frame]||0)+1;});
+  var row=document.getElementById('qaFilterRow');
+  row.innerHTML='';
+  var allChip=document.createElement('div');
+  allChip.className='qa-chip'+(qaFilter==='all'?' active':'');
+  allChip.textContent='All ('+qaCards.length+')';
+  allChip.onclick=function(){qaFilter='all';renderQAFilterRow();qaStartQueue();};
+  row.appendChild(allChip);
+  var missChip=document.createElement('div');
+  missChip.className='qa-chip'+(qaFilter==='missed'?' active':'');
+  missChip.textContent='⭐ Marked ('+qaMissedIds.length+')';
+  missChip.onclick=function(){qaFilter='missed';renderQAFilterRow();qaStartQueue();};
+  row.appendChild(missChip);
+  Object.keys(frames).sort().forEach(function(f){
+    var ch=document.createElement('div');
+    ch.className='qa-chip'+(qaFilter===f?' active':'');
+    ch.textContent=f+' ('+frames[f]+')';
+    ch.onclick=function(){qaFilter=f;renderQAFilterRow();qaStartQueue();};
+    row.appendChild(ch);
+  });
+}
+
+// ── qaStartQueue ──────────────────────────────────────────────
+function qaStartQueue(){
+  var src;
+  if(qaFilter==='all') src=qaCards;
+  else if(qaFilter==='missed') src=qaCards.filter(function(c){return qaMissedIds.indexOf(c.id)>=0;});
+  else src=qaCards.filter(function(c){return c.frame===qaFilter;});
+  qaQueue=src.slice().sort(function(){return Math.random()-0.5;});
+  qaIdx=0;
+  renderQACard();
+}
+
+// ── renderQACard ──────────────────────────────────────────────
+function renderQACard(){
+  qaFlipped=false;
+  var sb=document.getElementById('qaShowBtn');
+  sb.textContent='Show answer →'; sb.classList.remove('shown'); sb.onclick=qaShow;
+  document.getElementById('qaAnswer').style.display='none';
+  document.getElementById('qaNextBtn').style.display='none';
+
+  if(!qaQueue.length){
+    document.getElementById('qaQuestion').innerHTML='<span style="color:var(--teal)">No Q&A cards yet — tap Generate above!</span>';
+    document.getElementById('qaQEn').textContent='';
+    document.getElementById('qaFrameLabel').textContent='';
+    document.getElementById('qaTapHint').textContent='';
+    document.getElementById('qaProgRight').textContent='0 / 0';
+    document.getElementById('qaFill').style.width='0%';
+    return;
+  }
+  if(qaIdx>=qaQueue.length){
+    qaIdx=0;
+    qaQueue.sort(function(){return Math.random()-0.5;});
+  }
+
+  var card=qaQueue[qaIdx];
+  var pct=Math.round((qaIdx/qaQueue.length)*100);
+  document.getElementById('qaFill').style.width=pct+'%';
+  document.getElementById('qaProgLeft').textContent=card.frame||'Q&A';
+  document.getElementById('qaProgRight').textContent=(qaIdx+1)+' / '+qaQueue.length;
+  document.getElementById('qaFrameLabel').textContent=(card.frame||'').toUpperCase();
+  document.getElementById('qaQuestion').innerHTML=formatQAText(card.questionVN);
+  document.getElementById('qaQEn').textContent=card.questionEN||'';
+  document.getElementById('qaTapHint').textContent='Tap to hear';
+
+  // Review button
+  var rb=document.getElementById('qaReviewBtn');
+  var rc=document.getElementById('qaReviewCount');
+  if(qaMissedIds.length){rb.style.display='block';rc.textContent=qaMissedIds.length;}
+  else{rb.style.display='none';}
+}
+
+function qaTap(){
+  var card=qaQueue[qaIdx]; if(!card)return;
+  if(qaFlipped){
+    speakQA(stripTags(card.answerVN),document.getElementById('qaAnswerVN'));
+  } else {
+    speakQA(stripTags(card.questionVN),document.getElementById('qaQuestion'));
+  }
+}
+
+function qaShow(){
+  var card=qaQueue[qaIdx]; if(!card||qaFlipped)return;
+  qaFlipped=true;
+  document.getElementById('qaAnswer').style.display='block';
+  document.getElementById('qaAnswerVN').innerHTML=formatQAText(card.answerVN);
+  document.getElementById('qaAnswerEN').textContent=card.answerEN||'';
+  document.getElementById('qaAnswerBrk').innerHTML=card.brk?formatQABrk(card.brk):'';
+  speakQA(stripTags(card.answerVN),document.getElementById('qaAnswerVN'));
+  var sb=document.getElementById('qaShowBtn');
+  sb.textContent='▶ Hear again'; sb.classList.add('shown');
+  sb.onclick=function(){speakQA(stripTags(card.answerVN),document.getElementById('qaAnswerVN'));};
+  document.getElementById('qaNextBtn').style.display='block';
+}
+
+function qaMark(){
+  var card=qaQueue[qaIdx]; if(!card)return;
+  if(qaMissedIds.indexOf(card.id)<0){
+    qaMissedIds.push(card.id);
+    toast('⭐ Marked for review');
+    renderQAFilterRow();
+  } else {
+    qaMissedIds=qaMissedIds.filter(function(x){return x!==card.id;});
+    toast('Unmarked');
+    renderQAFilterRow();
+  }
+  saveQA();
+}
+
+function qaNext(){
+  qaIdx++;
+  renderQACard();
+}
+
+function reviewQAMissed(){
+  qaFilter='missed';
+  renderQAFilterRow();
+  qaStartQueue();
+}
+
+function saveQA(){
+  try{localStorage.setItem('vietpics_qa',JSON.stringify({cards:qaCards,missed:qaMissedIds}));}catch(e){}
+}
+function loadQA(){
+  try{
+    var d=JSON.parse(localStorage.getItem('vietpics_qa')||'null');
+    if(d&&d.cards){qaCards=d.cards;qaMissedIds=d.missed||[];}
+  }catch(e){}
+}
+
+// ── AI GENERATION ─────────────────────────────────────────────
+async function generateQA(){
+  var btn=document.getElementById('qaGenBtn');
+  var status=document.getElementById('qaStatus');
+  btn.disabled=true; btn.textContent='⏳ Generating...';
+  status.textContent='Asking Claude to build your Q&A cards...';
+
+  // Build word list from current vocab deck
+  var vocabSample=words.map(function(w){
+    return w.viet+'='+w.eng+'('+w.type+')';
+  }).join('; ');
+
+  var prompt=`You are a Vietnamese language teacher specializing in casual Northern Vietnamese (Hanoi dialect).
+
+Using the vocabulary below, create exactly 40 question-and-answer card pairs for a language learner.
+
+VOCABULARY: ${vocabSample}
+
+RULES:
+1. Use casual, everyday spoken Northern Vietnamese. Natural contractions and particles (vậy, nhỉ, à, nha, đó, rồi, thôi, etc.)
+2. Cover these question frame types evenly (~3 cards each):
+   do/does (có...không), can (có thể), want (muốn...không), where (ở đâu/đi đâu), 
+   why (tại sao/sao), what (gì/cái gì), when (khi nào/mấy giờ), who (ai), 
+   which (cái nào), how much (bao nhiêu), how often (hay...không/bao lâu), 
+   how (làm thế nào/như thế nào), have you ever (đã...chưa), 
+   is/are (có phải...không/...phải không), what color (màu gì), 
+   what day (thứ mấy/ngày mấy), do you like (thích...không), 
+   do you need (cần...không), is it far (có xa không), how long (bao lâu)
+3. Wrap question words ONLY with <qw>...</qw> tags. Question words include: ai, gì, đâu, khi nào, tại sao, sao, bao nhiêu, bao lâu, như thế nào, làm thế nào, cái nào, màu gì, thứ mấy, ngày mấy, có phải, phải không, có...không, có thể, muốn, đã...chưa
+4. Wrap the main vocabulary word being practiced with <fw>...</fw> tags
+5. Answers should be natural, short, 1-2 sentences. Also tag question/focus words in answers.
+6. Include a breakdown for each pair in format: word–meaning;word–meaning (use – not -)
+7. Use Tim's personal context naturally: He lives in Mỹ An, Đà Nẵng. He's American. He loves coffee and going to the beach. He has grandchildren. He creates apps on his computer.
+
+RESPOND WITH ONLY a JSON array, no markdown, no explanation:
+[
+  {
+    "id": "qa001",
+    "frame": "do/does",
+    "questionVN": "Bạn <qw>có</qw> <fw>uống</fw> cà phê mỗi sáng <qw>không</qw>?",
+    "questionEN": "Do you drink coffee every morning?",
+    "answerVN": "Có, tôi <fw>uống</fw> cà phê mỗi sáng.",
+    "answerEN": "Yes, I drink coffee every morning.",
+    "brk": "Bạn–you;có–(yes/no frame);uống–drink;cà phê–coffee;mỗi sáng–every morning;không–question marker"
+  }
+]`;
+
+  try{
+    var resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:(function(){
+        var k=localStorage.getItem('vp_apikey')||'';
+        var h={'Content-Type':'application/json','anthropic-dangerous-direct-browser-access':'true'};
+        if(k)h['x-api-key']=k;
+        return h;
+      })(),
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:6000,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    var data=await resp.json();
+    console.log('API status:',resp.status,'response type:',data.type,'error:',data.error);
+    if(data.error){throw new Error('API error: '+data.error.type+' — '+data.error.message);}
+    if(!data.content||!data.content[0]){throw new Error('Empty API response. Check your API key in Settings.');}
+    var text=data.content[0].text.trim();
+    // Strip markdown fences if present
+    text=text.replace(/^```json?\s*/i,'').replace(/\s*```$/,'').trim();
+    // Find JSON array start/end robustly
+    var arrStart=text.indexOf('[');
+    var arrEnd=text.lastIndexOf(']');
+    if(arrStart<0||arrEnd<0)throw new Error('No JSON array found in response');
+    text=text.slice(arrStart,arrEnd+1);
+    var parsed;
+    try{parsed=JSON.parse(text);}catch(pe){
+      // Try to fix common issues: trailing commas, smart quotes
+      text=text.replace(/,\s*([}\]])/g,'$1');
+      text=text.replace(/[\u2018\u2019]/g,"'").replace(/[\u201C\u201D]/g,'"');
+      parsed=JSON.parse(text);
+    }
+    if(!Array.isArray(parsed)||!parsed.length)throw new Error('No cards returned');
+    qaCards=parsed;
+    qaMissedIds=[];
+    saveQA();
+    renderQAFilterRow();
+    qaStartQueue();
+    status.textContent='✓ '+qaCards.length+' Q&A cards generated!';
+    btn.textContent='✨ Regenerate';
+  }catch(err){
+    console.error('QA generation error:',err);
+    status.textContent='Error: '+err.message;
+    btn.textContent='✨ Try again';
+  }
+  btn.disabled=false;
+}
+
+
 // INIT
 load();
 applyFont();
 document.getElementById('modeBtn').textContent=mode==='vn-en'?'Vn→En':'En→Vn';
 document.getElementById('brkAutoBtn').innerHTML='Auto<br>OFF';
+loadQA();
 renderFilterBar();buildQueue();renderQuiz();
+if(document.getElementById('qaScreen').style.display!=='none'){renderQAFilterRow();qaStartQueue();}
 </script>
 </body>
 </html>

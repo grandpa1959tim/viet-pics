@@ -1357,67 +1357,63 @@ function loadQA(){
 async function generateQA(){
   var btn=document.getElementById('qaGenBtn');
   var status=document.getElementById('qaStatus');
-  btn.disabled=true; btn.textContent='⏳ Generating...';
-  status.textContent='Asking Claude to build your Q&A cards...';
+  btn.disabled=true; btn.textContent='⏳ Generating batch 1 of 2...';
+  status.textContent='Generating Q&A cards — this takes about 20 seconds...';
 
-  // Build word list from current vocab deck
-  var vocabSample=words.map(function(w){
-    return w.viet+'='+w.eng+'('+w.type+')';
-  }).join('; ');
-
-  // Build vocab list - use all words, short format
   var vocabList=words.map(function(w){return w.viet+'='+w.eng+'('+w.type+')';}).join('; ');
+  var apiKey=localStorage.getItem('vp_apikey')||'';
 
-  var frameTypes='do/does (có...không), can (có thể), want (muốn), where (ở đâu/đi đâu), why (tại sao/sao), what (gì), when (khi nào/mấy giờ), who (ai), which (cái nào), how much (bao nhiêu), how often (hay...không), how (như thế nào), have you ever (đã...chưa), is/are (có phải...không), do you like (thích...không)';
+  var batch1frames='do/does (có...không), can (có thể), want (muốn), where (ở đâu/đi đâu), why (tại sao/sao), what (gì), when (khi nào/mấy giờ)';
+  var batch2frames='who (ai), which (cái nào), how much (bao nhiêu), how often (hay...không), how (như thế nào), have you ever (đã...chưa), is/are (có phải...không), do you like (thích...không)';
 
-  var prompt='You are a Vietnamese language teacher specializing in casual Northern Vietnamese.\n\nVOCABULARY: '+vocabList+'\n\nCreate Q&A flashcard pairs covering ALL these frame types (at least 5 cards each): '+frameTypes+'\n\nRULES:\n1. Casual spoken Northern Vietnamese. Use natural particles: vậy, nhỉ, à, nha, đó, rồi, thôi\n2. Tag question words: <qw>...</qw> (ai, gì, đâu, sao, tại sao, bao nhiêu, khi nào, cái nào, có thể, muốn, đã...chưa, có phải, phải không, có...không, thích)\n3. Tag main vocab word: <fw>...</fw>\n4. Short natural answers (1-2 sentences). Also tag words in answers.\n5. Use Tim context: American, lives in Mỹ An Đà Nẵng, loves coffee and beach, grandchildren, creates apps\n6. Each card needs: qbrk (question breakdown), abrk (answer breakdown), tip (grammar tip explaining WHY this structure is used, e.g. why có is used, role of particles, word order)\n\nONLY output a JSON array. No markdown, no explanation, nothing else.\nFormat:\n[{"id":"qa001","frame":"do/does","questionVN":"Bạn <qw>có</qw> <fw>uống</fw> cà phê mỗi sáng <qw>không</qw>?","questionEN":"Do you drink coffee every morning?","answerVN":"Có, tôi <fw>uống</fw> cà phê mỗi sáng.","answerEN":"Yes, I drink coffee every morning.","qbrk":"Bạn–you;có–yes/no question marker;uống–drink;cà phê–coffee;mỗi sáng–every morning;không–question marker","abrk":"Có–yes;tôi–I;uống–drink;cà phê–coffee;mỗi sáng–every morning","tip":"The frame \'có...không\' turns any statement into a yes/no question. \'Có\' at the start signals a question frame, and \'không\' at the end closes it. This is the most common question pattern in Vietnamese."}]';
+  function makePrompt(frames){
+    return 'You are a Vietnamese language teacher. ONLY output a valid JSON array, nothing else, no markdown.\n\nVOCABULARY: '+vocabList+'\n\nCreate Q&A flashcard pairs covering these frame types (5 cards each): '+frames+'\n\nRULES:\n1. Casual Northern Vietnamese. Use particles: vậy, nhỉ, à, nha, đó, rồi\n2. Tag question words with <qw>...</qw>: ai, gì, đâu, sao, tại sao, bao nhiêu, khi nào, cái nào, có thể, muốn, đã...chưa, có phải, phải không, thích, hay, như thế nào\n3. Tag main vocab word with <fw>...</fw>\n4. Short natural answers (1-2 sentences). Tag words in answers too.\n5. Use Tim context: American, lives in Mỹ An Đà Nẵng, loves coffee and beach, grandchildren, creates apps on computer\n6. Each card needs qbrk (question breakdown), abrk (answer breakdown), tip (explains WHY this grammar structure is used — be specific and helpful for beginners)\n\nJSON array format only:\n[{"id":"qa001","frame":"do/does","questionVN":"Bạn <qw>có</qw> <fw>uống</fw> cà phê mỗi sáng <qw>không</qw>?","questionEN":"Do you drink coffee every morning?","answerVN":"Có, tôi <fw>uống</fw> cà phê mỗi sáng.","answerEN":"Yes, I drink coffee every morning.","qbrk":"Bạn–you;có–yes/no frame;uống–drink;cà phê–coffee;mỗi sáng–every morning;không–question marker","abrk":"Có–yes;tôi–I;uống–drink;cà phê–coffee;mỗi sáng–every morning","tip":"The frame có...không wraps any verb to make a yes/no question. Có opens the question frame and không closes it. This is the single most common question pattern in Vietnamese — learn this frame and you can ask almost anything."}]';
+  }
 
-  try{
+  async function callAPI(prompt, batchLabel){
+    status.textContent='Generating '+batchLabel+'...';
     var resp=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
-      headers:(function(){
-        var k=localStorage.getItem('vp_apikey')||'';
-        var h={
-          'Content-Type':'application/json',
-          'anthropic-dangerous-direct-browser-access':'true',
-          'anthropic-version':'2023-06-01'
-        };
-        if(k)h['x-api-key']=k;
-        return h;
-      })(),
+      headers:{
+        'Content-Type':'application/json',
+        'anthropic-dangerous-direct-browser-access':'true',
+        'anthropic-version':'2023-06-01',
+        'x-api-key':apiKey
+      },
       body:JSON.stringify({
         model:'claude-sonnet-4-20250514',
-        max_tokens:8000,
+        max_tokens:6000,
         messages:[{role:'user',content:prompt}]
       })
     });
     var data=await resp.json();
     console.log('API status:',resp.status);
-    console.log('Raw response text:',data.content&&data.content[0]?data.content[0].text.slice(0,200):'no content');
-    if(data.error){throw new Error('API error: '+data.error.type+' — '+data.error.message);}
-    if(!data.content||!data.content[0]){throw new Error('Empty API response. Check your API key in Settings.');}
+    if(data.error)throw new Error('API error: '+data.error.type+' — '+data.error.message);
+    if(!data.content||!data.content[0])throw new Error('Empty API response. Check your API key in Settings.');
     var text=data.content[0].text.trim();
-    // Strip markdown fences if present
+    console.log('Response preview:',text.slice(0,150));
     text=text.replace(/^```json?\s*/i,'').replace(/\s*```$/,'').trim();
-    // Find JSON array start/end robustly
     var arrStart=text.indexOf('[');
     var arrEnd=text.lastIndexOf(']');
-    if(arrStart<0||arrEnd<0)throw new Error('No JSON array found in response');
+    if(arrStart<0||arrEnd<0)throw new Error('No JSON array in response for '+batchLabel);
     text=text.slice(arrStart,arrEnd+1);
-    var parsed;
-    try{parsed=JSON.parse(text);}catch(pe){
-      // Try to fix common issues: trailing commas, smart quotes
+    try{return JSON.parse(text);}catch(pe){
       text=text.replace(/,\s*([}\]])/g,'$1');
       text=text.replace(/[\u2018\u2019]/g,"'").replace(/[\u201C\u201D]/g,'"');
-      parsed=JSON.parse(text);
+      return JSON.parse(text);
     }
-    if(!Array.isArray(parsed)||!parsed.length)throw new Error('No cards returned');
-    qaCards=parsed;
+  }
+
+  try{
+    var batch1=await callAPI(makePrompt(batch1frames),'batch 1 of 2 (do/does, can, want, where, why, what, when)');
+    btn.textContent='⏳ Generating batch 2 of 2...';
+    var batch2=await callAPI(makePrompt(batch2frames),'batch 2 of 2 (who, which, how much, how often, how, ever, is/are, like)');
+    qaCards=batch1.concat(batch2);
     qaMissedIds=[];
     saveQA();
     renderQAFilterRow();
     qaStartQueue();
-    status.textContent='✓ '+qaCards.length+' Q&A cards generated!';
+    status.textContent='✓ '+qaCards.length+' Q&A cards generated across '+Object.keys(qaCards.reduce(function(a,c){a[c.frame]=1;return a;},{})).length+' question types!';
     btn.textContent='✨ Regenerate';
   }catch(err){
     console.error('QA generation error:',err);
@@ -1428,14 +1424,3 @@ async function generateQA(){
 }
 
 
-// INIT
-load();
-applyFont();
-document.getElementById('modeBtn').textContent=mode==='vn-en'?'Vn→En':'En→Vn';
-document.getElementById('brkAutoBtn').innerHTML='Auto<br>OFF';
-loadQA();
-renderFilterBar();buildQueue();renderQuiz();
-if(document.getElementById('qaScreen').style.display!=='none'){renderQAFilterRow();qaStartQueue();}
-</script>
-</body>
-</html>

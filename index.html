@@ -1391,24 +1391,21 @@ async function generateQA(){
     btn.textContent='⏳ Batch '+(bi+1)+' of '+batches.length+'...';
     status.textContent='Generating: '+batch.label+'...';
 
-    var prompt='Vietnamese language teacher. ONLY output a JSON array, no explanation, no markdown.
-
-Vocab: '+vocab+'
-
-Create 5 Q&A flashcard pairs for EACH of these question types (20 total): '+batch.frames+'
-
-Rules:
-1. Casual Northern Vietnamese. Natural particles: vậy, nhỉ, à, nha, rồi
-2. Tag question words: <qw>word</qw> — examples: ai, gì, đâu, sao, tại sao, bao nhiêu, khi nào, cái nào, có thể, muốn, đã...chưa, có phải, phải không, thích, hay, như thế nào
-3. Tag main vocab word: <fw>word</fw>
-4. Short answer 1 sentence. Tag words in answers too.
-5. Tim context: American, Mỹ An Đà Nẵng, loves coffee+beach, grandchildren, makes apps
-6. Include: qbrk (question breakdown word–meaning;word–meaning), abrk (answer breakdown), tip (explain WHY this grammar works, helpful for English speakers)
-
-Output ONLY the JSON array:
-[{"id":"qa'+String(startId).padStart(3,'0')+'","frame":"do/does","questionVN":"Bạn <qw>có</qw> <fw>uống</fw> cà phê không?","questionEN":"Do you drink coffee?","answerVN":"Có, tôi <fw>uống</fw> cà phê mỗi sáng.","answerEN":"Yes, I drink coffee every morning.","qbrk":"Bạn–you;có–yes/no frame;uống–drink;cà phê–coffee;không–question marker","abrk":"Có–yes;tôi–I;uống–drink;cà phê–coffee;mỗi sáng–every morning","tip":"có...không wraps any verb to form a yes/no question. có opens the frame, không closes it. This is the most common question structure in Vietnamese."}]';
+    var prompt='Vietnamese language teacher. ONLY output a JSON array, no explanation, no markdown.\n\n'+
+      'Vocab: '+vocab+'\n\n'+
+      'Create 5 Q&A flashcard pairs for EACH of these question types (20 total): '+batch.frames+'\n\n'+
+      'Rules:\n'+
+      '1. Casual Northern Vietnamese. Natural particles: vậy, nhỉ, à, nha, rồi\n'+
+      '2. Tag question words with <qw>word</qw>: ai, gì, đâu, sao, tại sao, bao nhiêu, khi nào, cái nào, có thể, muốn, đã...chưa, có phải, phải không, thích, hay, như thế nào\n'+
+      '3. Tag main vocab word with <fw>word</fw>\n'+
+      '4. Short answer 1 sentence. Tag words in answers too.\n'+
+      '5. Tim context: American, Mỹ An Đà Nẵng, loves coffee and beach, grandchildren, makes apps\n'+
+      '6. Each card needs: qbrk (question breakdown word–meaning;word–meaning), abrk (answer breakdown), tip (explain WHY this grammar works for English speakers)\n\n'+
+      'Output ONLY the JSON array, starting with [ and ending with ]:\n'+
+      '[{"id":"qa'+String(startId).padStart(3,'0')+'","frame":"do/does","questionVN":"Bạn <qw>có</qw> <fw>uống</fw> cà phê không?","questionEN":"Do you drink coffee?","answerVN":"Có, tôi <fw>uống</fw> cà phê mỗi sáng.","answerEN":"Yes, I drink coffee every morning.","qbrk":"Bạn–you;có–yes/no frame;uống–drink;cà phê–coffee;không–question marker","abrk":"Có–yes;tôi–I;uống–drink;cà phê–coffee;mỗi sáng–every morning","tip":"có...không wraps any verb to form a yes/no question. có opens the frame, không closes it."}]';
 
     try{
+      console.log('Starting batch '+(bi+1)+' fetch, apiKey length:',apiKey.length);
       var controller=new AbortController();
       var timeout=setTimeout(function(){controller.abort();},25000);
       var resp=await fetch('https://api.anthropic.com/v1/messages',{
@@ -1435,15 +1432,19 @@ Output ONLY the JSON array:
       var a=text.indexOf('['), b=text.lastIndexOf(']');
       if(a<0||b<0)throw new Error('No JSON in batch '+(bi+1));
       text=text.slice(a,b+1);
-      try{var parsed=JSON.parse(text);}
+      var parsed;
+      try{parsed=JSON.parse(text);}
       catch(pe){
         text=text.replace(/,\s*([}\]])/g,'$1');
-        var parsed=JSON.parse(text);
+        parsed=JSON.parse(text);
       }
+      console.log('Batch '+(bi+1)+' parsed:',parsed.length,'cards. Type:',Array.isArray(parsed));
       allCards=allCards.concat(parsed);
       startId+=parsed.length;
       status.textContent='✓ Batch '+(bi+1)+' done ('+parsed.length+' cards). Total so far: '+allCards.length;
+      console.log('allCards now:',allCards.length);
     }catch(err){
+      console.error('Batch '+(bi+1)+' error:',err.name,err.message,err);
       if(err.name==='AbortError'){
         status.textContent='Batch '+(bi+1)+' timed out — skipping. Got '+allCards.length+' cards so far.';
       } else {

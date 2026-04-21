@@ -1424,3 +1424,111 @@ async function generateQA(){
 }
 
 
+
+function qaHearQ(e){
+  if(e)e.stopPropagation();
+  var card=qaQueue[qaIdx]; if(!card)return;
+  speakQA(stripTags(card.questionVN||''),document.getElementById('qaQuestion'));
+}
+function qaHearA(e){
+  if(e)e.stopPropagation();
+  var card=qaQueue[qaIdx]; if(!card)return;
+  speakQA(stripTags(card.answerVN||''),document.getElementById('qaAnswerVN'));
+}
+function qaTap(){
+  var card=qaQueue[qaIdx]; if(!card)return;
+  if(!qaFlipped) speakQA(stripTags(card.questionVN||''),document.getElementById('qaQuestion'));
+}
+
+function qaMark(){
+  var card=qaQueue[qaIdx]; if(!card)return;
+  if(qaMissedIds.indexOf(card.id)<0){
+    qaMissedIds.push(card.id);
+    toast('⭐ Marked for review');
+    renderQAFilterRow();
+  } else {
+    qaMissedIds=qaMissedIds.filter(function(x){return x!==card.id;});
+    toast('Unmarked');
+    renderQAFilterRow();
+  }
+  saveQA();
+}
+
+function qaNext(){
+  qaIdx++;
+  renderQACard();
+}
+
+function reviewQAMissed(){
+  qaFilter='missed';
+  renderQAFilterRow();
+  qaStartQueue();
+}
+
+function saveQA(){
+  try{localStorage.setItem('vietpics_qa',JSON.stringify({cards:qaCards,missed:qaMissedIds}));}catch(e){}
+}
+function loadQA(){
+  try{
+    var d=JSON.parse(localStorage.getItem('vietpics_qa')||'null');
+    if(d&&d.cards){qaCards=d.cards;qaMissedIds=d.missed||[];}
+  }catch(e){}
+}
+
+function toggleQABrk(side){
+  var el=document.getElementById(side==='q'?'qaQBrk':'qaAnswerBrk');
+  var btn=document.getElementById(side==='q'?'qaQBrkBtn':'qaABrkBtn');
+  if(!el)return;
+  var showing=el.style.display==='block';
+  el.style.display=showing?'none':'block';
+  btn.style.background=showing?'var(--bg2)':'#0a1e14';
+  btn.style.borderColor=showing?'var(--border)':'var(--teal)';
+  btn.style.color=showing?'var(--text2)':'var(--teal)';
+}
+function toggleQATip(){
+  var el=document.getElementById('qaTip');
+  var btn=document.getElementById('qaTipBtn');
+  if(!el)return;
+  var showing=el.style.display==='block';
+  el.style.display=showing?'none':'block';
+  btn.style.background=showing?'var(--bg2)':'rgba(124,58,237,0.15)';
+  btn.style.borderColor=showing?'var(--border)':'var(--purple)';
+}
+
+// API KEY
+function saveApiKey(){
+  var k=document.getElementById('apiKeyInput').value.trim();
+  if(k){localStorage.setItem('vp_apikey',k);toast('API key saved');}
+}
+function loadApiKeyUI(){
+  var k=localStorage.getItem('vp_apikey')||'';
+  var el=document.getElementById('apiKeyInput');
+  if(el&&k)el.value=k;
+}
+
+// FONT SIZE
+var FS_STEPS=[0.82,1,1.2,1.42];
+var FS_LABELS=['A−','A','A+','A++'];
+function cycleFont(){
+  fsIdx=(fsIdx+1)%FS_STEPS.length;
+  applyFont();
+  save();
+}
+function applyFont(){
+  document.documentElement.style.setProperty('--fs',FS_STEPS[fsIdx]);
+  document.getElementById('fontBtn').textContent=FS_LABELS[fsIdx];
+}
+
+// INIT
+load();
+applyFont();
+loadQA();
+document.getElementById('modeBtn').textContent=mode==='vn-en'?'Vn→En':'En→Vn';
+document.getElementById('brkAutoBtn').innerHTML='Auto<br>'+(brkAutoOn?'ON':'OFF');
+renderFilterBar();
+buildQueue();
+renderQuiz();
+if(qaCards.length){renderQAFilterRow();qaStartQueue();}
+</script>
+</body>
+</html>

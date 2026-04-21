@@ -1304,40 +1304,11 @@ async function generateQA(){
     return w.viet+'='+w.eng+'('+w.type+')';
   }).join('; ');
 
-  var prompt=`You are a Vietnamese language teacher specializing in casual Northern Vietnamese (Hanoi dialect).
+  // Use only a short sample of vocab to keep prompt small
+  var sample=words.slice().sort(function(){return Math.random()-0.5;}).slice(0,30);
+  var vocabList=sample.map(function(w){return w.viet+'='+w.eng;}).join(', ');
 
-Using the vocabulary below, create exactly 40 question-and-answer card pairs for a language learner.
-
-VOCABULARY: ${vocabSample}
-
-RULES:
-1. Use casual, everyday spoken Northern Vietnamese. Natural contractions and particles (vậy, nhỉ, à, nha, đó, rồi, thôi, etc.)
-2. Cover these question frame types evenly (~3 cards each):
-   do/does (có...không), can (có thể), want (muốn...không), where (ở đâu/đi đâu), 
-   why (tại sao/sao), what (gì/cái gì), when (khi nào/mấy giờ), who (ai), 
-   which (cái nào), how much (bao nhiêu), how often (hay...không/bao lâu), 
-   how (làm thế nào/như thế nào), have you ever (đã...chưa), 
-   is/are (có phải...không/...phải không), what color (màu gì), 
-   what day (thứ mấy/ngày mấy), do you like (thích...không), 
-   do you need (cần...không), is it far (có xa không), how long (bao lâu)
-3. Wrap question words ONLY with <qw>...</qw> tags. Question words include: ai, gì, đâu, khi nào, tại sao, sao, bao nhiêu, bao lâu, như thế nào, làm thế nào, cái nào, màu gì, thứ mấy, ngày mấy, có phải, phải không, có...không, có thể, muốn, đã...chưa
-4. Wrap the main vocabulary word being practiced with <fw>...</fw> tags
-5. Answers should be natural, short, 1-2 sentences. Also tag question/focus words in answers.
-6. Include a breakdown for each pair in format: word–meaning;word–meaning (use – not -)
-7. Use Tim's personal context naturally: He lives in Mỹ An, Đà Nẵng. He's American. He loves coffee and going to the beach. He has grandchildren. He creates apps on his computer.
-
-RESPOND WITH ONLY a JSON array, no markdown, no explanation:
-[
-  {
-    "id": "qa001",
-    "frame": "do/does",
-    "questionVN": "Bạn <qw>có</qw> <fw>uống</fw> cà phê mỗi sáng <qw>không</qw>?",
-    "questionEN": "Do you drink coffee every morning?",
-    "answerVN": "Có, tôi <fw>uống</fw> cà phê mỗi sáng.",
-    "answerEN": "Yes, I drink coffee every morning.",
-    "brk": "Bạn–you;có–(yes/no frame);uống–drink;cà phê–coffee;mỗi sáng–every morning;không–question marker"
-  }
-]`;
+  var prompt='You are a Vietnamese language teacher. Respond ONLY with a valid JSON array, no explanation, no markdown.\n\nCreate 20 Vietnamese Q&A flashcard pairs using some of these words: '+vocabList+'\n\nRules:\n- Casual spoken Northern Vietnamese (Hanoi)\n- Wrap question words with <qw>...</qw> (ai, gì, đâu, sao, tại sao, bao nhiêu, khi nào, cái nào, như thế nào, có...không, có thể, muốn, đã...chưa)\n- Wrap the main vocab word with <fw>...</fw>\n- Short natural answers (1 sentence)\n- Cover varied question types: do/does, can, where, why, what, when, who, how much, how often\n- Use Tim context naturally: American, lives in Mỹ An Đà Nẵng, loves coffee and beach, has grandchildren, makes apps\n\nJSON format (array only, no other text):\n[{"id":"qa001","frame":"do/does","questionVN":"Bạn <qw>có</qw> <fw>uống</fw> cà phê không?","questionEN":"Do you drink coffee?","answerVN":"Có, tôi <fw>uống</fw> cà phê mỗi sáng.","answerEN":"Yes, I drink coffee every morning.","brk":"Bạn–you;có–(yes/no);uống–drink;cà phê–coffee;không–question marker"}]';
 
   try{
     var resp=await fetch('https://api.anthropic.com/v1/messages',{
@@ -1359,7 +1330,8 @@ RESPOND WITH ONLY a JSON array, no markdown, no explanation:
       })
     });
     var data=await resp.json();
-    console.log('API status:',resp.status,'response type:',data.type,'error:',data.error);
+    console.log('API status:',resp.status);
+    console.log('Raw response text:',data.content&&data.content[0]?data.content[0].text.slice(0,200):'no content');
     if(data.error){throw new Error('API error: '+data.error.type+' — '+data.error.message);}
     if(!data.content||!data.content[0]){throw new Error('Empty API response. Check your API key in Settings.');}
     var text=data.content[0].text.trim();

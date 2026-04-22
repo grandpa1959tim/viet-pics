@@ -76,6 +76,7 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,sans-serif
 /* CARD BACK (shown after Show) */
 #cardBack{display:none;}
 .hl{background:rgba(239,159,39,0.25);border-radius:3px;color:var(--amber);}
+.brkword{color:var(--amber);font-weight:600;cursor:pointer;text-decoration:underline;text-decoration-style:dotted;text-decoration-color:rgba(239,159,39,0.5);text-underline-offset:3px;}
 #backVN{font-size:calc(21px * var(--fs));line-height:1.6;color:var(--text);margin-bottom:6px;font-weight:500;}
 #backVN b{color:var(--amber);}
 #backEN{font-size:calc(15px * var(--fs));line-height:1.5;color:var(--cyan);margin-bottom:4px;}
@@ -460,7 +461,7 @@ const DW=[
   {id:'w051',viet:'Giải thích',eng:'Explanation',note:'Clarifying something.',emoji:'💬',type:'noun',cat:'Education & Work',sentVN:'Bạn có thể <b>giải thích</b> không?',sentEN:'Can you give me an <b>explanation</b>?',brk:'Bạn–you;có thể–can/be able to;giải thích–explain/explanation;không–question marker',box:1,nr:0},
   {id:'w052',viet:'Bản dịch',eng:'Translation',note:'Converting between languages.',emoji:'🔤',type:'noun',cat:'Education & Work',sentVN:'Tôi cần <b>bản dịch</b> sang tiếng Anh.',sentEN:'I need a <b>translation</b> into English.',brk:'Tôi–I;cần–need;bản dịch–translation;sang–into/to;tiếng Anh–English language',box:1,nr:0},
   {id:'w053',viet:'Hỏi',eng:'To ask',note:'Seeking information.',emoji:'🙋',type:'verb',cat:'Greetings, Introductions & Phrases',sentVN:'Tôi muốn <b>hỏi</b> bạn một câu.',sentEN:'I want to <b>ask</b> you something.',brk:'Tôi–I;muốn–want;hỏi–ask;bạn–you;một câu–one question/sentence',box:1,nr:0},
-  {id:'w054',viet:'Tắm',eng:'To bathe',note:'Daily hygiene.',emoji:'🛁',type:'verb',cat:'Home & Daily Life',sentVN:'Tôi <b>tắm</b> mỗi sáng.',sentEN:'I <b>bathe</b> every morning.',brk:'Tôi–I;tắm–bathe/shower;mỗi–every;sáng–morning',box:1,nr:0},
+  {id:'w054',viet:'Tắm',eng:'To bathe',note:'Daily hygiene.',emoji:'🛁',type:'verb',cat:'Home & Daily Life',sentVN:'Tôi <b>tắm</b> mỗi sáng.',sentEN:'I <b>bathe</b> every morning.',brk:'Tôi–I;tắm–bathe/shower;mỗi sáng–every morning',box:1,nr:0},
   {id:'w055',viet:'Là',eng:'To be',note:'Used for identity/definitions.',emoji:'🟰',type:'verb',cat:'Greetings, Introductions & Phrases',sentVN:'Tôi <b>là</b> người Mỹ.',sentEN:'I <b>am</b> American.',brk:'Tôi–I;là–am/is/are (identity);người–person;Mỹ–America/American',box:1,nr:0},
   {id:'w056',viet:'Ở',eng:'To be at / To stay',note:'Used for location.',emoji:'📍',type:'verb',cat:'Travel, Directions & Transport',sentVN:'Tôi <b>ở</b> Mỹ An, Đà Nẵng.',sentEN:'I <b>stay</b> in My An, Da Nang.',brk:'Tôi–I;ở–stay at/live at/be located;Mỹ An–My An (neighborhood);Đà Nẵng–Da Nang',box:1,nr:0},
   {id:'w057',viet:'Mang',eng:'To bring / To carry',note:'Relocating an item.',emoji:'🎒',type:'verb',cat:'Home & Daily Life',sentVN:'Bạn có thể <b>mang</b> cái này giúp tôi không?',sentEN:'Can you <b>carry</b> this for me?',brk:'Bạn–you;có thể–can;mang–bring/carry;cái này–this thing;giúp–help;tôi–me;không–question marker',box:1,nr:0},
@@ -471,24 +472,24 @@ const DW=[
   {id:'w062',viet:'Nấu',eng:'To cook',note:'Food preparation.',emoji:'👨‍🍳',type:'verb',cat:'Food, Drink & Dining',sentVN:'Tôi đang <b>nấu</b> cơm.',sentEN:'I am <b>cooking</b> rice.',brk:'Tôi–I;đang–currently (ongoing);nấu–cook;cơm–rice/meal',box:1,nr:0},
   {id:'w063',viet:'Khóc',eng:'To cry',note:'Emotional expression.',emoji:'😢',type:'verb',cat:'Adjectives, Adverbs & Connectors',sentVN:'Em bé đang <b>khóc</b>.',sentEN:'The baby is <b>crying</b>.',brk:'Em bé–baby;đang–currently (ongoing);khóc–cry/weep',box:1,nr:0},
   {id:'w064',viet:'Làm',eng:'To do / To work',note:'General action verb.',emoji:'🔨',type:'verb',cat:'Education & Work',sentVN:'Bạn <b>làm</b> nghề gì?',sentEN:'What do you <b>do</b> for work?',brk:'Bạn–you;làm–do/work;nghề–profession/trade;gì–what',box:1,nr:0},
-  {id:'w065',viet:'Uống',eng:'To drink',note:'Basic daily necessity.',emoji:'🥤',type:'verb',cat:'Food, Drink & Dining',sentVN:'Tôi <b>uống</b> cà phê mỗi sáng.',sentEN:'I <b>drink</b> coffee every morning.',brk:'Tôi–I;uống–drink;cà phê–coffee;mỗi–every;sáng–morning',box:1,nr:0},
+  {id:'w065',viet:'Uống',eng:'To drink',note:'Basic daily necessity.',emoji:'🥤',type:'verb',cat:'Food, Drink & Dining',sentVN:'Tôi <b>uống</b> cà phê mỗi sáng.',sentEN:'I <b>drink</b> coffee every morning.',brk:'Tôi–I;uống–drink;cà phê–coffee;mỗi sáng–every morning',box:1,nr:0},
   {id:'w066',viet:'Ăn',eng:'To eat',note:'Basic daily necessity.',emoji:'🍽️',type:'verb',cat:'Food, Drink & Dining',sentVN:'Bạn <b>ăn</b> sáng chưa?',sentEN:'Have you <b>eaten</b> breakfast yet?',brk:'Bạn–you;ăn–eat;sáng–morning/breakfast;chưa–yet (question)',box:1,nr:0},
   {id:'w067',viet:'Vào',eng:'To enter',note:'Movement inward.',emoji:'🚪',type:'verb',cat:'Travel, Directions & Transport',sentVN:'Mời bạn <b>vào</b> nhà.',sentEN:'Please <b>come in</b> to the house.',brk:'Mời–please/invite (polite);bạn–you;vào–enter/come in;nhà–house/home',box:1,nr:0},
   {id:'w068',viet:'Tìm',eng:'To find / To look for',note:'Searching.',emoji:'🔍',type:'verb',cat:'Home & Daily Life',sentVN:'Tôi đang <b>tìm</b> khách sạn.',sentEN:'I am <b>looking for</b> a hotel.',brk:'Tôi–I;đang–currently;tìm–look for/find;khách sạn–hotel',box:1,nr:0},
   {id:'w069',viet:'Cho',eng:'To give',note:'Generosity/Transfer.',emoji:'🎁',type:'verb',cat:'Greetings, Introductions & Phrases',sentVN:'Tôi muốn <b>cho</b> bạn cái này.',sentEN:'I want to <b>give</b> you this.',brk:'Tôi–I;muốn–want;cho–give/for;bạn–you;cái này–this thing',box:1,nr:0},
-  {id:'w070',viet:'Đi',eng:'To go',note:'Standard movement.',emoji:'🚶',type:'verb',cat:'Travel, Directions & Transport',sentVN:'Bạn muốn <b>đi</b> đâu?',sentEN:'Where do you want to <b>go</b>?',brk:'Bạn–you;muốn–want;đi–go;đâu–where',box:1,nr:0},
+  {id:'w070',viet:'Đi',eng:'To go',note:'Standard movement.',emoji:'🚶',type:'verb',cat:'Travel, Directions & Transport',sentVN:'Bạn muốn <b>đi</b> đâu?',sentEN:'Where do you want to <b>go</b>?',brk:'Bạn–you;muốn–want;đi đâu–go where',box:1,nr:0},
   {id:'w071',viet:'Ghét',eng:'To hate',note:'Strong dislike.',emoji:'😤',type:'verb',cat:'Adjectives, Adverbs & Connectors',sentVN:'Tôi <b>ghét</b> kẹt xe.',sentEN:'I <b>hate</b> traffic jams.',brk:'Tôi–I;ghét–hate;kẹt xe–traffic jam (stuck vehicle)',box:1,nr:0},
   {id:'w072',viet:'Có',eng:'To have / There is',note:'Possession or existence.',emoji:'✅',type:'verb',cat:'Greetings, Introductions & Phrases',sentVN:'Tôi <b>có</b> bốn con trai.',sentEN:'I <b>have</b> four sons.',brk:'Tôi–I;có–have/there is;bốn–four;con–classifier;trai–male/son',box:1,nr:0},
   {id:'w073',viet:'Giúp',eng:'To help',note:'Providing assistance.',emoji:'🤲',type:'verb',cat:'Greetings, Introductions & Phrases',sentVN:'Bạn có thể <b>giúp</b> tôi không?',sentEN:'Can you <b>help</b> me?',brk:'Bạn–you;có thể–can/be able to;giúp–help;tôi–me;không–question marker',box:1,nr:0},
   {id:'w074',viet:'Biết',eng:'To know',note:'Used for facts or skills.',emoji:'🧠',type:'verb',cat:'Education & Work',sentVN:'Bạn <b>biết</b> nói tiếng Việt không?',sentEN:'Do you <b>know</b> how to speak Vietnamese?',brk:'Bạn–you;biết–know (fact/skill);nói–speak;tiếng Việt–Vietnamese language;không–question marker',box:1,nr:0},
   {id:'w075',viet:'Cười',eng:'To laugh / To smile',note:'Emotional expression.',emoji:'😄',type:'verb',cat:'Adjectives, Adverbs & Connectors',sentVN:'Cô ấy luôn <b>cười</b> vui vẻ.',sentEN:'She always <b>smiles</b> happily.',brk:'Cô ấy–she;luôn–always;cười–laugh/smile;vui vẻ–happily/cheerfully',box:1,nr:0},
   {id:'w076',viet:'Thích',eng:'To like',note:'Expressing preference.',emoji:'👍',type:'verb',cat:'Greetings, Introductions & Phrases',sentVN:'Tôi <b>thích</b> đi du lịch.',sentEN:'I <b>like</b> to travel.',brk:'Tôi–I;thích–like/enjoy;đi du lịch–travel/go traveling',box:1,nr:0},
-  {id:'w077',viet:'Nghe',eng:'To listen / To hear',note:'Auditory perception.',emoji:'👂',type:'verb',cat:'Home & Daily Life',sentVN:'Tôi <b>nghe</b> nhạc mỗi tối.',sentEN:'I <b>listen to</b> music every evening.',brk:'Tôi–I;nghe–listen/hear;nhạc–music;mỗi–every;tối–evening/night',box:1,nr:0},
+  {id:'w077',viet:'Nghe',eng:'To listen / To hear',note:'Auditory perception.',emoji:'👂',type:'verb',cat:'Home & Daily Life',sentVN:'Tôi <b>nghe</b> nhạc mỗi tối.',sentEN:'I <b>listen to</b> music every evening.',brk:'Tôi–I;nghe–listen/hear;nhạc–music;mỗi tối–every evening',box:1,nr:0},
   {id:'w078',viet:'Nhìn',eng:'To look at',note:'Directed visual attention.',emoji:'👁️',type:'verb',cat:'Home & Daily Life',sentVN:'Hãy <b>nhìn</b> vào đây.',sentEN:'Please <b>look at</b> this.',brk:'Hãy–please (imperative);nhìn–look at;vào–into/at;đây–here/this',box:1,nr:0},
   {id:'w079',viet:'Yêu',eng:'To love',note:'Strong affection.',emoji:'❤️',type:'verb',cat:'Family, People & Descriptions',sentVN:'Tôi <b>yêu</b> Việt Nam.',sentEN:'I <b>love</b> Vietnam.',brk:'Tôi–I;yêu–love;Việt Nam–Vietnam',box:1,nr:0},
   {id:'w080',viet:'Cần',eng:'To need',note:'Expresses necessity.',emoji:'⚠️',type:'verb',cat:'Home & Daily Life',sentVN:'Tôi <b>cần</b> phải làm việc.',sentEN:'I <b>need</b> to work.',brk:'Tôi–I;cần–need;phải–must/have to;làm việc–work',box:1,nr:0},
   {id:'w081',viet:'Mở',eng:'To open',note:'Initiating access.',emoji:'🔓',type:'verb',cat:'Home & Daily Life',sentVN:'Hãy <b>mở</b> cửa sổ ra.',sentEN:'Please <b>open</b> the window.',brk:'Hãy–please (imperative);mở–open;cửa sổ–window (door+eye);ra–out (completive)',box:1,nr:0},
-  {id:'w082',viet:'Chơi',eng:'To play',note:'Recreation.',emoji:'🎮',type:'verb',cat:'Adjectives, Adverbs & Connectors',sentVN:'Các cháu tôi đang <b>chơi</b> ngoài sân.',sentEN:'My grandchildren are <b>playing</b> outside.',brk:'Các cháu–grandchildren (plural);tôi–my;đang–currently;chơi–play;ngoài–outside;sân–yard/court',box:1,nr:0},
+  {id:'w082',viet:'Chơi',eng:'To play',note:'Recreation.',emoji:'🎮',type:'verb',cat:'Adjectives, Adverbs & Connectors',sentVN:'Các cháu tôi đang <b>chơi</b> ngoài sân.',sentEN:'My grandchildren are <b>playing</b> outside.',brk:'Các cháu–grandchildren (plural);tôi–my;đang–currently;chơi–play;ngoài sân–outside/yard',box:1,nr:0},
   {id:'w083',viet:'Đọc',eng:'To read',note:'Comprehending text.',emoji:'📖',type:'verb',cat:'Education & Work',sentVN:'Tôi thích <b>đọc</b> sách buổi tối.',sentEN:'I like to <b>read</b> books in the evening.',brk:'Tôi–I;thích–like;đọc–read;sách–book;buổi tối–in the evening',box:1,nr:0},
   {id:'w084',viet:'Về',eng:'To return',note:'Movement back to source.',emoji:'↩️',type:'verb',cat:'Travel, Directions & Transport',sentVN:'Tôi muốn <b>về</b> nhà.',sentEN:'I want to <b>return</b> home.',brk:'Tôi–I;muốn–want;về–return/go back;nhà–home/house',box:1,nr:0},
   {id:'w085',viet:'Chạy',eng:'To run',note:'Fast movement.',emoji:'🏃',type:'verb',cat:'Home & Daily Life',sentVN:'Tôi <b>chạy</b> mỗi buổi sáng.',sentEN:'I <b>run</b> every morning.',brk:'Tôi–I;chạy–run;mỗi–every;buổi sáng–morning',box:1,nr:0},
@@ -558,7 +559,20 @@ function buildQueue(){
   if(!due.length)due=catWords().slice().sort(function(){return Math.random()-0.5;});
   queue=due;qIdx=0;
 }
-function speak(text,highlightEl){
+// Robust TTS - handles iOS Safari freeze
+function ttsSpeak(text, lang){
+  if(!window.speechSynthesis)return;
+  // iOS fix: cancel any stuck utterance first
+  window.speechSynthesis.cancel();
+  setTimeout(function(){
+    var u=new SpeechSynthesisUtterance(text);
+    u.lang=lang||'vi-VN';
+    u.rate=speechRate;
+    window.speechSynthesis.speak(u);
+  },50);
+}
+
+function speak(text,highlightEl,phrases){
   if(!window.speechSynthesis)return;
   window.speechSynthesis.cancel();
   var u=new SpeechSynthesisUtterance(text);
@@ -583,18 +597,19 @@ function speak(text,highlightEl){
       var wordLen=ev.charLength||plain.substr(charIdx).split(/\s/)[0].length;
       var word=plain.substr(charIdx,wordLen);
       if(!word)return;
-      // Rebuild HTML: find word in raw, wrap with hl span
-      // Strip existing hl spans first
+      // Check for multi-word phrase match
+      var matchStr=word;
+      var knownPh=phrases||[];
+      for(var pi=0;pi<knownPh.length;pi++){var ph=knownPh[pi];if(ph.length>word.length&&plain.substr(charIdx,ph.length)===ph){matchStr=ph;break;}}
       var inner=raw.replace(/<span class="hl"[^>]*>([\s\S]*?)<\/span>/g,'$1');
-      // Find first occurrence of this word as a token (simple indexOf, no lookbehind)
-      var wi=inner.indexOf(word);
+      var wi=inner.indexOf(matchStr);
       if(wi>=0){
         // Check it's not inside a tag
         var before=inner.slice(0,wi);
         var openTags=(before.match(/</g)||[]).length;
         var closeTags=(before.match(/>/g)||[]).length;
         if(openTags===closeTags){
-          inner=inner.slice(0,wi)+'<span class="hl">'+word+'</span>'+inner.slice(wi+word.length);
+          inner=inner.slice(0,wi)+'<span class="hl">'+matchStr+'</span>'+inner.slice(wi+matchStr.length);
         }
       }
       highlightEl.innerHTML=inner;
@@ -611,12 +626,7 @@ function speak(text,highlightEl){
   window.speechSynthesis.speak(u);
 }
 
-function speakEn(text){
-  if(!window.speechSynthesis)return;
-  window.speechSynthesis.cancel();
-  var u=new SpeechSynthesisUtterance(text);
-  u.lang='en-US';u.rate=speechRate;window.speechSynthesis.speak(u);
-}
+function speakEn(text){ttsSpeak(text,'en-US');}
 function stripTags(s){return (s||'').replace(/<[^>]+>/g,'');}
 
 // FORMAT BREAKDOWN — Vietnamese words in amber, meanings in text2
@@ -628,8 +638,13 @@ function formatBrk(brk){
     if(dash<0)return '<span style="color:#fff">'+seg+'</span>';
     var viet=seg.slice(0,dash).trim();
     var meaning=seg.slice(dash+1).trim();
-    return '<span style="color:var(--amber);font-weight:600;">'+viet+'</span><span style="color:rgba(255,255,255,0.5)">–</span><span style="color:#fff">'+meaning+'</span>';
+    var dw=viet.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+    return '<span class="brkword" data-word="'+dw+'">'+viet+'</span><span style="color:rgba(255,255,255,0.5)">–</span><span style="color:#fff">'+meaning+'</span>';
   }).join('<span style="color:rgba(255,255,255,0.25);">&nbsp;·&nbsp;</span>');
+}
+
+function speakWord(word){
+  ttsSpeak(word,'vi-VN');
 }
 
 // FILTER BAR
@@ -777,13 +792,20 @@ function renderQuiz(){
 }
 
 // CARD TAP — just plays audio, no flip
+function brkPhrases(brk){
+  if(!brk)return[];
+  return brk.split(';').map(function(seg){
+    var d=seg.indexOf('–');return d>0?seg.slice(0,d).trim():'';
+  }).filter(function(p){return p.indexOf(' ')>0;});
+}
 function cardTap(){
   var w=queue[qIdx];if(!w)return;
+  var phrases=brkPhrases(w.brk);
   if(cardFlipped){
-    speak(stripTags(w.sentVN)||w.viet,document.getElementById('backVN'));
+    ttsSpeak(stripTags(w.sentVN)||w.viet,'vi-VN');
   } else {
-    if(mode==='vn-en'){speak(stripTags(w.sentVN)||w.viet,document.getElementById('frontSentVN'));}
-    else{speakEn(stripTags(w.sentEN)||w.eng);}
+    if(mode==='vn-en'){ttsSpeak(stripTags(w.sentVN)||w.viet,'vi-VN');}
+    else{ttsSpeak(stripTags(w.sentEN)||w.eng,'en-US');}
   }
 }
 
@@ -806,12 +828,12 @@ function showAnswer(){
     document.getElementById('backEN').innerHTML=w.sentEN||'';
   }
 
-  speak(stripTags(w.sentVN)||w.viet,document.getElementById('backVN'));
+  ttsSpeak(stripTags(w.sentVN)||w.viet,'vi-VN');
 
   var sb=document.getElementById('showBtn');
   sb.textContent='▶ Hear again';
   sb.classList.add('shown');
-  sb.onclick=function(){speak(stripTags(w.sentVN)||w.viet,document.getElementById('backVN'));};
+  sb.onclick=function(){ttsSpeak(stripTags(w.sentVN)||w.viet,'vi-VN');};
 
   if((showingBreakdown||brkAutoOn)&&w.brk){
     var bb=document.getElementById('backBrk');
@@ -1139,33 +1161,40 @@ function formatQABrk(brk){
     if(dash<0)return '<span style="color:#fff">'+seg+'</span>';
     var viet=seg.slice(0,dash).trim();
     var meaning=seg.slice(dash+1).trim();
-    return '<span style="color:var(--amber);font-weight:600;">'+viet+'</span><span style="color:rgba(255,255,255,0.5)">–</span><span style="color:#fff">'+meaning+'</span>';
+    var dw=viet.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+    return '<span class="brkword" data-word="'+dw+'">'+viet+'</span><span style="color:rgba(255,255,255,0.5)">–</span><span style="color:#fff">'+meaning+'</span>';
   }).join('<span style="color:rgba(255,255,255,0.25);">&nbsp;·&nbsp;</span>');
 }
 
 // ── speakQA: speak with word highlighting ─────────────────────
-function speakQA(text, el){
+function speakQA(text, el, phrases){
   if(!window.speechSynthesis)return;
   window.speechSynthesis.cancel();
   var u=new SpeechSynthesisUtterance(text);
   u.lang='vi-VN'; u.rate=speechRate;
   if(el){
     if(!el.getAttribute('data-raw'))el.setAttribute('data-raw',el.innerHTML);
+    var knownPhrases=phrases||[];
     u.onboundary=function(ev){
       if(ev.name!=='word')return;
       var charIdx=ev.charIndex;
       var wordLen=ev.charLength||text.substr(charIdx).split(/\s/)[0].length;
       var word=text.substr(charIdx,wordLen);
       if(!word)return;
+      var matchStr=word;
+      for(var pi=0;pi<knownPhrases.length;pi++){
+        var ph=knownPhrases[pi];
+        if(ph.length>word.length&&text.substr(charIdx,ph.length)===ph){matchStr=ph;break;}
+      }
       var raw=el.getAttribute('data-raw');
       var inner=raw.replace(/<span class="hl"[^>]*>([\s\S]*?)<\/span>/g,'$1');
-      var wi=inner.indexOf(word);
+      var wi=inner.indexOf(matchStr);
       if(wi>=0){
         var before=inner.slice(0,wi);
         var opens=(before.match(/</g)||[]).length;
         var closes=(before.match(/>/g)||[]).length;
         if(opens===closes){
-          inner=inner.slice(0,wi)+'<span class="hl">'+word+'</span>'+inner.slice(wi+word.length);
+          inner=inner.slice(0,wi)+'<span class="hl">'+matchStr+'</span>'+inner.slice(wi+matchStr.length);
         }
       }
       el.innerHTML=inner;
@@ -1174,199 +1203,14 @@ function speakQA(text, el){
       el.innerHTML=el.getAttribute('data-raw');
       el.removeAttribute('data-raw');
     };
+    u.onerror=function(){
+      el.innerHTML=el.getAttribute('data-raw');
+      el.removeAttribute('data-raw');
+    };
   }
   window.speechSynthesis.speak(u);
 }
 
-// ── renderQAFilterRow ─────────────────────────────────────────
-function renderQAFilterRow(){
-  var frames={};
-  qaCards.forEach(function(c){if(c.frame)frames[c.frame]=(frames[c.frame]||0)+1;});
-  var row=document.getElementById('qaFilterRow');
-  row.innerHTML='';
-  var allChip=document.createElement('div');
-  allChip.className='qa-chip'+(qaFilter==='all'?' active':'');
-  allChip.textContent='All ('+qaCards.length+')';
-  allChip.onclick=function(){qaFilter='all';renderQAFilterRow();qaStartQueue();};
-  row.appendChild(allChip);
-  var missChip=document.createElement('div');
-  missChip.className='qa-chip'+(qaFilter==='missed'?' active':'');
-  missChip.textContent='⭐ Marked ('+qaMissedIds.length+')';
-  missChip.onclick=function(){qaFilter='missed';renderQAFilterRow();qaStartQueue();};
-  row.appendChild(missChip);
-  Object.keys(frames).sort().forEach(function(f){
-    var ch=document.createElement('div');
-    ch.className='qa-chip'+(qaFilter===f?' active':'');
-    ch.textContent=f+' ('+frames[f]+')';
-    ch.onclick=function(){qaFilter=f;renderQAFilterRow();qaStartQueue();};
-    row.appendChild(ch);
-  });
-}
-
-// ── qaStartQueue ──────────────────────────────────────────────
-function qaStartQueue(){
-  var src;
-  if(qaFilter==='all') src=qaCards;
-  else if(qaFilter==='missed') src=qaCards.filter(function(c){return qaMissedIds.indexOf(c.id)>=0;});
-  else src=qaCards.filter(function(c){return c.frame===qaFilter;});
-  qaQueue=src.slice().sort(function(){return Math.random()-0.5;});
-  qaIdx=0;
-  renderQACard();
-}
-
-// ── renderQACard ──────────────────────────────────────────────
-function renderQACard(){
-  qaFlipped=false;
-  var sb=document.getElementById('qaShowBtn');
-  sb.textContent='Show answer →'; sb.classList.remove('shown'); sb.onclick=qaShow;
-  document.getElementById('qaAnswer').style.display='none';
-  document.getElementById('qaNextBtn').style.display='none';
-  document.getElementById('qaBrkRow').style.display='none';
-  document.getElementById('qaAnswerBrk').style.display='none';
-  document.getElementById('qaTip').style.display='none';
-  // Always show brkRow buttons
-  document.getElementById('qaBrkRow').style.display='flex';
-
-  if(!qaQueue.length){
-    document.getElementById('qaQuestion').innerHTML='<span style="color:var(--teal)">No Q&A cards yet — tap Generate above!</span>';
-    document.getElementById('qaQEn').textContent='';
-    document.getElementById('qaFrameLabel').textContent='';
-    document.getElementById('qaTapHint').textContent='';
-    document.getElementById('qaProgRight').textContent='0 / 0';
-    document.getElementById('qaFill').style.width='0%';
-    return;
-  }
-  if(qaIdx>=qaQueue.length){
-    qaIdx=0;
-    qaQueue.sort(function(){return Math.random()-0.5;});
-  }
-
-  var card=qaQueue[qaIdx];
-  var pct=Math.round((qaIdx/qaQueue.length)*100);
-  document.getElementById('qaFill').style.width=pct+'%';
-  document.getElementById('qaProgLeft').textContent=card.frame||'Q&A';
-  document.getElementById('qaProgRight').textContent=(qaIdx+1)+' / '+qaQueue.length;
-  document.getElementById('qaFrameLabel').textContent=(card.frame||'').toUpperCase();
-  document.getElementById('qaQuestion').innerHTML=formatQAText(card.questionVN);
-  document.getElementById('qaQEn').textContent=card.questionEN||'';
-  document.getElementById('qaTapHint').textContent='';
-  // Always populate Q breakdown (show/hide based on sticky)
-  var qbEl=document.getElementById('qaQBrk');
-  if(qbEl){
-    qbEl.innerHTML=card.qbrk?formatQABrk(card.qbrk):'';
-    qbEl.style.display=(qaBrkSticky&&card.qbrk)?'block':'none';
-  }
-  // Sync breakdown button styles
-  var brkOn=qaBrkSticky;
-  ['qaQBrkBtn','qaABrkBtn'].forEach(function(id){
-    var b=document.getElementById(id);
-    if(b){b.style.background=brkOn?'#0a1e14':'var(--bg2)';b.style.borderColor=brkOn?'var(--teal)':'var(--border)';b.style.color=brkOn?'var(--teal)':'var(--text2)';}
-  });
-
-  // Review button
-  var rb=document.getElementById('qaReviewBtn');
-  var rc=document.getElementById('qaReviewCount');
-  if(qaMissedIds.length){rb.style.display='block';rc.textContent=qaMissedIds.length;}
-  else{rb.style.display='none';}
-}
-
-function qaHearQ(e){
-  if(e)e.stopPropagation();
-  var card=qaQueue[qaIdx]; if(!card)return;
-  speakQA(stripTags(card.questionVN||''),document.getElementById('qaQuestion'));
-}
-function qaHearA(e){
-  if(e)e.stopPropagation();
-  var card=qaQueue[qaIdx]; if(!card)return;
-  speakQA(stripTags(card.answerVN||''),document.getElementById('qaAnswerVN'));
-}
-function qaTap(){
-  // Card tap plays question when on front, does nothing extra on back
-  var card=qaQueue[qaIdx]; if(!card)return;
-  if(!qaFlipped) speakQA(stripTags(card.questionVN||''),document.getElementById('qaQuestion'));
-}
-
-function qaShow(){
-  var card=qaQueue[qaIdx]; if(!card||qaFlipped)return;
-  qaFlipped=true;
-  // Populate answer
-  document.getElementById('qaAnswer').style.display='block';
-  document.getElementById('qaAnswerVN').innerHTML=formatQAText(card.answerVN||'');
-  document.getElementById('qaAnswerEN').textContent=card.answerEN||'';
-  // Populate breakdowns
-  var qbEl2=document.getElementById('qaQBrk');
-  if(qbEl2){qbEl2.innerHTML=card.qbrk?formatQABrk(card.qbrk):'';qbEl2.style.display=qaBrkSticky&&card.qbrk?'block':'none';}
-  var abEl=document.getElementById('qaAnswerBrk');
-  if(abEl){abEl.innerHTML=formatQABrk(card.abrk||card.brk||'');abEl.style.display=qaBrkSticky&&(card.abrk||card.brk)?'block':'none';}
-  // Populate tip
-  if(card.tip){document.getElementById('qaTip').innerHTML='💡 <b>Grammar tip:</b> '+card.tip;}
-  // Show breakdown row
-  document.getElementById('qaBrkRow').style.display='flex';
-  // Auto-play answer
-  speakQA(stripTags(card.answerVN||''),document.getElementById('qaAnswerVN'));
-  var sb=document.getElementById('qaShowBtn');
-  sb.textContent='▶ Hear answer again'; sb.classList.add('shown');
-  sb.onclick=function(){speakQA(stripTags(card.answerVN||''),document.getElementById('qaAnswerVN'));};
-  document.getElementById('qaNextBtn').style.display='block';
-  document.getElementById('qaTapHint').textContent='Tap buttons below to hear Q or A';
-}
-
-function qaMark(){
-  var card=qaQueue[qaIdx]; if(!card)return;
-  if(qaMissedIds.indexOf(card.id)<0){
-    qaMissedIds.push(card.id);
-    toast('⭐ Marked for review');
-    renderQAFilterRow();
-  } else {
-    qaMissedIds=qaMissedIds.filter(function(x){return x!==card.id;});
-    toast('Unmarked');
-    renderQAFilterRow();
-  }
-  saveQA();
-}
-
-function qaNext(){
-  qaIdx++;
-  renderQACard();
-}
-
-function reviewQAMissed(){
-  qaFilter='missed';
-  renderQAFilterRow();
-  qaStartQueue();
-}
-
-function toggleQABrk(side){
-  var el=document.getElementById(side==='q'?'qaQBrk':'qaAnswerBrk');
-  var btn=document.getElementById(side==='q'?'qaQBrkBtn':'qaABrkBtn');
-  if(!el)return;
-  var showing=el.style.display!=='none'&&el.style.display!=='';
-  el.style.display=showing?'none':'block';
-  btn.style.background=showing?'var(--bg2)':'#0a1e14';
-  btn.style.borderColor=showing?'var(--border)':'var(--teal)';
-  btn.style.color=showing?'var(--text2)':'var(--teal)';
-}
-function toggleQATip(){
-  var el=document.getElementById('qaTip');
-  var btn=document.getElementById('qaTipBtn');
-  if(!el)return;
-  var showing=el.style.display!=='none'&&el.style.display!=='';
-  el.style.display=showing?'none':'block';
-  btn.style.background=showing?'var(--bg2)':'rgba(124,58,237,0.15)';
-  btn.style.borderColor=showing?'var(--border)':'var(--purple)';
-}
-
-function saveQA(){
-  try{localStorage.setItem('vietpics_qa',JSON.stringify({cards:qaCards,missed:qaMissedIds}));}catch(e){}
-}
-function loadQA(){
-  try{
-    var d=JSON.parse(localStorage.getItem('vietpics_qa')||'null');
-    if(d&&d.cards){qaCards=d.cards;qaMissedIds=d.missed||[];}
-  }catch(e){}
-}
-
-// ── AI GENERATION ─────────────────────────────────────────────
 async function generateQA(){
   var btn=document.getElementById('qaGenBtn');
   var status=document.getElementById('qaStatus');
@@ -1384,35 +1228,48 @@ async function generateQA(){
   var verbs=words.filter(function(w){return w.type==='verb';}).slice(0,20).map(function(w){return w.viet+'='+w.eng;}).join(', ');
   var vocab='Nouns: '+nouns+' | Verbs: '+verbs;
 
-  // 6 small batches — 2 frame types each, 4 cards per type = 8 cards per batch = 48 total
   var batches=[
-    {label:'do/does + can',      frames:'do/does (có...không), can (có thể...không)'},
-    {label:'want + where',       frames:'want (muốn...không), where (ở đâu / đi đâu)'},
-    {label:'why + what',         frames:'why (tại sao / sao), what (gì / làm gì / cái gì)'},
-    {label:'when + who',         frames:'when (khi nào / bao giờ / mấy giờ), who (ai)'},
-    {label:'how much + how',     frames:'how much/many (bao nhiêu), how (như thế nào / làm thế nào)'},
-    {label:'have ever + like',   frames:'have you ever (đã...chưa), do you like (thích...không)'},
+    {label:'do/does + can',    frames:'do/does (có...không), can (có thể...không)'},
+    {label:'want + where',     frames:'want (muốn...không), where (ở đâu / đi đâu)'},
+    {label:'why + what',       frames:'why (tại sao / sao), what (gì / làm gì)'},
+    {label:'when + who',       frames:'when (khi nào / bao giờ), who (ai)'},
+    {label:'how much + how',   frames:'how much (bao nhiêu), how (như thế nào)'},
+    {label:'have ever + like', frames:'have you ever (đã...chưa), do you like (thích...không)'},
   ];
 
-  var allCards=[];
-  var startId=1;
-
   function makePrompt(frames,id){
-    return 'Vietnamese language teacher. ONLY output a valid JSON array starting with [ — no explanation, no markdown, nothing else.\n\n'+
+    return 'Vietnamese language teacher. ONLY output a valid JSON array — no explanation, no markdown.\n\n'+
       'Vocabulary: '+vocab+'\n\n'+
       'Create 4 Q&A flashcard pairs for EACH frame type (8 total): '+frames+'\n\n'+
-      'Rules:\n'+
-      '1. Casual spoken Northern Vietnamese. Use particles: vậy, nhỉ, à, nha, rồi, thôi\n'+
-      '2. Wrap question words with <qw>word</qw>: ai, gì, đâu, sao, tại sao, bao nhiêu, khi nào, bao giờ, cái nào, có thể, muốn, đã, chưa, thích, hay, như thế nào\n'+
-      '3. Wrap the main vocab word with <fw>word</fw>\n'+
-      '4. Short natural answers (1 sentence). Tag words in answers too.\n'+
-      '5. Use Tim context: American retired, lives Mỹ An Đà Nẵng, loves coffee and beach, grandchildren, creates apps\n'+
-      '6. Each card needs qbrk (question breakdown: word–meaning;word–meaning), abrk (answer breakdown), tip (explain grammar for English speakers)\n\n'+
-      'JSON array only:\n'+
-      '[{"id":"qa'+String(id).padStart(3,'0')+'","frame":"do/does","questionVN":"Bạn <qw>có</qw> <fw>uống</fw> cà phê không?","questionEN":"Do you drink coffee?","answerVN":"Có, tôi <fw>uống</fw> cà phê.","answerEN":"Yes, I drink coffee.","qbrk":"Bạn–you;có–yes/no frame;uống–drink;cà phê–coffee;không–question marker","abrk":"Có–yes;tôi–I;uống–drink;cà phê–coffee","tip":"có...không wraps any verb into a yes/no question. Most common question pattern in Vietnamese."}]';
+      'RULES:\n'+
+      '1. PRONOUNS: ONLY bạn (you), tôi (I), họ (they). NEVER ông/bà/anh/chị/em/con/cô/chú.\n'+
+      '2. Casual Northern Vietnamese. Particles OK: vậy, nhỉ, à, nha, rồi\n'+
+      '3. Wrap question words: <qw>word</qw>\n'+
+      '4. Wrap main vocab word/phrase: <fw>word</fw>\n'+
+      '5. Short natural answer (1 sentence).\n'+
+      '6. qbrk and abrk: keep multi-word phrases together (e.g. tiếng Việt–Vietnamese, không phải–not).\n'+
+      '7. tip: specific grammar explanation for English speakers.\n\n'+
+      'JSON only: [{"id":"qa'+String(id).padStart(3,'0')+'","frame":"do/does","questionVN":"Bạn <qw>có</qw> <fw>uống</fw> cà phê không?","questionEN":"Do you drink coffee?","answerVN":"Có, tôi <fw>uống</fw> cà phê.","answerEN":"Yes, I drink coffee.","qbrk":"Bạn–you;có–yes/no frame;uống–drink;cà phê–coffee;không–question marker","abrk":"Có–yes;tôi–I;uống–drink;cà phê–coffee","tip":"có...không is Vietnamese yes/no question frame: có before verb, không at end."}]';
   }
 
-  for(var bi=0;bi<batches.length;bi++){
+  async function runBatch(bi, allCards, startId){
+    if(bi>=batches.length){
+      if(allCards.length){
+        qaCards=allCards;
+        qaMissedIds=[];
+        saveQA();
+        renderQAFilterRow();
+        qaStartQueue();
+        var fc=Object.keys(allCards.reduce(function(a,card){a[card.frame]=1;return a;},{})).length;
+        status.textContent='✓ Done! '+allCards.length+' cards across '+fc+' question types.';
+        btn.textContent='✨ Regenerate';
+      }else{
+        status.textContent='No cards generated. Check your API key in Settings.';
+        btn.textContent='✨ Try again';
+      }
+      btn.disabled=false;
+      return;
+    }
     var batch=batches[bi];
     btn.textContent='⏳ Batch '+(bi+1)+' of '+batches.length+'...';
     status.textContent='Generating: '+batch.label+'...';
@@ -1437,50 +1294,50 @@ async function generateQA(){
       var text=data.content[0].text.trim();
       text=text.replace(/^```json?\s*/i,'').replace(/\s*```$/,'').trim();
       var a=text.indexOf('['),b=text.lastIndexOf(']');
-      if(a<0||b<0)throw new Error('No JSON in batch '+(bi+1));
+      if(a<0||b<0)throw new Error('No JSON array found');
       text=text.slice(a,b+1);
-      var parsed;
-      try{parsed=JSON.parse(text);}
-      catch(pe){text=text.replace(/,\s*([}\]])/g,'$1');parsed=JSON.parse(text);}
-      allCards=allCards.concat(parsed);
-      startId+=parsed.length;
-      status.textContent='✓ Batch '+(bi+1)+' done — '+allCards.length+' cards so far';
+      var parsed=null;
+      try{parsed=JSON.parse(text);}catch(pe){
+        text=text.replace(/,\s*([}\]])/g,'$1');
+        parsed=JSON.parse(text);
+      }
+      if(parsed&&parsed.length){
+        allCards=allCards.concat(parsed);
+        startId+=parsed.length;
+        status.textContent='✓ Batch '+(bi+1)+' done — '+allCards.length+' cards so far';
+      }
     }catch(err){
-      console.error('Batch '+(bi+1)+' error:',err);
-      status.textContent='Batch '+(bi+1)+' skipped: '+err.message+'. Continuing...';
+      console.error('Batch '+(bi+1)+':',err.message);
+      status.textContent='Batch '+(bi+1)+' skipped: '+err.message;
     }
+    await runBatch(bi+1, allCards, startId);
   }
 
-  if(allCards.length){
-    qaCards=allCards;
-    qaMissedIds=[];
-    saveQA();
-    renderQAFilterRow();
-    qaStartQueue();
-    var frameCount=Object.keys(allCards.reduce(function(a,card){a[card.frame]=1;return a;},{})).length;
-    status.textContent='✓ Done! '+allCards.length+' cards across '+frameCount+' question types.';
-    btn.textContent='✨ Regenerate';
-  }else{
-    status.textContent='No cards generated. Check your API key in Settings.';
-    btn.textContent='✨ Try again';
-  }
-  btn.disabled=false;
+  await runBatch(0, [], 1);
 }
 
 
+function extractPhrases(brk){
+  // Extract multi-word Vietnamese phrases from breakdown string
+  if(!brk)return[];
+  return brk.split(';').map(function(seg){
+    var dash=seg.indexOf('–');
+    return dash>0?seg.slice(0,dash).trim():'';
+  }).filter(function(p){return p.indexOf(' ')>0;}); // only multi-word
+}
 function qaHearQ(e){
   if(e)e.stopPropagation();
   var card=qaQueue[qaIdx]; if(!card)return;
-  speakQA(stripTags(card.questionVN||''),document.getElementById('qaQuestion'));
+  ttsSpeak(stripTags(card.questionVN||''),'vi-VN');
 }
 function qaHearA(e){
   if(e)e.stopPropagation();
   var card=qaQueue[qaIdx]; if(!card)return;
-  speakQA(stripTags(card.answerVN||''),document.getElementById('qaAnswerVN'));
+  ttsSpeak(stripTags(card.answerVN||''),'vi-VN');
 }
 function qaTap(){
   var card=qaQueue[qaIdx]; if(!card)return;
-  if(!qaFlipped) speakQA(stripTags(card.questionVN||''),document.getElementById('qaQuestion'));
+  if(!qaFlipped) ttsSpeak(stripTags(card.questionVN||''),'vi-VN');
 }
 
 function qaMark(){
@@ -1575,6 +1432,15 @@ function applyFont(){
 }
 
 // INIT
+// Event delegation for tappable breakdown words
+document.addEventListener('click',function(e){
+  var el=e.target.closest('.brkword');
+  if(el){
+    e.stopPropagation();
+    var w=el.getAttribute('data-word');
+    if(w)ttsSpeak(w,'vi-VN');
+  }
+});
 load();
 applyFont();
 loadQA();

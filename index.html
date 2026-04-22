@@ -358,7 +358,7 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,sans-serif
     <div id="qaCard">
       <div class="qa-frame-label" id="qaFrameLabel"></div>
       <!-- QUESTION SIDE -->
-      <div id="qaQuestionBlock" style="display:flex;gap:8px;align-items:flex-start;">
+      <div id="qaQuestionBlock" style="display:flex;gap:8px;align-items:flex-end;">
         <div style="flex:1;min-width:0;">
           <div id="qaQuestion"></div>
           <div id="qaQEn"></div>
@@ -369,7 +369,7 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,sans-serif
       <div id="qaTapHint" style="font-size:11px;color:var(--text3);margin-top:6px;"></div>
       <!-- ANSWER SIDE (revealed on Show) -->
       <div id="qaAnswer" style="display:none;margin-top:12px;padding-top:12px;border-top:0.5px solid rgba(255,255,255,0.1);">
-        <div style="display:flex;gap:8px;align-items:flex-start;">
+        <div style="display:flex;gap:8px;align-items:flex-end;">
           <div style="flex:1;min-width:0;">
             <div id="qaAnswerVN"></div>
             <div id="qaAnswerEN"></div>
@@ -1224,20 +1224,8 @@ function renderQACard(){
   document.getElementById('qaBrkRow').style.display='none';
   document.getElementById('qaAnswerBrk').style.display='none';
   document.getElementById('qaTip').style.display='none';
-  // Q breakdown: show immediately if sticky
-  var qbEl=document.getElementById('qaQBrk');
-  if(qbEl)qbEl.style.display=qaBrkSticky?'block':'none';
-  // Sync button styles
-  ['qaQBrkBtn','qaABrkBtn'].forEach(function(id){
-    var b=document.getElementById(id);
-    if(b){
-      b.style.background=qaBrkSticky?'#0a1e14':'var(--bg2)';
-      b.style.borderColor=qaBrkSticky?'var(--teal)':'var(--border)';
-      b.style.color=qaBrkSticky?'var(--teal)':'var(--text2)';
-    }
-  });
-  var tipBtn=document.getElementById('qaTipBtn');
-  if(tipBtn){tipBtn.style.background='var(--bg2)';tipBtn.style.borderColor='var(--border)';}
+  // Always show brkRow buttons
+  document.getElementById('qaBrkRow').style.display='flex';
 
   if(!qaQueue.length){
     document.getElementById('qaQuestion').innerHTML='<span style="color:var(--teal)">No Q&A cards yet — tap Generate above!</span>';
@@ -1261,7 +1249,19 @@ function renderQACard(){
   document.getElementById('qaFrameLabel').textContent=(card.frame||'').toUpperCase();
   document.getElementById('qaQuestion').innerHTML=formatQAText(card.questionVN);
   document.getElementById('qaQEn').textContent=card.questionEN||'';
-  document.getElementById('qaTapHint').textContent='Tap to hear';
+  document.getElementById('qaTapHint').textContent='';
+  // Always populate Q breakdown (show/hide based on sticky)
+  var qbEl=document.getElementById('qaQBrk');
+  if(qbEl){
+    qbEl.innerHTML=card.qbrk?formatQABrk(card.qbrk):'';
+    qbEl.style.display=(qaBrkSticky&&card.qbrk)?'block':'none';
+  }
+  // Sync breakdown button styles
+  var brkOn=qaBrkSticky;
+  ['qaQBrkBtn','qaABrkBtn'].forEach(function(id){
+    var b=document.getElementById(id);
+    if(b){b.style.background=brkOn?'#0a1e14':'var(--bg2)';b.style.borderColor=brkOn?'var(--teal)':'var(--border)';b.style.color=brkOn?'var(--teal)':'var(--text2)';}
+  });
 
   // Review button
   var rb=document.getElementById('qaReviewBtn');
@@ -1294,9 +1294,10 @@ function qaShow(){
   document.getElementById('qaAnswerVN').innerHTML=formatQAText(card.answerVN||'');
   document.getElementById('qaAnswerEN').textContent=card.answerEN||'';
   // Populate breakdowns
-  if(card.qbrk)document.getElementById('qaQBrk').innerHTML=formatQABrk(card.qbrk);
-  if(card.abrk||card.brk)document.getElementById('qaAnswerBrk').innerHTML=formatQABrk(card.abrk||card.brk||'');
-  if(qaBrkSticky&&(card.abrk||card.brk)){document.getElementById('qaAnswerBrk').style.display='block';}
+  var qbEl2=document.getElementById('qaQBrk');
+  if(qbEl2){qbEl2.innerHTML=card.qbrk?formatQABrk(card.qbrk):'';qbEl2.style.display=qaBrkSticky&&card.qbrk?'block':'none';}
+  var abEl=document.getElementById('qaAnswerBrk');
+  if(abEl){abEl.innerHTML=formatQABrk(card.abrk||card.brk||'');abEl.style.display=qaBrkSticky&&(card.abrk||card.brk)?'block':'none';}
   // Populate tip
   if(card.tip){document.getElementById('qaTip').innerHTML='💡 <b>Grammar tip:</b> '+card.tip;}
   // Show breakdown row
@@ -1530,20 +1531,26 @@ function loadQA(){
 }
 
 function toggleQABrk(side){
-  // Toggle sticky mode — both Q and A breakdowns stay on until toggled off
   qaBrkSticky=!qaBrkSticky;
+  var card=qaQueue[qaIdx];
+  // Show/hide Q breakdown
   var qEl=document.getElementById('qaQBrk');
+  if(qEl){
+    if(qaBrkSticky&&card&&card.qbrk){qEl.innerHTML=formatQABrk(card.qbrk);qEl.style.display='block';}
+    else{qEl.style.display='none';}
+  }
+  // Show/hide A breakdown (only if card is flipped)
   var aEl=document.getElementById('qaAnswerBrk');
-  var qBtn=document.getElementById('qaQBrkBtn');
-  var aBtn=document.getElementById('qaABrkBtn');
+  if(aEl&&qaFlipped){
+    if(qaBrkSticky&&card&&(card.abrk||card.brk)){aEl.innerHTML=formatQABrk(card.abrk||card.brk||'');aEl.style.display='block';}
+    else{aEl.style.display='none';}
+  }
+  // Sync button styles
   var on=qaBrkSticky;
-  if(qEl)qEl.style.display=on?'block':'none';
-  if(aEl&&qaFlipped)aEl.style.display=on?'block':'none';
-  var bg=on?'#0a1e14':'var(--bg2)';
-  var bc=on?'var(--teal)':'var(--border)';
-  var col=on?'var(--teal)':'var(--text2)';
-  if(qBtn){qBtn.style.background=bg;qBtn.style.borderColor=bc;qBtn.style.color=col;}
-  if(aBtn){aBtn.style.background=bg;aBtn.style.borderColor=bc;aBtn.style.color=col;}
+  ['qaQBrkBtn','qaABrkBtn'].forEach(function(id){
+    var b=document.getElementById(id);
+    if(b){b.style.background=on?'#0a1e14':'var(--bg2)';b.style.borderColor=on?'var(--teal)':'var(--border)';b.style.color=on?'var(--teal)':'var(--text2)';}
+  });
 }
 function toggleQATip(){
   var el=document.getElementById('qaTip');

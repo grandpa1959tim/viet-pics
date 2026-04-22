@@ -78,7 +78,11 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,sans-serif
 /* CARD BACK (shown after Show) */
 #cardBack{display:none;}
 .hl{background:rgba(239,159,39,0.25);border-radius:3px;color:var(--amber);}
-.brkword{color:var(--amber);font-weight:600;cursor:pointer;border-bottom:2px dotted var(--amber);padding-bottom:1px;}
+.brkword{color:var(--amber);font-weight:700;cursor:pointer;border-bottom:2px dotted #EF9F27;padding-bottom:1px;}
+.tapword{cursor:pointer;border-bottom:2px dotted rgba(255,255,255,0.4);padding-bottom:1px;}
+.tapword:active{background:rgba(255,255,255,0.1);border-radius:3px;}
+.tapword-focus{color:var(--amber);font-weight:700;border-bottom:2px dotted var(--amber);}
+.tapword.hl,.brkword.hl{background:rgba(239,159,39,0.35);border-radius:3px;}
 #backVN{font-size:calc(21px * var(--fs));line-height:1.6;color:var(--text);margin-bottom:6px;font-weight:500;}
 #backVN b{color:var(--amber);}
 #backEN{font-size:calc(15px * var(--fs));line-height:1.5;color:var(--cyan);margin-bottom:4px;}
@@ -228,19 +232,19 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,sans-serif
 
     <div id="cardArea">
       <!-- MAIN CARD -->
-      <div id="picCard" onclick="cardTap()">
+      <div id="picCard">
         <!-- FRONT -->
         <div id="cardFront">
           <div id="wordEmoji"></div>
           <div id="wordType"></div>
-          <div id="frontSentVN"></div>
+          <div id="frontSentVN" style="cursor:pointer;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);" title="Tap to hear sentence"></div>
           <div id="frontEngWord"></div>
           <div id="frontEngSent"></div>
           <div id="tapHint">Tap to hear</div>
         </div>
         <!-- BACK (shown after Show) -->
         <div id="cardBack">
-          <div id="backVN"></div>
+          <div id="backVN" style="cursor:pointer;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);" title="Tap to hear sentence"></div>
           <div id="backEN"></div>
           <div id="backBrk" style="display:none;margin-top:10px;padding-top:10px;border-top:0.5px solid rgba(255,255,255,0.12);font-size:calc(13px * var(--fs));line-height:1.9;text-align:left;"></div>
           <div id="backTapHint">Tap to hear again</div>
@@ -262,11 +266,12 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,sans-serif
 
     <!-- ACTION ROW -->
     <div id="actionRow">
-      <div style="display:flex;gap:6px;flex:1;">
+      <div style="display:flex;gap:6px;flex:2;">
         <button class="action-btn" id="breakdownBtn" onclick="toggleBreakdown()" style="flex:2;">📖 Breakdown</button>
         <button class="action-btn" id="brkAutoBtn" onclick="toggleBrkAuto()" style="flex:1;font-size:11px;">Auto<br>OFF</button>
       </div>
       <button class="action-btn" id="showBtn" style="flex:1;">Show →</button>
+      <button class="action-btn" id="listenBtn" onclick="listenCard()" style="flex:1;color:var(--cyan);border-color:var(--cyan);">🔊 Listen</button>
     </div>
 
     <button id="missedBtn" onclick="reviewMissed()">⭐ Review missed cards</button>
@@ -746,7 +751,7 @@ function renderQuiz(){
     document.getElementById('wordEmoji').style.display='none';
     document.getElementById('wordEmoji').textContent=w.emoji||'📝';
     document.getElementById('hintBtn').style.display='flex';
-    document.getElementById('frontSentVN').innerHTML=w.sentVN||('<b>'+w.viet+'</b>');
+    document.getElementById('frontSentVN').innerHTML=wrapSentence(w.sentVN||('<b>'+w.viet+'</b>'),w.brk);
     document.getElementById('frontEngWord').textContent='';
     document.getElementById('frontEngSent').innerHTML='';
     document.getElementById('tapHint').textContent='Tap to hear Vietnamese';
@@ -800,9 +805,9 @@ function brkPhrases(brk){
     var d=seg.indexOf('–');return d>0?seg.slice(0,d).trim():'';
   }).filter(function(p){return p.indexOf(' ')>0;});
 }
-function cardTap(){
+function cardTap(e){
+  if(e)e.stopPropagation();
   var w=queue[qIdx];if(!w)return;
-  var phrases=brkPhrases(w.brk);
   if(cardFlipped){
     ttsSpeak(stripTags(w.sentVN)||w.viet,'vi-VN');
   } else {
@@ -815,7 +820,7 @@ function cardTap(){
 function showAnswer(){
   var w=queue[qIdx];if(!w)return;
   if(cardFlipped){
-    ttsSpeak(stripTags(w.sentVN)||w.viet,'vi-VN');
+    speakWithHighlight(stripTags(w.sentVN)||w.viet,document.getElementById('backVN'),'vi-VN',brkPhrases(w.brk));
     return;
   }
   cardFlipped=true;
@@ -823,21 +828,21 @@ function showAnswer(){
   document.getElementById('cardBack').style.display='block';
 
   if(mode==='vn-en'){
-    document.getElementById('backVN').innerHTML=w.sentVN||('<b>'+w.viet+'</b>');
+    document.getElementById('backVN').innerHTML=wrapSentence(w.sentVN||('<b>'+w.viet+'</b>'),w.brk);
     document.getElementById('backEN').innerHTML=w.sentEN||'';
   } else {
-    document.getElementById('backVN').innerHTML=(w.emoji?w.emoji+' ':'')+(w.sentVN||('<b>'+w.viet+'</b>'));
+    document.getElementById('backVN').innerHTML=(w.emoji?w.emoji+' ':'')+wrapSentence(w.sentVN||('<b>'+w.viet+'</b>'),w.brk);
     document.getElementById('backEN').innerHTML=w.sentEN||'';
   }
 
-  ttsSpeak(stripTags(w.sentVN)||w.viet,'vi-VN');
+  speakWithHighlight(stripTags(w.sentVN)||w.viet,document.getElementById('backVN'),'vi-VN',brkPhrases(w.brk));
 
   var sb=document.getElementById('showBtn');
   sb.textContent='▶ Hear again';
   sb.classList.add('shown');
-  sb.onclick=function(){ttsSpeak(stripTags(w.sentVN)||w.viet,'vi-VN');};
+  sb.onclick=function(){speakWithHighlight(stripTags(w.sentVN)||w.viet,document.getElementById('backVN'),'vi-VN',brkPhrases(w.brk));};
 
-  if((showingBreakdown||brkAutoOn)&&w.brk){
+  if(w.brk){
     var bb=document.getElementById('backBrk');
     bb.innerHTML=formatBrk(w.brk);
     bb.style.display='block';
@@ -1257,11 +1262,13 @@ async function generateQA(){
   async function runBatch(bi, allCards, startId){
     if(bi>=batches.length){
       if(allCards.length){
-        qaCards=allCards;
+        qaCards=allCards.slice(); // explicit copy
         qaMissedIds=[];
         saveQA();
-        renderQAFilterRow();
-        qaStartQueue();
+        setTimeout(function(){
+          renderQAFilterRow();
+          qaStartQueue();
+        },100);
         var fc=Object.keys(allCards.reduce(function(a,card){a[card.frame]=1;return a;},{})).length;
         status.textContent='✓ Done! '+allCards.length+' cards across '+fc+' question types.';
         btn.textContent='✨ Regenerate';
@@ -1329,18 +1336,117 @@ function extractPhrases(brk){
 }
 function qaHearQ(e){
   if(e)e.stopPropagation();
-  var card=qaQueue[qaIdx]; if(!card)return;
-  ttsSpeak(stripTags(card.questionVN||''),'vi-VN');
+  var card=qaQueue[qaIdx];if(!card)return;
+  var el=document.getElementById('qaQuestion');
+  speakWithHighlight(stripTags(card.questionVN||''),el,'vi-VN',brkPhrases(card.qbrk||''));
 }
 function qaHearA(e){
   if(e)e.stopPropagation();
-  var card=qaQueue[qaIdx]; if(!card)return;
-  ttsSpeak(stripTags(card.answerVN||''),'vi-VN');
+  var card=qaQueue[qaIdx];if(!card)return;
+  var el=document.getElementById('qaAnswerVN');
+  speakWithHighlight(stripTags(card.answerVN||''),el,'vi-VN',brkPhrases(card.abrk||card.brk||''));
 }
 function qaTap(){
   var card=qaQueue[qaIdx]; if(!card)return;
   if(!qaFlipped) ttsSpeak(stripTags(card.questionVN||''),'vi-VN');
 }
+
+function renderQAFilterRow(){
+  var frames={};
+  qaCards.forEach(function(card){if(card.frame)frames[card.frame]=(frames[card.frame]||0)+1;});
+  var row=document.getElementById('qaFilterRow');
+  if(!row)return;
+  row.innerHTML='';
+  var allChip=document.createElement('div');
+  allChip.className='qa-chip'+(qaFilter==='all'?' active':'');
+  allChip.textContent='All ('+qaCards.length+')';
+  allChip.onclick=function(){qaFilter='all';renderQAFilterRow();qaStartQueue();};
+  row.appendChild(allChip);
+  var missChip=document.createElement('div');
+  missChip.className='qa-chip'+(qaFilter==='missed'?' active':'');
+  missChip.textContent='⭐ Marked ('+qaMissedIds.length+')';
+  missChip.onclick=function(){qaFilter='missed';renderQAFilterRow();qaStartQueue();};
+  row.appendChild(missChip);
+  Object.keys(frames).sort().forEach(function(f){
+    var ch=document.createElement('div');
+    ch.className='qa-chip'+(qaFilter===f?' active':'');
+    ch.textContent=f+' ('+frames[f]+')';
+    ch.onclick=function(){qaFilter=f;renderQAFilterRow();qaStartQueue();};
+    row.appendChild(ch);
+  });
+}
+
+function renderQACard(){
+  qaFlipped=false;
+  var sb=document.getElementById('qaShowBtn');
+  if(sb){sb.textContent='Show answer →';sb.classList.remove('shown');sb.onclick=qaShow;}
+  document.getElementById('qaAnswer').style.display='none';
+  document.getElementById('qaNextBtn').style.display='none';
+  document.getElementById('qaBrkRow').style.display='flex';
+  document.getElementById('qaAnswerBrk').style.display='none';
+  document.getElementById('qaTip').style.display='none';
+  var qbEl=document.getElementById('qaQBrk');
+  if(qbEl)qbEl.style.display='none';
+
+  if(!qaQueue.length){
+    document.getElementById('qaQuestion').innerHTML='<span style="color:var(--teal)">No Q&A cards — tap Generate above!</span>';
+    document.getElementById('qaQEn').textContent='';
+    document.getElementById('qaFrameLabel').textContent='';
+    document.getElementById('qaTapHint').textContent='';
+    document.getElementById('qaProgRight').textContent='0 / 0';
+    document.getElementById('qaFill').style.width='0%';
+    return;
+  }
+  if(qaIdx>=qaQueue.length){qaIdx=0;qaQueue.sort(function(){return Math.random()-0.5;});}
+
+  var card=qaQueue[qaIdx];
+  var pct=Math.round((qaIdx/qaQueue.length)*100);
+  document.getElementById('qaFill').style.width=pct+'%';
+  document.getElementById('qaProgLeft').textContent=card.frame||'Q&A';
+  document.getElementById('qaProgRight').textContent=(qaIdx+1)+' / '+qaQueue.length;
+  document.getElementById('qaFrameLabel').textContent=(card.frame||'').toUpperCase();
+  document.getElementById('qaQuestion').innerHTML=wrapSentenceQA(formatQAText(card.questionVN||''),card.qbrk);
+  document.getElementById('qaQEn').textContent=card.questionEN||'';
+  document.getElementById('qaTapHint').textContent='';
+
+  // Populate Q breakdown
+  var qb=document.getElementById('qaQBrk');
+  if(qb){
+    qb.innerHTML=card.qbrk?formatQABrk(card.qbrk):'';
+    qb.style.display=(qaBrkSticky&&card.qbrk)?'block':'none';
+  }
+  // Sync breakdown button styles
+  ['qaQBrkBtn','qaABrkBtn'].forEach(function(id){
+    var b=document.getElementById(id);
+    if(b){b.style.background=qaBrkSticky?'#0a1e14':'var(--bg2)';b.style.borderColor=qaBrkSticky?'var(--teal)':'var(--border)';b.style.color=qaBrkSticky?'var(--teal)':'var(--text2)';}
+  });
+
+  var rb=document.getElementById('qaReviewBtn');
+  var rc=document.getElementById('qaReviewCount');
+  if(rb){rb.style.display=qaMissedIds.length?'block':'none';}
+  if(rc)rc.textContent=qaMissedIds.length;
+}
+
+function qaShow(){
+  var card=qaQueue[qaIdx];if(!card||qaFlipped)return;
+  qaFlipped=true;
+  document.getElementById('qaAnswer').style.display='block';
+  document.getElementById('qaAnswerVN').innerHTML=wrapSentenceQA(formatQAText(card.answerVN||''),card.abrk||card.brk);
+  document.getElementById('qaAnswerEN').textContent=card.answerEN||'';
+  var qb=document.getElementById('qaQBrk');
+  if(qb){qb.innerHTML=card.qbrk?formatQABrk(card.qbrk):'';qb.style.display=qaBrkSticky&&card.qbrk?'block':'none';}
+  var ab=document.getElementById('qaAnswerBrk');
+  if(ab){ab.innerHTML=formatQABrk(card.abrk||card.brk||'');ab.style.display=qaBrkSticky&&(card.abrk||card.brk)?'block':'none';}
+  if(card.tip){document.getElementById('qaTip').innerHTML='💡 <b>Grammar tip:</b> '+card.tip;}
+  document.getElementById('qaBrkRow').style.display='flex';
+  var qaVNel=document.getElementById('qaAnswerVN');
+  speakWithHighlight(stripTags(card.answerVN||''),qaVNel,'vi-VN',brkPhrases(card.abrk||card.brk||''));
+  var sb=document.getElementById('qaShowBtn');
+  sb.textContent='▶ Hear again';sb.classList.add('shown');
+  sb.onclick=function(){var el2=document.getElementById('qaAnswerVN');speakWithHighlight(stripTags(card.answerVN||''),el2,'vi-VN',brkPhrases(card.abrk||card.brk||''));};
+  document.getElementById('qaNextBtn').style.display='block';
+}
+
 
 function qaMark(){
   var card=qaQueue[qaIdx]; if(!card)return;
@@ -1365,6 +1471,16 @@ function reviewQAMissed(){
   qaFilter='missed';
   renderQAFilterRow();
   qaStartQueue();
+}
+
+function qaStartQueue(){
+  var src;
+  if(qaFilter==='all') src=qaCards;
+  else if(qaFilter==='missed') src=qaCards.filter(function(card){return qaMissedIds.indexOf(card.id)>=0;});
+  else src=qaCards.filter(function(card){return card.frame===qaFilter;});
+  qaQueue=src.slice().sort(function(){return Math.random()-0.5;});
+  qaIdx=0;
+  renderQACard();
 }
 
 function saveQA(){
@@ -1433,15 +1549,136 @@ function applyFont(){
   document.getElementById('fontBtn').textContent=FS_LABELS[fsIdx];
 }
 
+
+// Wrap each word/phrase in a sentence as tappable spans
+// Uses the word's brk to identify multi-word phrases
+function wrapSentenceQA(html, brk){
+  // html has <span class="qw"> and <span class="fw"> already from formatQAText
+  // We need to make each visible word tappable
+  if(!html)return html;
+  var phrases=brkPhrases(brk||'');
+  phrases.sort(function(a,b){return b.length-a.length;});
+  // Get plain text for tokenizing
+  var plain=html.replace(/<[^>]+>/g,'');
+  // Tokenize
+  var tokens=[];
+  var rem=plain.replace(/^\s+/,'');
+  while(rem.length>0){
+    var matched=false;
+    for(var i=0;i<phrases.length;i++){
+      if(rem.indexOf(phrases[i])===0){
+        tokens.push(phrases[i]);rem=rem.slice(phrases[i].length).replace(/^\s+/,'');
+        matched=true;break;
+      }
+    }
+    if(!matched){
+      var m=rem.match(/^\S+/);
+      if(m){tokens.push(m[0]);rem=rem.slice(m[0].length).replace(/^\s+/,'');}
+      else break;
+    }
+  }
+  // Rebuild: for each token, check if it was qw/fw tagged
+  var result=html;
+  tokens.forEach(function(tok){
+    var dw=tok.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+    // Replace plain token occurrence with tappable span
+    // But preserve existing qw/fw spans — wrap the inner text
+    result=result.replace(tok,'<span class="tapword" data-word="'+dw+'">'+tok+'</span>');
+  });
+  return result;
+}
+
+function wrapSentence(html, brk){
+  if(!html)return html;
+  var phrases=brkPhrases(brk); // multi-word phrases e.g. ["tiếng Việt","cà phê"]
+  // Sort phrases longest first so we match greedily
+  phrases.sort(function(a,b){return b.length-a.length;});
+  // Strip tags to get plain text, but preserve <b> tags for focus word
+  // Replace each phrase and word with tappable span
+  // Work on plain text version
+  var plain=html.replace(/<b>(.*?)<\/b>/g,'$1');
+  // Build token list - split on spaces but keep phrases intact
+  var tokens=[];
+  var remaining=plain;
+  while(remaining.length>0){
+    remaining=remaining.replace(/^\s+/,'');
+    if(!remaining)break;
+    var matched=false;
+    for(var i=0;i<phrases.length;i++){
+      if(remaining.indexOf(phrases[i])===0){
+        tokens.push(phrases[i]);
+        remaining=remaining.slice(phrases[i].length);
+        matched=true;
+        break;
+      }
+    }
+    if(!matched){
+      var m=remaining.match(/^[^\s]+/);
+      if(m){tokens.push(m[0]);remaining=remaining.slice(m[0].length);}
+      else break;
+    }
+  }
+  // Rebuild with tappable spans, re-apply <b> for focus word
+  var focusMatch=html.match(/<b>(.*?)<\/b>/);
+  var focusWord=focusMatch?focusMatch[1]:'';
+  return tokens.map(function(tok){
+    var isFocus=focusWord&&tok.indexOf(focusWord)>=0;
+    var dw=tok.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+    var cls='tapword'+(isFocus?' tapword-focus':'');
+    return '<span class="'+cls+'" data-word="'+dw+'">'+tok+'</span>';
+  }).join(' ');
+}
+
+function listenCard(){
+  var w=queue[qIdx];if(!w)return;
+  var elId=cardFlipped?'backVN':'frontSentVN';
+  var el=document.getElementById(elId);
+  var text=cardFlipped?(stripTags(w.sentVN)||w.viet):(mode==='vn-en'?stripTags(w.sentVN)||w.viet:stripTags(w.sentEN)||w.eng);
+  var lang=(!cardFlipped&&mode==='en-vn')?'en-US':'vi-VN';
+  speakWithHighlight(text,el,lang,brkPhrases(w.brk));
+}
+
+function speakWithHighlight(text,el,lang,phrases){
+  if(!window.speechSynthesis)return;
+  window.speechSynthesis.cancel();
+  setTimeout(function(){
+    var u=new SpeechSynthesisUtterance(text);
+    u.lang=lang||'vi-VN';
+    u.rate=speechRate;
+    if(el){
+      if(!el.getAttribute('data-raw'))el.setAttribute('data-raw',el.innerHTML);
+      var knownPhrases=phrases||[];
+      u.onboundary=function(ev){
+        if(ev.name!=='word')return;
+        var ci=ev.charIndex;
+        var wl=ev.charLength||text.substr(ci).split(/\s/)[0].length;
+        var word=text.substr(ci,wl);
+        if(!word)return;
+        var spans=el.querySelectorAll('.tapword');
+        spans.forEach(function(s){
+          var sw=s.getAttribute('data-word')||'';
+          // Match if span word equals spoken word, OR spoken word starts the span phrase
+          var hit=(sw===word)||(sw.indexOf(word)===0&&sw.length>word.length);
+          s.classList.toggle('hl',hit);
+        });
+      };
+      u.onend=function(){
+        el.querySelectorAll('.tapword').forEach(function(s){s.classList.remove('hl');});
+        el.removeAttribute('data-raw');
+      };
+    }
+    window.speechSynthesis.speak(u);
+  },50);
+}
 // INIT
 // Event delegation for tappable breakdown words
 document.addEventListener('click',function(e){
-  var el=e.target.closest('.brkword');
-  if(el){
-    e.stopPropagation();
-    var w=el.getAttribute('data-word');
-    if(w)ttsSpeak(w,'vi-VN');
-  }
+  // Breakdown word tap
+  var bel=e.target.closest('.brkword');
+  if(bel){e.stopPropagation();var bw=bel.getAttribute('data-word');if(bw)ttsSpeak(bw,'vi-VN');return;}
+  // Sentence word tap
+  var tel=e.target.closest('.tapword');
+  if(tel){e.stopPropagation();var tw=tel.getAttribute('data-word');if(tw)ttsSpeak(tw,'vi-VN');return;}
 });
 load();
 applyFont();

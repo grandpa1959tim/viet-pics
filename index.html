@@ -58,6 +58,7 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,sans-serif
 
 /* MAIN CARD */
 #picCard{flex:1;background:var(--bg2);border-radius:var(--r16);border:0.5px solid var(--border);padding:16px 14px 14px;text-align:center;cursor:pointer;min-height:200px;position:relative;}
+#picCard:active{background:var(--bg3);}
 #picCard:active{opacity:0.92;}
 
 /* CARD FRONT (Vn or En) */
@@ -72,6 +73,7 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,sans-serif
 #frontEngSent{font-size:calc(16px * var(--fs));color:var(--text2);margin-top:4px;line-height:1.5;}
 #frontEngSent b{color:var(--amber);}
 #tapHint{font-size:11px;color:var(--text3);margin-top:8px;}
+#backTapHint{font-size:11px;color:var(--text3);margin-top:6px;}
 
 /* CARD BACK (shown after Show) */
 #cardBack{display:none;}
@@ -813,7 +815,7 @@ function cardTap(){
 function showAnswer(){
   var w=queue[qIdx];if(!w)return;
   if(cardFlipped){
-    speak(stripTags(w.sentVN)||w.viet);
+    ttsSpeak(stripTags(w.sentVN)||w.viet,'vi-VN');
     return;
   }
   cardFlipped=true;
@@ -949,7 +951,7 @@ function pick(btn,choice,w,correct){
     w.box=1;w.nr=0;
     if(!sessionMissed.includes(w.id))sessionMissed.push(w.id);
   }
-  speak(w.viet);
+  ttsSpeak(w.viet,'vi-VN');
   save();
   document.getElementById('nextBtn').style.display='block';
 }
@@ -1018,7 +1020,7 @@ function renderWordList(){
   list.forEach(function(w){
     var row=document.createElement('div');row.className='word-item';
     row.innerHTML='<div class="wi-em">'+w.emoji+'</div><div class="wi-info"><div class="wi-viet">'+w.viet+'</div><div class="wi-eng">'+w.eng+'</div><div class="wi-cat">'+w.cat+'</div></div><span class="wi-box wb'+w.box+'">B'+w.box+'</span><button class="del-btn" onclick="deleteWord(\''+w.id+'\')">✕</button>';
-    row.querySelector('.wi-em').onclick=function(){speak(w.viet);};
+    row.querySelector('.wi-em').onclick=function(){ttsSpeak(w.viet,'vi-VN');};
     el.appendChild(row);
   });
 }

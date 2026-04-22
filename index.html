@@ -358,23 +358,25 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,sans-serif
     <div id="qaCard">
       <div class="qa-frame-label" id="qaFrameLabel"></div>
       <!-- QUESTION SIDE -->
-      <div id="qaQuestionBlock">
-        <div id="qaQuestion"></div>
-        <div id="qaQEn"></div>
-        <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
-          <button id="qaHearQBtn" onclick="qaHearQ(event)" style="padding:5px 12px;border-radius:8px;border:0.5px solid var(--border);background:var(--bg3);color:var(--text2);font-size:12px;cursor:pointer;">🔊 Question</button>
-          <span id="qaTapHint" style="font-size:11px;color:var(--text3);">Tap to hear question</span>
+      <div id="qaQuestionBlock" style="display:flex;gap:8px;align-items:flex-start;">
+        <div style="flex:1;min-width:0;">
+          <div id="qaQuestion"></div>
+          <div id="qaQEn"></div>
+          <div id="qaQBrk" style="display:none;margin-top:8px;font-size:calc(12px * var(--fs));line-height:1.8;"></div>
         </div>
-        <div id="qaQBrk" style="display:none;margin-top:8px;font-size:calc(12px * var(--fs));line-height:1.8;"></div>
+        <button id="qaHearQBtn" onclick="qaHearQ(event)" style="flex-shrink:0;width:44px;height:44px;border-radius:10px;border:0.5px solid var(--border);background:var(--bg3);color:var(--text2);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;">🔊</button>
       </div>
+      <div id="qaTapHint" style="font-size:11px;color:var(--text3);margin-top:6px;"></div>
       <!-- ANSWER SIDE (revealed on Show) -->
       <div id="qaAnswer" style="display:none;margin-top:12px;padding-top:12px;border-top:0.5px solid rgba(255,255,255,0.1);">
-        <div id="qaAnswerVN"></div>
-        <div id="qaAnswerEN"></div>
-        <div style="margin-top:6px;">
-          <button id="qaHearABtn" onclick="qaHearA(event)" style="padding:5px 12px;border-radius:8px;border:0.5px solid var(--border);background:var(--bg3);color:var(--text2);font-size:12px;cursor:pointer;">🔊 Answer</button>
+        <div style="display:flex;gap:8px;align-items:flex-start;">
+          <div style="flex:1;min-width:0;">
+            <div id="qaAnswerVN"></div>
+            <div id="qaAnswerEN"></div>
+            <div id="qaAnswerBrk" style="display:none;margin-top:8px;font-size:calc(12px * var(--fs));line-height:1.8;"></div>
+          </div>
+          <button id="qaHearABtn" onclick="qaHearA(event)" style="flex-shrink:0;width:44px;height:44px;border-radius:10px;border:0.5px solid var(--border);background:var(--bg3);color:var(--text2);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;">🔊</button>
         </div>
-        <div id="qaAnswerBrk" style="display:none;margin-top:8px;font-size:calc(12px * var(--fs));line-height:1.8;"></div>
         <div id="qaTip" style="display:none;margin-top:10px;padding:8px 10px;background:rgba(124,58,237,0.12);border-radius:8px;border-left:3px solid var(--purple);font-size:calc(12px * var(--fs));color:#c4b5fd;line-height:1.6;"></div>
       </div>
     </div>
@@ -1116,7 +1118,7 @@ function applyFont(){
 // Q&A MODULE
 // ══════════════════════════════════════════════════════════════
 
-var qaCards=[], qaQueue=[], qaIdx=0, qaFlipped=false, qaMissedIds=[], qaFilter='all';
+var qaCards=[], qaQueue=[], qaIdx=0, qaFlipped=false, qaMissedIds=[], qaFilter='all', qaBrkSticky=false;
 
 // ── formatQAText: highlight question words (purple) and focus words (amber) ──
 function formatQAText(html){
@@ -1220,13 +1222,22 @@ function renderQACard(){
   document.getElementById('qaAnswer').style.display='none';
   document.getElementById('qaNextBtn').style.display='none';
   document.getElementById('qaBrkRow').style.display='none';
-  document.getElementById('qaQBrk').style.display='none';
   document.getElementById('qaAnswerBrk').style.display='none';
   document.getElementById('qaTip').style.display='none';
-  ['qaQBrkBtn','qaABrkBtn','qaTipBtn'].forEach(function(id){
+  // Q breakdown: show immediately if sticky
+  var qbEl=document.getElementById('qaQBrk');
+  if(qbEl)qbEl.style.display=qaBrkSticky?'block':'none';
+  // Sync button styles
+  ['qaQBrkBtn','qaABrkBtn'].forEach(function(id){
     var b=document.getElementById(id);
-    if(b){b.style.background='var(--bg2)';b.style.borderColor='var(--border)';b.style.color=id==='qaTipBtn'?'#c4b5fd':'var(--text2)';}
+    if(b){
+      b.style.background=qaBrkSticky?'#0a1e14':'var(--bg2)';
+      b.style.borderColor=qaBrkSticky?'var(--teal)':'var(--border)';
+      b.style.color=qaBrkSticky?'var(--teal)':'var(--text2)';
+    }
   });
+  var tipBtn=document.getElementById('qaTipBtn');
+  if(tipBtn){tipBtn.style.background='var(--bg2)';tipBtn.style.borderColor='var(--border)';}
 
   if(!qaQueue.length){
     document.getElementById('qaQuestion').innerHTML='<span style="color:var(--teal)">No Q&A cards yet — tap Generate above!</span>';
@@ -1285,6 +1296,7 @@ function qaShow(){
   // Populate breakdowns
   if(card.qbrk)document.getElementById('qaQBrk').innerHTML=formatQABrk(card.qbrk);
   if(card.abrk||card.brk)document.getElementById('qaAnswerBrk').innerHTML=formatQABrk(card.abrk||card.brk||'');
+  if(qaBrkSticky&&(card.abrk||card.brk)){document.getElementById('qaAnswerBrk').style.display='block';}
   // Populate tip
   if(card.tip){document.getElementById('qaTip').innerHTML='💡 <b>Grammar tip:</b> '+card.tip;}
   // Show breakdown row
@@ -1406,11 +1418,8 @@ async function generateQA(){
 
     try{
       console.log('Starting batch '+(bi+1)+' fetch, apiKey length:',apiKey.length);
-      var controller=new AbortController();
-      var timeout=setTimeout(function(){controller.abort();},55000);
       var resp=await fetch('https://api.anthropic.com/v1/messages',{
         method:'POST',
-        signal:controller.signal,
         headers:{
           'Content-Type':'application/json',
           'anthropic-dangerous-direct-browser-access':'true',
@@ -1423,7 +1432,6 @@ async function generateQA(){
           messages:[{role:'user',content:prompt}]
         })
       });
-      clearTimeout(timeout);
       var data=await resp.json();
       if(data.error)throw new Error(data.error.type+': '+data.error.message);
       if(!data.content||!data.content[0])throw new Error('Empty response');
@@ -1522,14 +1530,20 @@ function loadQA(){
 }
 
 function toggleQABrk(side){
-  var el=document.getElementById(side==='q'?'qaQBrk':'qaAnswerBrk');
-  var btn=document.getElementById(side==='q'?'qaQBrkBtn':'qaABrkBtn');
-  if(!el)return;
-  var showing=el.style.display==='block';
-  el.style.display=showing?'none':'block';
-  btn.style.background=showing?'var(--bg2)':'#0a1e14';
-  btn.style.borderColor=showing?'var(--border)':'var(--teal)';
-  btn.style.color=showing?'var(--text2)':'var(--teal)';
+  // Toggle sticky mode — both Q and A breakdowns stay on until toggled off
+  qaBrkSticky=!qaBrkSticky;
+  var qEl=document.getElementById('qaQBrk');
+  var aEl=document.getElementById('qaAnswerBrk');
+  var qBtn=document.getElementById('qaQBrkBtn');
+  var aBtn=document.getElementById('qaABrkBtn');
+  var on=qaBrkSticky;
+  if(qEl)qEl.style.display=on?'block':'none';
+  if(aEl&&qaFlipped)aEl.style.display=on?'block':'none';
+  var bg=on?'#0a1e14':'var(--bg2)';
+  var bc=on?'var(--teal)':'var(--border)';
+  var col=on?'var(--teal)':'var(--text2)';
+  if(qBtn){qBtn.style.background=bg;qBtn.style.borderColor=bc;qBtn.style.color=col;}
+  if(aBtn){aBtn.style.background=bg;aBtn.style.borderColor=bc;aBtn.style.color=col;}
 }
 function toggleQATip(){
   var el=document.getElementById('qaTip');

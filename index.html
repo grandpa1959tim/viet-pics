@@ -384,7 +384,7 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,sans-serif
       <button id="qaShowBtn" onclick="qaShow()">Show answer →</button>
       <button id="qaMarkBtn" onclick="qaMark()">⭐ Mark</button>
     </div>
-    <div id="qaBrkRow" style="display:flex;gap:6px;margin-bottom:8px;display:none;">
+    <div id="qaBrkRow" style="gap:6px;margin-bottom:8px;">
       <button id="qaQBrkBtn" onclick="toggleQABrk('q')" style="flex:1;padding:7px;border-radius:8px;border:0.5px solid var(--border);background:var(--bg2);color:var(--text2);font-size:12px;cursor:pointer;">📖 Q Breakdown</button>
       <button id="qaABrkBtn" onclick="toggleQABrk('a')" style="flex:1;padding:7px;border-radius:8px;border:0.5px solid var(--border);background:var(--bg2);color:var(--text2);font-size:12px;cursor:pointer;">📖 A Breakdown</button>
       <button id="qaTipBtn" onclick="toggleQATip()" style="flex:1;padding:7px;border-radius:8px;border:0.5px solid var(--border);background:var(--bg2);color:#c4b5fd;font-size:12px;cursor:pointer;">💡 Tip</button>
@@ -1376,49 +1376,47 @@ async function generateQA(){
   var apiKey=localStorage.getItem('vp_apikey')||'';
   if(!apiKey){
     status.textContent='Please add your API key in Settings first.';
-    btn.disabled=false; btn.textContent='✨ Generate Q&A cards with AI';
+    btn.disabled=false;btn.textContent='✨ Generate Q&A cards with AI';
     return;
   }
 
-  // Use a small fixed vocab sample to keep prompts short and fast
-  var nouns=words.filter(function(w){return w.type==='noun';}).slice(0,15).map(function(w){return w.viet+'='+w.eng;}).join(', ');
-  var verbs=words.filter(function(w){return w.type==='verb';}).slice(0,15).map(function(w){return w.viet+'='+w.eng;}).join(', ');
-  var vocab='NOUNS: '+nouns+' | VERBS: '+verbs;
+  var nouns=words.filter(function(w){return w.type==='noun';}).slice(0,20).map(function(w){return w.viet+'='+w.eng;}).join(', ');
+  var verbs=words.filter(function(w){return w.type==='verb';}).slice(0,20).map(function(w){return w.viet+'='+w.eng;}).join(', ');
+  var vocab='Nouns: '+nouns+' | Verbs: '+verbs;
 
+  // 6 small batches — 2 frame types each, 4 cards per type = 8 cards per batch = 48 total
   var batches=[
-    {label:'do/does, can, want, where',
-     frames:'do/does (có...không), can (có thể...không), want (muốn...không), where (ở đâu / đi đâu / đến đâu)'},
-    {label:'why, what, when, who',
-     frames:'why (tại sao / sao), what (gì / cái gì / làm gì), when (khi nào / mấy giờ / bao giờ), who (ai)'},
-    {label:'how much, how often, how, which',
-     frames:'how much (bao nhiêu), how often (hay...không / bao lâu một lần), how (như thế nào / làm thế nào), which (cái nào)'},
-    {label:'have ever, is/are, do you like, need',
-     frames:'have you ever (đã...chưa), is/are (có phải...không / ...phải không), do you like (thích...không), do you need (cần...không)'}
+    {label:'do/does + can',      frames:'do/does (có...không), can (có thể...không)'},
+    {label:'want + where',       frames:'want (muốn...không), where (ở đâu / đi đâu)'},
+    {label:'why + what',         frames:'why (tại sao / sao), what (gì / làm gì / cái gì)'},
+    {label:'when + who',         frames:'when (khi nào / bao giờ / mấy giờ), who (ai)'},
+    {label:'how much + how',     frames:'how much/many (bao nhiêu), how (như thế nào / làm thế nào)'},
+    {label:'have ever + like',   frames:'have you ever (đã...chưa), do you like (thích...không)'},
   ];
 
   var allCards=[];
   var startId=1;
 
+  function makePrompt(frames,id){
+    return 'Vietnamese language teacher. ONLY output a valid JSON array starting with [ — no explanation, no markdown, nothing else.\n\n'+
+      'Vocabulary: '+vocab+'\n\n'+
+      'Create 4 Q&A flashcard pairs for EACH frame type (8 total): '+frames+'\n\n'+
+      'Rules:\n'+
+      '1. Casual spoken Northern Vietnamese. Use particles: vậy, nhỉ, à, nha, rồi, thôi\n'+
+      '2. Wrap question words with <qw>word</qw>: ai, gì, đâu, sao, tại sao, bao nhiêu, khi nào, bao giờ, cái nào, có thể, muốn, đã, chưa, thích, hay, như thế nào\n'+
+      '3. Wrap the main vocab word with <fw>word</fw>\n'+
+      '4. Short natural answers (1 sentence). Tag words in answers too.\n'+
+      '5. Use Tim context: American retired, lives Mỹ An Đà Nẵng, loves coffee and beach, grandchildren, creates apps\n'+
+      '6. Each card needs qbrk (question breakdown: word–meaning;word–meaning), abrk (answer breakdown), tip (explain grammar for English speakers)\n\n'+
+      'JSON array only:\n'+
+      '[{"id":"qa'+String(id).padStart(3,'0')+'","frame":"do/does","questionVN":"Bạn <qw>có</qw> <fw>uống</fw> cà phê không?","questionEN":"Do you drink coffee?","answerVN":"Có, tôi <fw>uống</fw> cà phê.","answerEN":"Yes, I drink coffee.","qbrk":"Bạn–you;có–yes/no frame;uống–drink;cà phê–coffee;không–question marker","abrk":"Có–yes;tôi–I;uống–drink;cà phê–coffee","tip":"có...không wraps any verb into a yes/no question. Most common question pattern in Vietnamese."}]';
+  }
+
   for(var bi=0;bi<batches.length;bi++){
     var batch=batches[bi];
     btn.textContent='⏳ Batch '+(bi+1)+' of '+batches.length+'...';
     status.textContent='Generating: '+batch.label+'...';
-
-    var prompt='Vietnamese language teacher. ONLY output a JSON array, no explanation, no markdown.\n\n'+
-      'Vocab: '+vocab+'\n\n'+
-      'Create 3 Q&A flashcard pairs for EACH of these question types (12 total): '+batch.frames+'\n\n'+
-      'Rules:\n'+
-      '1. Casual Northern Vietnamese. Natural particles: vậy, nhỉ, à, nha, rồi\n'+
-      '2. Tag question words with <qw>word</qw>: ai, gì, đâu, sao, tại sao, bao nhiêu, khi nào, cái nào, có thể, muốn, đã...chưa, có phải, phải không, thích, hay, như thế nào\n'+
-      '3. Tag main vocab word with <fw>word</fw>\n'+
-      '4. Short answer 1 sentence. Tag words in answers too.\n'+
-      '5. Tim context: American, Mỹ An Đà Nẵng, loves coffee and beach, grandchildren, makes apps\n'+
-      '6. Each card needs: qbrk (question breakdown word–meaning;word–meaning), abrk (answer breakdown), tip (explain WHY this grammar works for English speakers)\n\n'+
-      'Output ONLY the JSON array, starting with [ and ending with ]:\n'+
-      '[{"id":"qa'+String(startId).padStart(3,'0')+'","frame":"do/does","questionVN":"Bạn <qw>có</qw> <fw>uống</fw> cà phê không?","questionEN":"Do you drink coffee?","answerVN":"Có, tôi <fw>uống</fw> cà phê mỗi sáng.","answerEN":"Yes, I drink coffee every morning.","qbrk":"Bạn–you;có–yes/no frame;uống–drink;cà phê–coffee;không–question marker","abrk":"Có–yes;tôi–I;uống–drink;cà phê–coffee;mỗi sáng–every morning","tip":"có...không wraps any verb to form a yes/no question. có opens the frame, không closes it."}]';
-
     try{
-      console.log('Starting batch '+(bi+1)+' fetch, apiKey length:',apiKey.length);
       var resp=await fetch('https://api.anthropic.com/v1/messages',{
         method:'POST',
         headers:{
@@ -1429,8 +1427,8 @@ async function generateQA(){
         },
         body:JSON.stringify({
           model:'claude-sonnet-4-20250514',
-          max_tokens:2500,
-          messages:[{role:'user',content:prompt}]
+          max_tokens:3000,
+          messages:[{role:'user',content:makePrompt(batch.frames,startId)}]
         })
       });
       var data=await resp.json();
@@ -1438,28 +1436,18 @@ async function generateQA(){
       if(!data.content||!data.content[0])throw new Error('Empty response');
       var text=data.content[0].text.trim();
       text=text.replace(/^```json?\s*/i,'').replace(/\s*```$/,'').trim();
-      var a=text.indexOf('['), b=text.lastIndexOf(']');
+      var a=text.indexOf('['),b=text.lastIndexOf(']');
       if(a<0||b<0)throw new Error('No JSON in batch '+(bi+1));
       text=text.slice(a,b+1);
       var parsed;
       try{parsed=JSON.parse(text);}
-      catch(pe){
-        text=text.replace(/,\s*([}\]])/g,'$1');
-        parsed=JSON.parse(text);
-      }
-      console.log('Batch '+(bi+1)+' parsed:',parsed.length,'cards. Type:',Array.isArray(parsed));
+      catch(pe){text=text.replace(/,\s*([}\]])/g,'$1');parsed=JSON.parse(text);}
       allCards=allCards.concat(parsed);
       startId+=parsed.length;
-      status.textContent='✓ Batch '+(bi+1)+' done ('+parsed.length+' cards). Total so far: '+allCards.length;
-      console.log('allCards now:',allCards.length);
+      status.textContent='✓ Batch '+(bi+1)+' done — '+allCards.length+' cards so far';
     }catch(err){
-      console.error('Batch '+(bi+1)+' error:',err.name,err.message,err);
-      if(err.name==='AbortError'){
-        status.textContent='Batch '+(bi+1)+' timed out — skipping. Got '+allCards.length+' cards so far.';
-      } else {
-        status.textContent='Batch '+(bi+1)+' error: '+err.message+'. Got '+allCards.length+' so far.';
-      }
-      // continue to next batch
+      console.error('Batch '+(bi+1)+' error:',err);
+      status.textContent='Batch '+(bi+1)+' skipped: '+err.message+'. Continuing...';
     }
   }
 
@@ -1469,10 +1457,10 @@ async function generateQA(){
     saveQA();
     renderQAFilterRow();
     qaStartQueue();
-    var frameCount=Object.keys(allCards.reduce(function(a,c){a[c.frame]=1;return a;},{})).length;
+    var frameCount=Object.keys(allCards.reduce(function(a,card){a[card.frame]=1;return a;},{})).length;
     status.textContent='✓ Done! '+allCards.length+' cards across '+frameCount+' question types.';
     btn.textContent='✨ Regenerate';
-  } else {
+  }else{
     status.textContent='No cards generated. Check your API key in Settings.';
     btn.textContent='✨ Try again';
   }

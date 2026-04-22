@@ -1393,7 +1393,7 @@ async function generateQA(){
 
     var prompt='Vietnamese language teacher. ONLY output a JSON array, no explanation, no markdown.\n\n'+
       'Vocab: '+vocab+'\n\n'+
-      'Create 5 Q&A flashcard pairs for EACH of these question types (20 total): '+batch.frames+'\n\n'+
+      'Create 3 Q&A flashcard pairs for EACH of these question types (12 total): '+batch.frames+'\n\n'+
       'Rules:\n'+
       '1. Casual Northern Vietnamese. Natural particles: vậy, nhỉ, à, nha, rồi\n'+
       '2. Tag question words with <qw>word</qw>: ai, gì, đâu, sao, tại sao, bao nhiêu, khi nào, cái nào, có thể, muốn, đã...chưa, có phải, phải không, thích, hay, như thế nào\n'+
@@ -1407,7 +1407,7 @@ async function generateQA(){
     try{
       console.log('Starting batch '+(bi+1)+' fetch, apiKey length:',apiKey.length);
       var controller=new AbortController();
-      var timeout=setTimeout(function(){controller.abort();},25000);
+      var timeout=setTimeout(function(){controller.abort();},55000);
       var resp=await fetch('https://api.anthropic.com/v1/messages',{
         method:'POST',
         signal:controller.signal,
@@ -1419,7 +1419,7 @@ async function generateQA(){
         },
         body:JSON.stringify({
           model:'claude-sonnet-4-20250514',
-          max_tokens:4000,
+          max_tokens:2500,
           messages:[{role:'user',content:prompt}]
         })
       });

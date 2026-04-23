@@ -390,7 +390,7 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,sans-serif
           </div>
           <button id="qaHearABtn" onclick="qaHearA(event)" style="flex-shrink:0;width:44px;height:44px;border-radius:10px;border:0.5px solid var(--border);background:var(--bg3);color:var(--text2);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;">🔊</button>
         </div>
-        <div id="qaTip" style="display:none;margin-top:10px;padding:8px 10px;background:rgba(124,58,237,0.12);border-radius:8px;border-left:3px solid var(--purple);font-size:calc(12px * var(--fs));color:#c4b5fd;line-height:1.6;"></div>
+        <div id="qaTip" style="display:none;margin-top:10px;padding:8px 10px;background:#1a0f2e;border-radius:8px;border-left:3px solid var(--purple);font-size:calc(12px * var(--fs));color:#e9d5ff;line-height:1.6;"></div>
       </div>
     </div>
     <div id="qaActionRow">
@@ -400,7 +400,7 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,sans-serif
     <div id="qaBrkRow" style="gap:6px;margin-bottom:8px;">
       <button id="qaQBrkBtn" onclick="toggleQABrk('q')" style="flex:1;padding:7px;border-radius:8px;border:0.5px solid var(--border);background:var(--bg2);color:var(--text2);font-size:12px;cursor:pointer;">📖 Q Breakdown</button>
       <button id="qaABrkBtn" onclick="toggleQABrk('a')" style="flex:1;padding:7px;border-radius:8px;border:0.5px solid var(--border);background:var(--bg2);color:var(--text2);font-size:12px;cursor:pointer;">📖 A Breakdown</button>
-      <button id="qaTipBtn" onclick="toggleQATip()" style="flex:1;padding:7px;border-radius:8px;border:0.5px solid var(--border);background:var(--bg2);color:#c4b5fd;font-size:12px;cursor:pointer;">💡 Tip</button>
+      <button id="qaTipBtn" onclick="toggleQATip()" style="flex:1;padding:7px;border-radius:8px;border:0.5px solid var(--border);background:var(--bg2);color:#e9d5ff;font-size:12px;cursor:pointer;">💡 Tip</button>
     </div>
     <button id="qaNextBtn" onclick="qaNext()">Next →</button>
   </div>
@@ -1339,7 +1339,12 @@ async function generateQA(){
       '5. Wrap main vocab word/phrase: <fw>word</fw>\n'+
       '6. Short natural answer (1 sentence) — use the most casual form a Hanoi local would actually say.\n'+
       '7. qbrk and abrk: keep multi-word phrases as one unit. For dual-use words note both meanings e.g. cơm–rice/meal.\n'+
-      '8. tip: (a) explain the specific grammar structure, (b) note any word that has dual meanings or colloquial usage that differs from textbook Vietnamese, (c) if a more casual/common alternative exists give it — e.g. if the formal form is X, locals actually say Y.\n\n'+
+      '8. tip: Write a detailed tip covering ALL of these:\n'+
+      '   (a) Explain the specific grammar structure used in this question/answer (e.g. có...không frame, có thể, đã/đang/sẽ time markers).\n'+
+      '   (b) Explain EVERY preposition or small grammar word that appears — ở/trong/trên/vào/tại/với/cho/của/từ/đến/sau/trước. For each, say WHY that preposition is used and not another. Example: "trong bếp uses trong (inside an enclosed space). On a street would be trên đường. At a location/event uses ở or tại."\n'+
+      '   (c) Note any dual-meaning words (cơm=rice/meal, nước=water/country, đường=street/sugar, giờ=hour/time) and clarify which meaning applies here.\n'+
+      '   (d) If locals use a more casual form than the textbook version, show it. Example: formal "Có, tôi uống." — casual "Uống chứ!".\n'+
+      '   (e) Mark Vietnamese words/phrases inside the tip with parentheses so the app can highlight them, e.g. (có thể), (trong bếp), (ở chợ).\n\n'+
       'JSON only: [{"id":"qa'+String(id).padStart(3,'0')+'","frame":"do/does","questionVN":"Bạn <qw>có</qw> <fw>uống</fw> cà phê không?","questionEN":"Do you drink coffee?","answerVN":"Uống chứ, mỗi sáng tôi đều <fw>uống</fw>.","answerEN":"Of course, I drink it every morning.","qbrk":"Bạn–you;có–yes/no frame;uống–drink;cà phê–coffee;không–question marker","abrk":"Uống chứ–of course (drink);mỗi sáng–every morning;tôi–I;đều–always/every time;uống–drink","tip":"có...không makes any statement a yes/no question. Note: a very casual reply drops Có and just repeats the verb: Uống chứ! (Of course I drink it!). Locals often answer this way rather than the full Có, tôi uống."}]';
   }
 
@@ -1523,7 +1528,7 @@ function qaShow(){
   if(qb){qb.innerHTML=card.qbrk?formatQABrk(card.qbrk):'';qb.style.display=qaBrkSticky&&card.qbrk?'block':'none';}
   var ab=document.getElementById('qaAnswerBrk');
   if(ab){ab.innerHTML=formatQABrk(card.abrk||card.brk||'');ab.style.display=qaBrkSticky&&(card.abrk||card.brk)?'block':'none';}
-  if(card.tip){document.getElementById('qaTip').innerHTML='💡 <b>Grammar tip:</b> '+card.tip;}
+  if(card.tip){document.getElementById('qaTip').innerHTML='💡 <b>Grammar tip:</b> '+highlightTipViet(card.tip);}
   document.getElementById('qaBrkRow').style.display='flex';
   var qaVNel=document.getElementById('qaAnswerVN');
   speakWithHighlight(stripTags(card.answerVN||''),qaVNel,'vi-VN',brkPhrases(card.abrk||card.brk||''));
@@ -1769,6 +1774,26 @@ function speakWithHighlight(text,el,lang,phrases){
     window.speechSynthesis.speak(u);
   },50);
 }
+
+// highlightTipViet — wraps Vietnamese words in tip text with amber color
+// Detects (1) explicit parenthesized phrases and (2) standalone Vietnamese words by diacritics
+function highlightTipViet(text){
+  if(!text)return '';
+  // First handle (word) patterns — explicitly marked Vietnamese
+  text=text.replace(/\(([^)]+)\)/g,function(m,word){
+    return '<span style="color:var(--amber);font-weight:600;">'+word+'</span>';
+  });
+  // Then detect standalone Vietnamese words by diacritics
+  var vietChars=/[àáâãèéêìíòóôõùúýăđơưạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹ]/i;
+  text=text.replace(/\b([A-Za-zÀ-ỹ]+)\b/g,function(m,word){
+    if(vietChars.test(word)&&word.length>1){
+      return '<span style="color:var(--amber);font-weight:600;">'+word+'</span>';
+    }
+    return word;
+  });
+  return text;
+}
+
 // INIT
 // Event delegation for tappable breakdown words
 document.addEventListener('click',function(e){

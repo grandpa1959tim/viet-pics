@@ -80,6 +80,8 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,sans-serif
 .hl{background:rgba(239,159,39,0.25);border-radius:3px;color:var(--amber);}
 .brkword{color:var(--amber);font-weight:700;cursor:pointer;border-bottom:2px dotted #EF9F27;padding-bottom:1px;}
 .tapword{cursor:pointer;border-bottom:2px dotted rgba(255,255,255,0.4);padding-bottom:1px;}
+.tapword.qw{color:#A78BFA;border-bottom-color:rgba(167,139,250,0.6);}
+.tapword.fw{color:var(--amber);border-bottom-color:rgba(239,159,39,0.6);}
 .tapword:active{background:rgba(255,255,255,0.1);border-radius:3px;}
 .tapword-focus{color:var(--amber);font-weight:700;border-bottom:2px dotted var(--amber);}
 .tapword.hl,.brkword.hl{background:rgba(239,159,39,0.35);border-radius:3px;}
@@ -355,7 +357,10 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,sans-serif
 
   <!-- Q&A -->
   <div id="qaScreen">
-    <button id="qaGenBtn" onclick="generateQA()">✨ Generate Q&amp;A cards with AI</button>
+    <div style="display:flex;gap:8px;margin-bottom:10px;">
+      <button id="qaGenBtn" onclick="generateQA()" style="flex:2;padding:13px;border-radius:var(--r10);border:none;background:var(--purple);color:white;font-size:15px;font-weight:600;cursor:pointer;">✨ Generate Q&amp;A cards with AI</button>
+      <button id="qaManageBtn" onclick="showQAManage()" style="flex:1;padding:13px;border-radius:var(--r10);border:0.5px solid var(--border);background:var(--bg2);color:var(--text2);font-size:13px;cursor:pointer;">📋 Manage</button>
+    </div>
     <div id="qaStatus"></div>
     <div id="qaFilterRow"></div>
     <div id="qaReviewBtn" onclick="reviewQAMissed()">⭐ Review marked cards <span id="qaReviewCount" style="color:var(--cyan);font-weight:600;"></span></div>
@@ -399,6 +404,19 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,sans-serif
     </div>
     <button id="qaNextBtn" onclick="qaNext()">Next →</button>
   </div>
+  <!-- QA MANAGE -->
+  <div id="qaManageScreen" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg);z-index:20;max-width:480px;margin:0 auto;display:none;flex-direction:column;">
+    <div style="display:flex;align-items:center;padding:12px 14px;border-bottom:0.5px solid var(--border);gap:10px;">
+      <button onclick="hideQAManage()" style="background:none;border:none;color:var(--teal);font-size:15px;cursor:pointer;">← Back</button>
+      <div style="flex:1;font-size:16px;font-weight:600;color:var(--text);" id="qaManageTitle">Manage Q&A Cards</div>
+      <button onclick="deleteAllQA()" style="background:none;border:none;color:var(--red);font-size:13px;cursor:pointer;">Delete all</button>
+    </div>
+    <div style="padding:10px 14px;border-bottom:0.5px solid var(--border);">
+      <input id="qaManageSearch" type="search" placeholder="Search cards..." oninput="renderQAManage()" style="width:100%;padding:8px 12px;background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--r10);color:var(--text);font-size:14px;font-family:inherit;">
+    </div>
+    <div id="qaManageList" style="flex:1;overflow-y:auto;padding:10px 14px;padding-bottom:20px;"></div>
+  </div>
+
   <div id="bottomNav">
     <div class="nav-item active" id="nav-quiz" onclick="showScreen('quiz')"><span class="nav-icon">🎯</span><div class="nav-label">Quiz</div></div>
     <div class="nav-item" id="nav-words" onclick="showScreen('words')"><span class="nav-icon">📋</span><div class="nav-label">Words</div></div>
@@ -1218,6 +1236,66 @@ function speakQA(text, el, phrases){
   window.speechSynthesis.speak(u);
 }
 
+function showQAManage(){
+  renderQAManage();
+  document.getElementById('qaManageScreen').style.display='flex';
+}
+function hideQAManage(){
+  document.getElementById('qaManageScreen').style.display='none';
+}
+function deleteAllQA(){
+  if(!confirm('Delete ALL '+qaCards.length+' Q&A cards?'))return;
+  qaCards=[];qaMissedIds=[];saveQA();
+  renderQAManage();renderQAFilterRow();qaStartQueue();
+  toast('All Q&A cards deleted');
+}
+function deleteQACard(id){
+  qaCards=qaCards.filter(function(c){return c.id!==id;});
+  qaMissedIds=qaMissedIds.filter(function(x){return x!==id;});
+  saveQA();renderQAManage();renderQAFilterRow();qaStartQueue();
+}
+function renderQAManage(){
+  var q=(document.getElementById('qaManageSearch').value||'').toLowerCase();
+  var title=document.getElementById('qaManageTitle');
+  title.textContent='Manage Q&A Cards ('+qaCards.length+')';
+  var list=document.getElementById('qaManageList');
+  list.innerHTML='';
+  if(!qaCards.length){
+    list.innerHTML='<div style="text-align:center;color:var(--text3);padding:30px;">No cards yet — generate some!</div>';
+    return;
+  }
+  var filtered=qaCards.filter(function(card){
+    if(!q)return true;
+    return (card.questionVN||'').toLowerCase().includes(q)||(card.questionEN||'').toLowerCase().includes(q)||(card.frame||'').toLowerCase().includes(q);
+  });
+  filtered.forEach(function(card){
+    var row=document.createElement('div');
+    row.style.cssText='background:var(--bg2);border-radius:var(--r10);border:0.5px solid var(--border);padding:10px 12px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px;';
+    var info=document.createElement('div');
+    info.style.cssText='flex:1;min-width:0;';
+    var frame=document.createElement('div');
+    frame.style.cssText='font-size:10px;color:var(--purple);font-weight:700;letter-spacing:0.5px;margin-bottom:3px;';
+    frame.textContent=(card.frame||'').toUpperCase();
+    var qvn=document.createElement('div');
+    qvn.style.cssText='font-size:14px;color:var(--text);line-height:1.4;';
+    qvn.textContent=stripTags(card.questionVN||'');
+    var qen=document.createElement('div');
+    qen.style.cssText='font-size:12px;color:var(--text2);margin-top:2px;';
+    qen.textContent=card.questionEN||'';
+    info.appendChild(frame);info.appendChild(qvn);info.appendChild(qen);
+    var del=document.createElement('button');
+    del.style.cssText='padding:4px 10px;border-radius:6px;border:0.5px solid var(--border);background:transparent;color:var(--red);font-size:12px;cursor:pointer;flex-shrink:0;margin-top:2px;';
+    del.textContent='✕';
+    del.onclick=(function(id){return function(){deleteQACard(id);};})(card.id);
+    row.appendChild(info);row.appendChild(del);
+    list.appendChild(row);
+  });
+  if(!filtered.length){
+    list.innerHTML='<div style="text-align:center;color:var(--text3);padding:20px;">No cards match</div>';
+  }
+}
+
+
 async function generateQA(){
   var btn=document.getElementById('qaGenBtn');
   var status=document.getElementById('qaStatus');
@@ -1225,6 +1303,11 @@ async function generateQA(){
   status.textContent='';
 
   var apiKey=localStorage.getItem('vp_apikey')||'';
+  if(qaCards.length>0){
+    if(!confirm('Add ~48 new cards to your current '+qaCards.length+' cards? (Use Manage to delete unwanted cards)')){
+      btn.disabled=false;return;
+    }
+  }
   if(!apiKey){
     status.textContent='Please add your API key in Settings first.';
     btn.disabled=false;btn.textContent='✨ Generate Q&A cards with AI';
@@ -1245,25 +1328,28 @@ async function generateQA(){
   ];
 
   function makePrompt(frames,id){
-    return 'Vietnamese language teacher. ONLY output a valid JSON array — no explanation, no markdown.\n\n'+
+    return 'Vietnamese language teacher specializing in casual everyday Hanoi speech. ONLY output a valid JSON array — no explanation, no markdown.\n\n'+
       'Vocabulary: '+vocab+'\n\n'+
       'Create 4 Q&A flashcard pairs for EACH frame type (8 total): '+frames+'\n\n'+
       'RULES:\n'+
       '1. PRONOUNS: ONLY bạn (you), tôi (I), họ (they). NEVER ông/bà/anh/chị/em/con/cô/chú.\n'+
-      '2. Casual Northern Vietnamese. Particles OK: vậy, nhỉ, à, nha, rồi\n'+
-      '3. Wrap question words: <qw>word</qw>\n'+
-      '4. Wrap main vocab word/phrase: <fw>word</fw>\n'+
-      '5. Short natural answer (1 sentence).\n'+
-      '6. qbrk and abrk: keep multi-word phrases together (e.g. tiếng Việt–Vietnamese, không phải–not).\n'+
-      '7. tip: specific grammar explanation for English speakers.\n\n'+
-      'JSON only: [{"id":"qa'+String(id).padStart(3,'0')+'","frame":"do/does","questionVN":"Bạn <qw>có</qw> <fw>uống</fw> cà phê không?","questionEN":"Do you drink coffee?","answerVN":"Có, tôi <fw>uống</fw> cà phê.","answerEN":"Yes, I drink coffee.","qbrk":"Bạn–you;có–yes/no frame;uống–drink;cà phê–coffee;không–question marker","abrk":"Có–yes;tôi–I;uống–drink;cà phê–coffee","tip":"có...không is Vietnamese yes/no question frame: có before verb, không at end."}]';
+      '2. USE THE MOST CASUAL, NATURAL spoken Hanoi Vietnamese — the kind real people use daily. Prefer shorter, more colloquial forms over formal ones. Use particles freely: vậy, nhỉ, à, nha, rồi, thôi, đấy, chứ.\n'+
+      '3. DUAL-USE WORDS: When using cơm, note it means rice/meal interchangeably in context. When ăn cơm appears, translate as eat/have a meal not just eat rice. Similarly: nước=water/liquid, đường=street/sugar (clarify which).\n'+
+      '4. Wrap question words: <qw>word</qw>\n'+
+      '5. Wrap main vocab word/phrase: <fw>word</fw>\n'+
+      '6. Short natural answer (1 sentence) — use the most casual form a Hanoi local would actually say.\n'+
+      '7. qbrk and abrk: keep multi-word phrases as one unit. For dual-use words note both meanings e.g. cơm–rice/meal.\n'+
+      '8. tip: (a) explain the specific grammar structure, (b) note any word that has dual meanings or colloquial usage that differs from textbook Vietnamese, (c) if a more casual/common alternative exists give it — e.g. if the formal form is X, locals actually say Y.\n\n'+
+      'JSON only: [{"id":"qa'+String(id).padStart(3,'0')+'","frame":"do/does","questionVN":"Bạn <qw>có</qw> <fw>uống</fw> cà phê không?","questionEN":"Do you drink coffee?","answerVN":"Uống chứ, mỗi sáng tôi đều <fw>uống</fw>.","answerEN":"Of course, I drink it every morning.","qbrk":"Bạn–you;có–yes/no frame;uống–drink;cà phê–coffee;không–question marker","abrk":"Uống chứ–of course (drink);mỗi sáng–every morning;tôi–I;đều–always/every time;uống–drink","tip":"có...không makes any statement a yes/no question. Note: a very casual reply drops Có and just repeats the verb: Uống chứ! (Of course I drink it!). Locals often answer this way rather than the full Có, tôi uống."}]';
   }
 
   async function runBatch(bi, allCards, startId){
     if(bi>=batches.length){
       if(allCards.length){
-        qaCards=allCards.slice(); // explicit copy
-        qaMissedIds=[];
+        // ADD to existing cards, avoid duplicates by id
+        var existingIds=qaCards.reduce(function(a,c){a[c.id]=1;return a;},{});
+        var newCards=allCards.filter(function(c){return !existingIds[c.id];});
+        qaCards=qaCards.concat(newCards);
         saveQA();
         setTimeout(function(){
           renderQAFilterRow();
@@ -1553,21 +1639,20 @@ function applyFont(){
 // Wrap each word/phrase in a sentence as tappable spans
 // Uses the word's brk to identify multi-word phrases
 function wrapSentenceQA(html, brk){
-  // html has <span class="qw"> and <span class="fw"> already from formatQAText
-  // We need to make each visible word tappable
   if(!html)return html;
   var phrases=brkPhrases(brk||'');
   phrases.sort(function(a,b){return b.length-a.length;});
-  // Get plain text for tokenizing
+  // Get plain text
   var plain=html.replace(/<[^>]+>/g,'');
-  // Tokenize
+  // Tokenize plain text into words/phrases
   var tokens=[];
   var rem=plain.replace(/^\s+/,'');
   while(rem.length>0){
     var matched=false;
     for(var i=0;i<phrases.length;i++){
       if(rem.indexOf(phrases[i])===0){
-        tokens.push(phrases[i]);rem=rem.slice(phrases[i].length).replace(/^\s+/,'');
+        tokens.push(phrases[i]);
+        rem=rem.slice(phrases[i].length).replace(/^\s+/,'');
         matched=true;break;
       }
     }
@@ -1577,16 +1662,30 @@ function wrapSentenceQA(html, brk){
       else break;
     }
   }
-  // Rebuild: for each token, check if it was qw/fw tagged
+  // Rebuild HTML: replace each plain token with a tappable span
+  // preserving qw/fw colored spans inside
   var result=html;
   tokens.forEach(function(tok){
     var dw=tok.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
-    // Replace plain token occurrence with tappable span
-    // But preserve existing qw/fw spans — wrap the inner text
-    result=result.replace(tok,'<span class="tapword" data-word="'+dw+'">'+tok+'</span>');
+    // Replace first occurrence of this plain token
+    // token may appear inside a <span class="qw">tok</span> or <span class="fw">tok</span>
+    // or as plain text
+    // Wrap whichever form exists
+    var patterns=[
+      {from:'<span class="qw">'+tok+'</span>', to:'<span class="tapword qw" data-word="'+dw+'">'+tok+'</span>'},
+      {from:'<span class="fw">'+tok+'</span>', to:'<span class="tapword fw" data-word="'+dw+'">'+tok+'</span>'},
+      {from:tok, to:'<span class="tapword" data-word="'+dw+'">'+tok+'</span>'},
+    ];
+    for(var pi=0;pi<patterns.length;pi++){
+      if(result.indexOf(patterns[pi].from)>=0){
+        result=result.replace(patterns[pi].from,patterns[pi].to);
+        break;
+      }
+    }
   });
   return result;
 }
+
 
 function wrapSentence(html, brk){
   if(!html)return html;

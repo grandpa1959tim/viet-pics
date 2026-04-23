@@ -167,8 +167,9 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,sans-serif
 #bulkPreview{font-size:13px;color:var(--teal);margin-bottom:8px;min-height:16px;}
 
 /* BOTTOM NAV */
-#bottomNav{position:fixed;bottom:0;left:0;right:0;background:var(--bg);border-top:0.5px solid var(--border);display:flex;max-width:480px;margin:0 auto;z-index:10;}
-.nav-item{flex:1;padding:9px 0 7px;text-align:center;cursor:pointer;color:var(--text3);}
+#bottomNav{position:fixed;bottom:0;left:0;right:0;background:var(--bg);border-top:0.5px solid var(--border);display:flex;max-width:480px;margin:0 auto;z-index:10;overflow-x:auto;}
+#bottomNav::-webkit-scrollbar{display:none;}
+.nav-item{flex:0 0 auto;min-width:60px;padding:9px 4px 7px;text-align:center;cursor:pointer;color:var(--text3);}
 .nav-item.active{color:var(--teal);}
 .nav-icon{font-size:19px;display:block;}
 .nav-label{font-size:10px;margin-top:1px;}
@@ -404,6 +405,16 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,sans-serif
     </div>
     <button id="qaNextBtn" onclick="qaNext()">Next →</button>
   </div>
+  <!-- GUIDE -->
+  <div id="guideScreen" style="padding:14px;display:none;">
+    <div style="margin-bottom:10px;color:var(--text2);font-size:13px;line-height:1.5;">
+      Reference for Vietnamese words that appear in Q&amp;A tips — prepositions, pronouns, time markers, and commonly confused word pairs.
+    </div>
+    <input id="guideSearch" type="search" placeholder="Search guide... (e.g. ở, when, không)" oninput="renderGuide()" style="width:100%;padding:9px 12px;background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--r10);color:var(--text);font-size:14px;font-family:inherit;margin-bottom:10px;">
+    <div id="guideCategories" style="display:flex;gap:6px;overflow-x:auto;margin-bottom:12px;padding-bottom:2px;"></div>
+    <div id="guideList"></div>
+  </div>
+
   <!-- QA MANAGE -->
   <div id="qaManageScreen" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg);z-index:20;max-width:480px;margin:0 auto;display:none;flex-direction:column;">
     <div style="display:flex;align-items:center;padding:12px 14px;border-bottom:0.5px solid var(--border);gap:10px;">
@@ -422,6 +433,7 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,sans-serif
     <div class="nav-item" id="nav-words" onclick="showScreen('words')"><span class="nav-icon">📋</span><div class="nav-label">Words</div></div>
     <div class="nav-item" id="nav-add" onclick="showScreen('add')"><span class="nav-icon">➕</span><div class="nav-label">Add</div></div>
     <div class="nav-item" id="nav-qa" onclick="showScreen('qa')"><span class="nav-icon">💬</span><div class="nav-label">Q&amp;A</div></div>
+    <div class="nav-item" id="nav-guide" onclick="showScreen('guide')"><span class="nav-icon">📖</span><div class="nav-label">Guide</div></div>
     <div class="nav-item" id="nav-settings" onclick="showScreen('settings')"><span class="nav-icon">⚙️</span><div class="nav-label">Settings</div></div>
   </div>
 </div>
@@ -1120,7 +1132,7 @@ function saveBulk(){
 
 // SCREENS
 function showScreen(name){
-  var map={quiz:'quizScreen',words:'wordListScreen',add:'addScreen',settings:'settingsScreen',qa:'qaScreen'};
+  var map={quiz:'quizScreen',words:'wordListScreen',add:'addScreen',settings:'settingsScreen',qa:'qaScreen',guide:'guideScreen'};
   Object.keys(map).forEach(function(k){
     document.getElementById(map[k]).style.display=k===name?'block':'none';
     var ni=document.getElementById('nav-'+k);
@@ -1130,6 +1142,7 @@ function showScreen(name){
   if(name==='qa'&&!qaCards.length){renderQAFilterRow();qaStartQueue();}
   if(name==='words')renderWordList();
   if(name==='add')populateCatSelects();
+  if(name==='guide')renderGuide();
 }
 
 function toast(msg){
@@ -1775,23 +1788,283 @@ function speakWithHighlight(text,el,lang,phrases){
   },50);
 }
 
-// highlightTipViet — wraps Vietnamese words in tip text with amber color
-// Detects (1) explicit parenthesized phrases and (2) standalone Vietnamese words by diacritics
+// highlightTipViet — wraps Vietnamese words in tip text with amber color,
+// and wraps English words inside parentheticals with cyan.
+// Parentheticals are split word-by-word: words with Vietnamese diacritics go amber,
+// other words go cyan. This handles cases like (vào cuối tuần on the weekend).
+// NOTE: JS \b word-boundary is ASCII-only and breaks Vietnamese words like Đó or gì,
+// so we use a unicode-aware run-of-letters match instead.
 function highlightTipViet(text){
   if(!text)return '';
-  // First handle (word) patterns — explicitly marked Vietnamese
-  text=text.replace(/\(([^)]+)\)/g,function(m,word){
-    return '<span style="color:var(--amber);font-weight:600;">'+word+'</span>';
+  var AMBER='<span style="color:var(--amber);font-weight:600;">';
+  var CYAN='<span style="color:var(--cyan);font-style:italic;">';
+  var vietChars=/[àáâãèéêìíòóôõùúýăâđêôơưÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚÝĂÂĐÊÔƠƯạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼẾỀỂỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪỬỮỰỲỴỶỸ]/;
+  // First handle (...) patterns — split inside into runs of words,
+  // color each run amber if any word has Vietnamese diacritics, else cyan.
+  // Use a placeholder so the second pass does not re-wrap these.
+  var parenSlots=[];
+  text=text.replace(/\(([^)]+)\)/g,function(m,inner){
+    // Tokenize: words (runs of letters) vs non-word separators
+    var out=inner.replace(/([A-Za-zÀ-ỹĐđ]+|[^A-Za-zÀ-ỹĐđ]+)/g,function(tok){
+      if(/^[A-Za-zÀ-ỹĐđ]+$/.test(tok)){
+        if(vietChars.test(tok))return AMBER+tok+'</span>';
+        return CYAN+tok+'</span>';
+      }
+      return tok;
+    });
+    parenSlots.push(out);
+    return '\u0001'+(parenSlots.length-1)+'\u0001';
   });
-  // Then detect standalone Vietnamese words by diacritics
-  var vietChars=/[àáâãèéêìíòóôõùúýăđơưạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹ]/i;
-  text=text.replace(/\b([A-Za-zÀ-ỹ]+)\b/g,function(m,word){
-    if(vietChars.test(word)&&word.length>1){
-      return '<span style="color:var(--amber);font-weight:600;">'+word+'</span>';
+  // Now detect standalone (non-parenthesized) Vietnamese words by diacritics
+  text=text.replace(/[A-Za-zÀ-ỹĐđ]+/g,function(word){
+    if(vietChars.test(word)){
+      return AMBER+word+'</span>';
     }
     return word;
   });
+  // Restore parenthesized slots (already colored)
+  text=text.replace(/\u0001(\d+)\u0001/g,function(m,i){
+    return '('+parenSlots[parseInt(i)]+')';
+  });
   return text;
+}
+
+// ══════════════════════════════════════════════════════════════
+// GUIDE — static reference for Vietnamese grammar words
+// ══════════════════════════════════════════════════════════════
+var GUIDE_ENTRIES=[
+  // ── LOCATION PREPOSITIONS ───────────────────────────────────
+  {cat:'Location',words:'ở',eng:'at / in / on (general location)',note:'The everyday, all-purpose location word. Tôi ở Đà Nẵng = I am in Da Nang. Use for living, staying, or being somewhere. Very casual — works in almost all spoken contexts.',examples:[
+    {vn:'Tôi ở Mỹ An.',en:'I live in My An.'},
+    {vn:'Sách ở trên bàn.',en:'The book is on the table.'},
+    {vn:'Bạn ở đâu?',en:'Where are you?'}]},
+  {cat:'Location',words:'trong',eng:'inside / in (enclosed space)',note:'Used when something is inside a container, room, building, or bounded area. Compare ở which is general location.',examples:[
+    {vn:'Mẹ nấu cơm trong bếp.',en:'Mom is cooking in the kitchen.'},
+    {vn:'Có nhiều người trong quán.',en:'There are many people inside the shop.'}]},
+  {cat:'Location',words:'trên',eng:'on / on top of / above',en:'',note:'Physical on-top-of. For a book on a table, a shirt on a person, something on a street.',examples:[
+    {vn:'Cái bút ở trên bàn.',en:'The pen is on the table.'},
+    {vn:'Nhà tôi trên đường Lê Quang Đạo.',en:'My house is on Le Quang Dao street.'}]},
+  {cat:'Location',words:'vào',eng:'into / onto / at (time, direction)',note:'Movement INTO something, or used with time expressions (vào cuối tuần = on the weekend). Vào lớp = go into class. Đi vào nhà = go into the house.',examples:[
+    {vn:'Mời bạn vào nhà.',en:'Please come into the house.'},
+    {vn:'Tôi đi chợ vào cuối tuần.',en:'I go to the market on the weekend.'}]},
+  {cat:'Location',words:'tại',eng:'at (formal, specific point)',note:'Formal version of ở. Used in writing, news, announcements. Tại Hà Nội = in Hanoi (formal). In casual speech always use ở instead.',examples:[
+    {vn:'Hội nghị tổ chức tại Đà Nẵng.',en:'The conference is held in Da Nang.'},
+    {vn:'Tại sao?',en:'Why? (literally "at what cause")'}]},
+  {cat:'Location',words:'ở vs tại',eng:'comparison',note:'ở = everyday casual. tại = formal or fixed expressions (tại sao, tại đây). Never say "tại nhà" in conversation — say "ở nhà".',examples:[]},
+
+  // ── DIRECTION / MOVEMENT ────────────────────────────────────
+  {cat:'Direction',words:'đi',eng:'to go (the journey)',note:'Focus on the movement itself. Tôi đi chợ = I am going to the market (the act of going).',examples:[
+    {vn:'Bạn đi đâu?',en:'Where are you going?'},
+    {vn:'Tôi đi làm.',en:'I am going to work.'}]},
+  {cat:'Direction',words:'đến',eng:'to arrive / to reach / to come to',note:'Focus on the destination or the moment of arrival. Tôi đến chợ rồi = I have arrived at the market.',examples:[
+    {vn:'Mấy giờ bạn đến?',en:'What time did you arrive?'},
+    {vn:'Tôi sẽ đến lúc 10 giờ.',en:'I will come at 10.'}]},
+  {cat:'Direction',words:'về',eng:'to return / to go back',note:'Return to your starting point (home, country, hotel). Về nhà = go home. Về Mỹ = return to America.',examples:[
+    {vn:'Tôi muốn về nhà.',en:'I want to go home.'},
+    {vn:'Khi nào bạn về Mỹ?',en:'When do you return to America?'}]},
+  {cat:'Direction',words:'vào vs ra',eng:'in vs out',note:'vào = movement INTO (vào nhà = into the house). ra = movement OUT (ra ngoài = go outside, ra sân = go to the yard). Paired opposites.',examples:[
+    {vn:'Mời bạn vào.',en:'Please come in.'},
+    {vn:'Tôi ra ngoài một chút.',en:'I am going out for a bit.'}]},
+
+  // ── POSSESSION / RELATIONSHIP ───────────────────────────────
+  {cat:'Possession',words:'của',eng:'of / belonging to',note:'Marks possession. Sách của tôi = my book (literally "book of me"). In casual speech, của is often dropped: sách tôi = my book.',examples:[
+    {vn:'Đây là bạn của tôi.',en:'This is my friend.'},
+    {vn:'Bạn tôi cũng được.',en:'"My friend" without của is also fine (casual).'}]},
+  {cat:'Possession',words:'cho',eng:'for / give to',note:'For the benefit of someone, or to give to someone. Cho tôi = give me / for me.',examples:[
+    {vn:'Cho tôi một ly cà phê.',en:'Give me a cup of coffee.'},
+    {vn:'Tôi mua hoa cho mẹ.',en:'I bought flowers for mom.'}]},
+  {cat:'Possession',words:'với',eng:'with / together with',note:'Accompaniment — doing something TOGETHER. Đi với bạn = go with you. Compare và (and) which just lists things.',examples:[
+    {vn:'Tôi đi với bạn nhé.',en:'I will go with you.'},
+    {vn:'Cà phê với sữa.',en:'Coffee with milk.'}]},
+  {cat:'Possession',words:'và vs với',eng:'and vs with',note:'và = AND (listing equal items). với = WITH (together). Tôi và bạn = you and I (two separate people listed). Tôi với bạn = you and I (together).',examples:[]},
+
+  // ── TIME MARKERS ────────────────────────────────────────────
+  {cat:'Time',words:'đã',eng:'past marker (already / did)',note:'Before a verb = the action already happened. Tôi đã ăn = I already ate. In casual speech often dropped when context is clear.',examples:[
+    {vn:'Tôi đã gặp anh ấy hôm qua.',en:'I met him yesterday.'},
+    {vn:'Bạn đã ăn chưa?',en:'Have you eaten yet?'}]},
+  {cat:'Time',words:'đang',eng:'present progressive (is -ing)',note:'Before a verb = currently happening right now, like English "-ing". Tôi đang ăn = I am eating.',examples:[
+    {vn:'Mẹ đang nấu cơm.',en:'Mom is cooking.'},
+    {vn:'Bạn đang làm gì?',en:'What are you doing?'}]},
+  {cat:'Time',words:'sẽ',eng:'future marker (will)',note:'Before a verb = action will happen. Tôi sẽ đi = I will go.',examples:[
+    {vn:'Tôi sẽ gọi bạn sau.',en:'I will call you later.'},
+    {vn:'Ngày mai sẽ mưa.',en:'It will rain tomorrow.'}]},
+  {cat:'Time',words:'rồi',eng:'already (completive)',note:'At sentence end = already done. Tôi ăn rồi = I already ate. Stronger and more natural than just using đã.',examples:[
+    {vn:'Tôi đi rồi.',en:'I have already gone / I am leaving now.'},
+    {vn:'Đủ rồi.',en:'That is enough.'}]},
+  {cat:'Time',words:'chưa',eng:'not yet / question: yet?',note:'Two jobs: (1) at end of question = "yet?" (Bạn ăn chưa? = Have you eaten yet?). (2) before verb = not yet (Tôi chưa ăn = I have not eaten yet).',examples:[
+    {vn:'Bạn đến chưa?',en:'Have you arrived yet?'},
+    {vn:'Tôi chưa biết.',en:'I do not know yet.'}]},
+  {cat:'Time',words:'vào cuối tuần',eng:'on the weekend',note:'Time expressions come AFTER the verb in Vietnamese, unlike English where they are flexible. Tôi đi chợ vào cuối tuần = I go to the market on the weekend.',examples:[
+    {vn:'Tôi gặp bạn vào chủ nhật.',en:'I will meet you on Sunday.'},
+    {vn:'Vào buổi sáng tôi uống cà phê.',en:'In the morning I drink coffee. (time at start is also OK)'}]},
+  {cat:'Time',words:'khi nào vs bao giờ',eng:'when?',note:'Both mean "when" but position changes meaning. At the START = future (Khi nào bạn đi? = When will you go?). At the END = past (Bạn đi khi nào? = When did you go?).',examples:[
+    {vn:'Khi nào bạn đến?',en:'When will you arrive?'},
+    {vn:'Bạn đến khi nào?',en:'When did you arrive?'}]},
+
+  // ── QUESTION WORDS ──────────────────────────────────────────
+  {cat:'Questions',words:'có...không',eng:'yes/no question frame',note:'Wraps a statement to make it a yes/no question. Bạn có khỏe không? = Are you well? The có is optional in casual speech (Bạn khỏe không?).',examples:[
+    {vn:'Bạn có đói không?',en:'Are you hungry?'},
+    {vn:'Bạn khỏe không?',en:'Are you well? (casual, no có)'}]},
+  {cat:'Questions',words:'gì',eng:'what',note:'Comes AFTER the verb, unlike English. Làm gì = do what. Ăn gì = eat what. Never at the start.',examples:[
+    {vn:'Bạn làm gì?',en:'What are you doing?'},
+    {vn:'Đây là gì?',en:'What is this?'}]},
+  {cat:'Questions',words:'đâu',eng:'where',note:'Also after the verb. Đi đâu = go where. Ở đâu = be where.',examples:[
+    {vn:'Bạn đi đâu?',en:'Where are you going?'},
+    {vn:'Nhà bạn ở đâu?',en:'Where is your house?'}]},
+  {cat:'Questions',words:'ai',eng:'who',note:'Can be subject or object. Ai đến? = Who arrived? Bạn gặp ai? = Who did you meet?',examples:[
+    {vn:'Ai đó?',en:'Who is there?'},
+    {vn:'Đây là ai?',en:'Who is this?'}]},
+  {cat:'Questions',words:'bao nhiêu',eng:'how much / how many',note:'For countable or measurable amounts. Price, weight, count. Bao nhiêu tiền? = How much money?',examples:[
+    {vn:'Cái này bao nhiêu?',en:'How much is this?'},
+    {vn:'Bạn có bao nhiêu anh em?',en:'How many siblings do you have?'}]},
+  {cat:'Questions',words:'mấy',eng:'how many (small numbers)',note:'For small counts where you expect a number under ~10. Mấy giờ = what time. Mấy tuổi = how old.',examples:[
+    {vn:'Mấy giờ rồi?',en:'What time is it?'},
+    {vn:'Em mấy tuổi?',en:'How old are you? (to younger)'}]},
+  {cat:'Questions',words:'tại sao vs sao',eng:'why',note:'tại sao = why (formal). sao = why (casual, very common in speech). Sao bạn buồn? = Why are you sad?',examples:[
+    {vn:'Sao bạn không ăn?',en:'Why are you not eating?'},
+    {vn:'Tại sao trời mưa?',en:'Why is it raining?'}]},
+  {cat:'Questions',words:'như thế nào',eng:'how / in what way',note:'Asks about manner or condition. Comes at the end. Bạn cảm thấy như thế nào? = How do you feel?',examples:[
+    {vn:'Đồ ăn như thế nào?',en:'How is the food?'},
+    {vn:'Thời tiết như thế nào?',en:'How is the weather?'}]},
+
+  // ── NEGATION ────────────────────────────────────────────────
+  {cat:'Negation',words:'không',eng:'not / no',note:'The main negator. Goes BEFORE the verb. Tôi không biết = I do not know. Also used alone = "no".',examples:[
+    {vn:'Tôi không hiểu.',en:'I do not understand.'},
+    {vn:'Không, cảm ơn.',en:'No, thank you.'}]},
+  {cat:'Negation',words:'chưa vs không',eng:'not yet vs not at all',note:'chưa = have not YET (may happen later). không = do not (general/permanent). Tôi chưa ăn = I have not eaten yet. Tôi không ăn thịt = I do not eat meat (ever).',examples:[]},
+  {cat:'Negation',words:'đừng',eng:'do not / don\'t (command)',note:'Negative imperative — telling someone NOT to do something. Đừng đi! = Do not go!',examples:[
+    {vn:'Đừng lo!',en:'Do not worry!'},
+    {vn:'Đừng quên nhé.',en:'Do not forget, okay?'}]},
+
+  // ── DEMONSTRATIVES ──────────────────────────────────────────
+  {cat:'Demonstratives',words:'này',eng:'this (near speaker)',note:'Comes AFTER the noun, unlike English. Sách này = this book. NEVER này sách.',examples:[
+    {vn:'Cái này là gì?',en:'What is this thing?'},
+    {vn:'Quán này ngon.',en:'This shop is tasty.'}]},
+  {cat:'Demonstratives',words:'đó / kia',eng:'that (further away)',note:'Also AFTER the noun. Chìa khóa đó = that key. kia is usually physically pointed at.',examples:[
+    {vn:'Cái đó tốt hơn.',en:'That one is better.'},
+    {vn:'Người kia là ai?',en:'Who is that person over there?'}]},
+  {cat:'Demonstratives',words:'đây',eng:'here / this is',note:'Used as a pointer. Đây là bạn tôi = This is my friend. Đây is placed BEFORE, unlike này/đó.',examples:[
+    {vn:'Đây là nhà tôi.',en:'This is my house.'},
+    {vn:'Đến đây!',en:'Come here!'}]},
+
+  // ── PRONOUNS ────────────────────────────────────────────────
+  {cat:'Pronouns',words:'tôi',eng:'I (neutral, polite)',note:'The safe, universal "I" for speaking with strangers or formally. Always works.',examples:[
+    {vn:'Tôi là người Mỹ.',en:'I am American.'}]},
+  {cat:'Pronouns',words:'bạn',eng:'you (casual, peer)',note:'Friendly "you" — works with peers, acquaintances, strangers of similar age. Safe default for most casual conversation.',examples:[
+    {vn:'Bạn có khỏe không?',en:'Are you well?'}]},
+  {cat:'Pronouns',words:'họ',eng:'they',note:'The general "they". Họ đi rồi = They already left.',examples:[
+    {vn:'Họ là bạn tôi.',en:'They are my friends.'}]},
+  {cat:'Pronouns',words:'mình',eng:'I / self / we (casual)',note:'Very casual. Mình = I (when comfortable). Also means "self" or "we" in some contexts. Used among close friends.',examples:[
+    {vn:'Mình đi nhé!',en:'I am off! / Let us go!'},
+    {vn:'Tự mình làm.',en:'Do it yourself.'}]},
+
+  // ── COMMON PARTICLES ────────────────────────────────────────
+  {cat:'Particles',words:'à',eng:'sentence-end question softener',note:'Turns a statement into a gentle question. Bạn đi à? = You are going? Very natural, very soft.',examples:[
+    {vn:'Bạn không biết à?',en:'You did not know?'}]},
+  {cat:'Particles',words:'nhé',eng:'shall we? / okay? (friendly)',note:'Ends a sentence warmly — asking agreement or confirming. Gặp lúc 10 giờ nhé = Let us meet at 10, okay?',examples:[
+    {vn:'Đi ăn nhé!',en:'Let us go eat!'},
+    {vn:'Nhớ gọi tôi nhé.',en:'Remember to call me, okay?'}]},
+  {cat:'Particles',words:'nhỉ',eng:'right? (rhetorical)',note:'Seeks agreement, more reflective than nhé. Trời đẹp nhỉ? = Nice weather, right?',examples:[
+    {vn:'Đúng rồi nhỉ?',en:'That is right, isn\'t it?'}]},
+  {cat:'Particles',words:'vậy',eng:'so / then (softener)',note:'Softens a question or statement. Vậy à? = Is that so? Bạn đi vậy? = So you are going?',examples:[
+    {vn:'Vậy thì tốt.',en:'Then that is good.'}]},
+  {cat:'Particles',words:'chứ',eng:'of course / surely',note:'Strong affirmation. Có chứ! = Of course! / Yes, definitely! Uống chứ! = Of course I drink it!',examples:[
+    {vn:'Đúng chứ!',en:'Of course it is right!'}]},
+  {cat:'Particles',words:'thôi',eng:'only / just / enough',note:'Limits or concludes. Thế thôi = That is all. Một chút thôi = Just a little.',examples:[
+    {vn:'Tôi đùa thôi.',en:'I am just kidding.'}]},
+  {cat:'Particles',words:'đấy',eng:'you know / indeed',note:'Adds emphasis or draws attention. Informal, common in Hanoi speech. Đẹp đấy! = That is pretty, you know!',examples:[]},
+
+  // ── ABILITY / MODAL ─────────────────────────────────────────
+  {cat:'Ability',words:'có thể',eng:'can / be able to',note:'Ability. Tôi có thể đi = I can go. In ability questions the frame is: Bạn có thể [verb] không? The có thể replaces just có in the plain yes/no frame.',examples:[
+    {vn:'Bạn có thể giúp tôi không?',en:'Can you help me?'},
+    {vn:'Tôi có thể nói tiếng Việt.',en:'I can speak Vietnamese.'}]},
+  {cat:'Ability',words:'được',eng:'can / okay / successfully',note:'Many uses: (1) after verb = able to / successfully (Tôi làm được = I can do it). (2) alone = OK / fine (Được rồi = That is fine). (3) in questions = is it okay? (...được không?).',examples:[
+    {vn:'Tôi đi được không?',en:'Can I go? / Is it okay if I go?'},
+    {vn:'Được, không sao.',en:'Okay, no problem.'}]},
+  {cat:'Ability',words:'phải',eng:'must / have to',note:'Obligation. Tôi phải đi = I have to go. Also used in "phải không?" = "right?" at end of questions.',examples:[
+    {vn:'Bạn phải làm bài tập.',en:'You have to do the homework.'},
+    {vn:'Đúng phải không?',en:'That is right, isn\'t it?'}]},
+
+  // ── CONFUSING WORD PAIRS ────────────────────────────────────
+  {cat:'Confusing',words:'biết vs hiểu',eng:'know vs understand',note:'biết = know a fact or person (Tôi biết anh ấy = I know him). hiểu = comprehend (Tôi hiểu rồi = I understand now).',examples:[]},
+  {cat:'Confusing',words:'thích vs yêu',eng:'like vs love',note:'thích = like (things, activities, food). yêu = love (romantic or deep). Do NOT use yêu casually — it implies romantic love.',examples:[
+    {vn:'Tôi thích cà phê.',en:'I like coffee.'},
+    {vn:'Tôi yêu Việt Nam.',en:'I love Vietnam.'}]},
+  {cat:'Confusing',words:'nói vs nói chuyện',eng:'speak vs chat',note:'nói = say/speak (one-way). nói chuyện = have a conversation (two-way). Use nói chuyện for chatting.',examples:[]},
+  {cat:'Confusing',words:'là',eng:'to be (only noun=noun)',note:'Use là ONLY for noun = noun. Subject + adjective drops là. Anh ấy cao ✓ (He is tall, no là). Anh ấy là bác sĩ ✓ (He is a doctor, là required).',examples:[
+    {vn:'Trời đẹp.',en:'The weather is nice. (no là)'},
+    {vn:'Đây là nhà tôi.',en:'This is my house. (là required)'}]},
+  {cat:'Confusing',words:'cơm',eng:'rice / meal (dual meaning)',note:'Literally "cooked rice" but often means "meal" in context. Ăn cơm = have a meal (not necessarily rice). Bạn ăn cơm chưa? = Have you eaten?',examples:[]},
+  {cat:'Confusing',words:'nước',eng:'water / country',note:'Two meanings by context. Một ly nước = a glass of water. Nước Việt Nam = the country of Vietnam.',examples:[]},
+  {cat:'Confusing',words:'đường',eng:'street / sugar',note:'Same spelling, different context. Đường Lê Quang Đạo = Le Quang Dao street. Cà phê đường = coffee with sugar.',examples:[]},
+];
+
+var guideCat='all';
+function renderGuide(){
+  var list=document.getElementById('guideList');
+  var catBar=document.getElementById('guideCategories');
+  var q=((document.getElementById('guideSearch')||{}).value||'').toLowerCase();
+  if(!list||!catBar)return;
+
+  // Build category chips (once, or always — it's cheap)
+  var cats={}; GUIDE_ENTRIES.forEach(function(e){cats[e.cat]=(cats[e.cat]||0)+1;});
+  catBar.innerHTML='';
+  var allChip=document.createElement('div');
+  allChip.className='chip'+(guideCat==='all'?' active':'');
+  allChip.textContent='All ('+GUIDE_ENTRIES.length+')';
+  allChip.onclick=function(){guideCat='all';renderGuide();};
+  catBar.appendChild(allChip);
+  Object.keys(cats).forEach(function(cat){
+    var ch=document.createElement('div');
+    ch.className='chip'+(guideCat===cat?' active':'');
+    ch.textContent=cat+' ('+cats[cat]+')';
+    ch.onclick=function(){guideCat=cat;renderGuide();};
+    catBar.appendChild(ch);
+  });
+
+  // Filter entries
+  var filtered=GUIDE_ENTRIES.filter(function(e){
+    if(guideCat!=='all'&&e.cat!==guideCat)return false;
+    if(!q)return true;
+    var hay=(e.words+' '+e.eng+' '+e.note+' '+(e.examples||[]).map(function(x){return x.vn+' '+x.en;}).join(' ')).toLowerCase();
+    return hay.indexOf(q)>=0;
+  });
+
+  list.innerHTML='';
+  if(!filtered.length){
+    list.innerHTML='<div style="text-align:center;color:var(--text3);padding:20px;">No entries found</div>';
+    return;
+  }
+  filtered.forEach(function(e){
+    var card=document.createElement('div');
+    card.style.cssText='background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--r10);padding:12px;margin-bottom:10px;';
+    var header='<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;flex-wrap:wrap;">'+
+      '<div style="font-size:17px;font-weight:700;color:var(--amber);">'+e.words+'</div>'+
+      '<div style="font-size:13px;color:var(--cyan);font-style:italic;">'+e.eng+'</div>'+
+      '<div style="font-size:10px;color:var(--text3);margin-left:auto;text-transform:uppercase;letter-spacing:0.5px;">'+e.cat+'</div>'+
+      '</div>';
+    var noteHtml='<div style="font-size:13px;color:var(--text);line-height:1.5;margin-bottom:8px;">'+highlightTipViet(e.note)+'</div>';
+    var exHtml='';
+    if(e.examples&&e.examples.length){
+      exHtml='<div style="border-top:0.5px solid var(--border);padding-top:8px;">';
+      e.examples.forEach(function(ex){
+        var dw=ex.vn.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+        exHtml+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">'+
+          '<button class="guide-say" data-text="'+dw+'" style="background:var(--bg3);border:0.5px solid var(--border);color:var(--cyan);font-size:13px;padding:3px 8px;border-radius:6px;cursor:pointer;flex-shrink:0;">🔊</button>'+
+          '<div style="flex:1;min-width:0;">'+
+          '<div style="font-size:14px;color:var(--amber);font-weight:500;">'+ex.vn+'</div>'+
+          '<div style="font-size:12px;color:var(--text2);">'+ex.en+'</div>'+
+          '</div></div>';
+      });
+      exHtml+='</div>';
+    }
+    card.innerHTML=header+noteHtml+exHtml;
+    list.appendChild(card);
+  });
+  // Wire up speaker buttons
+  list.querySelectorAll('.guide-say').forEach(function(btn){
+    btn.onclick=function(e){e.stopPropagation();ttsSpeak(btn.getAttribute('data-text'),'vi-VN');};
+  });
 }
 
 // INIT
